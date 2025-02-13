@@ -14,7 +14,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "p_lcoation")
+@Table(name = "p_location")
 public class Location extends TimeStamped{
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
