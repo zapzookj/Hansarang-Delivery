@@ -22,10 +22,10 @@ public class AI_response extends TimeStamped{
     @Column(name = "ai_response_id", columnDefinition = "uuid", updatable = false, nullable = false)
     private UUID id; // 고유 식별자
 
-    @Column(name = "request_test", columnDefinition = "TEXT", nullable = false)
+    @Column(name = "request_text", columnDefinition = "TEXT", nullable = false)
     private String request_text;
 
-    @Column(name = "request_test", columnDefinition = "TEXT")
+    @Column(name = "response_text", columnDefinition = "TEXT")
     private String response_text;
 
 }
