@@ -13,8 +13,8 @@ import lombok.NoArgsConstructor;
 @Table(name = "p_category")
 public class CategoryEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(updatable = false)
+    private UUID id;
 
     @NotBlank
     private String name;
