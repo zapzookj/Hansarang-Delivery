@@ -7,7 +7,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.util.UUID;
 import lombok.Getter;
@@ -28,9 +27,9 @@ public class Restaurant extends TimeStamped{
     @Column(name = "restaurant_name",nullable = false, length = 100)
     private String name; // 가게 이름
 
-    @OneToOne
-    @JoinColumn(name="categories_id",nullable = false)
-    private CategoryEntity category; // 카테고리
+    @ManyToOne
+    @JoinColumn(name="categoriy_id",nullable = false)
+    private Category category; // 카테고리
 
     @ManyToOne
     @JoinColumn(name="location_id",nullable = false)
