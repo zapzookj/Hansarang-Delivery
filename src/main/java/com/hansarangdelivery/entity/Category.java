@@ -15,7 +15,8 @@ import java.util.UUID;
 @Table(name = "p_category")
 public class Category {
     @Id
-    @Column(updatable = false)
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "category_id", columnDefinition = "uuid")
     private UUID id;
 
     @NotBlank
