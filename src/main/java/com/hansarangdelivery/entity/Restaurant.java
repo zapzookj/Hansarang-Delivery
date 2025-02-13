@@ -23,10 +23,10 @@ public class Restaurant extends TimeStamped{
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "restaurant_id", columnDefinition = "uuid", updatable = false, nullable = false)
-    private UUID restaurantId; // 고유 식별자
+    private UUID id; // 고유 식별자
 
-    @Column(nullable = false, length = 100)
-    private String restaurantName; // 가게 이름
+    @Column(name = "restaurant_name",nullable = false, length = 100)
+    private String name; // 가게 이름
 
     @OneToOne
     @JoinColumn(name="categories_id",nullable = false)
