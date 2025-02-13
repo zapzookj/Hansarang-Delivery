@@ -28,7 +28,7 @@ public class Restaurant extends TimeStamped{
     private String name; // 가게 이름
 
     @ManyToOne
-    @JoinColumn(name="categoriy_id",nullable = false)
+    @JoinColumn(name="category_id",nullable = false)
     private Category category; // 카테고리
 
     @ManyToOne
