@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -27,12 +30,25 @@ public class User extends TimeStamped{
     private String email;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private UserRole role;  // CUSTOMER, OWNER, MANAGER, MASTER
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DeliveryLocation> deliveries = new ArrayList<>();
 
     public User(String username, String password, String email, UserRole role) {
         this.username = username;
         this.password = password;
         this.email = email;
         this.role = role;
+    }
+
+    public void updateProfile(String username, String email) {
+        this.username = username;
+        this.email = email;
+    }
+
+    public void updateRole() {
+        this.role = UserRole.MANAGER;
     }
 }
