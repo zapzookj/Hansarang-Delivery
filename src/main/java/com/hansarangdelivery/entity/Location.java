@@ -20,9 +20,12 @@ import lombok.Setter;
 public class Location extends TimeStamped{
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "location_id", columnDefinition = "uuid")
-    private UUID locationId;
+    @Column(name = "id", columnDefinition = "uuid")
+    private UUID id;
 
-    @Column(name = "location" ,length = 100, nullable = false)
-    private String locationName;
+    @Column(name = "location_code")
+    private Long location_code;
+
+    @Column(name = "location" ,length = 255, nullable = false)
+    private String location;
 }
