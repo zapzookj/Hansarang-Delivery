@@ -32,17 +32,10 @@ public class OrderItem extends TimeStamped {
     private Order order;
 
 
-
-    @ManyToOne
-    @JoinColumn(name = "menu_id", nullable = false)
-    private MenuItem menuItem;
-
-
-    public OrderItem(int quantity, int price, Order order, MenuItem menuItem) {
+    public OrderItem(int quantity, int price, Order order) {
         this.quantity = quantity;
         this.price = price;
         this.order = order;
-        this.menuItem = menuItem;
     }
 
 }
