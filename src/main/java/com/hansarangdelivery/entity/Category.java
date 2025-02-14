@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.util.UUID;
 
@@ -13,11 +14,12 @@ import java.util.UUID;
 @AllArgsConstructor
 @Entity
 @Table(name = "p_category")
-public class Category {
+public class Category extends TimeStamped{
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "category_id", columnDefinition = "uuid")
+    @UuidGenerator
+    @Column(columnDefinition = "UUID", updatable = false, nullable = false)
     private UUID id;
+
 
     @NotBlank
     private String name;
