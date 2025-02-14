@@ -5,6 +5,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -18,8 +20,8 @@ public class Order extends TimeStamped {
     @Column(name = "order_id", columnDefinition = "uuid")
     private UUID id;
 
-    @Column(name = "store_id" ,length = 100, nullable = false)
-    private String name;
+    @Column(name = "store_name" ,length = 100, nullable = false)
+    private String storeName;
 
     @Column(name ="total_price",nullable = false)
     private int price;
@@ -33,6 +35,18 @@ public class Order extends TimeStamped {
 
     @Column(name = "delivery_request", length = 100, nullable = false)
     private String deliveryRequest;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItem> orderItems;
+
+    public Order(String storeName, int price, OrderStatus status, String deliveryAddress, String deliveryRequest) {
+        this.storeName = storeName;
+        this.price = price;
+        this.status = status;
+        this.deliveryAddress = deliveryAddress;
+        this.deliveryRequest = deliveryRequest;
+        this.orderItems = new ArrayList<>(); // 생성자에서 초기화
+    }
 
 
 }
