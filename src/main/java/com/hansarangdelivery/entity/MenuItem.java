@@ -8,10 +8,11 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@Entity
+@Entity(name="p_menu_item")
 public class MenuItem extends TimeStamped{
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(updatable = false)
     private UUID id;
 
@@ -22,6 +23,6 @@ public class MenuItem extends TimeStamped{
     private Integer price;
 
     @ManyToOne
-    @JoinColumn(name="restaurant_id")
+    @JoinColumn(name="p_restaurant_id")
     private Restaurant restaurant;
 }
