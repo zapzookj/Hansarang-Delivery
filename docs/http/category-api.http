@@ -1,0 +1,12 @@
+POST http://localhost:8080/api/categories
+Content-Type: application/json
+
+{
+  "name":"양식"
+}
+
+###
+# @name 카테고리 검색
+GET http://localhost:8080/api/categories/search?name=양식
+Content-Type: application/json
+
