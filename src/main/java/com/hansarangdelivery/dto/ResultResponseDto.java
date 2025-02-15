@@ -1,8 +1,6 @@
 package com.hansarangdelivery.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
@@ -15,5 +13,6 @@ public class ResultResponseDto<D> {
     public ResultResponseDto(String message, int statusCode){
         this.message = message;
         this.statusCode = statusCode;
+        this.data = null;
     }
 }
