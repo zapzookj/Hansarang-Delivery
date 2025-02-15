@@ -27,12 +27,11 @@ public class Restaurant extends TimeStamped{
     @Column(name = "name",nullable = false, length = 255)
     private String name; // 가게 이름
 
-    @ManyToOne
-    @JoinColumn(name="category_id",nullable = false)
-    private Category category; // 카테고리
+    @Column(name="category_id",nullable = false)
+    private UUID category; // 카테고리
 
 
-    @JoinColumn(name="location",nullable = false)
+    @Column(name="location",nullable = false)
     private Long location; // 위치코드
 
 
