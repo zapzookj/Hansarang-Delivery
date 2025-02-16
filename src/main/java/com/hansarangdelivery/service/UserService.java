@@ -29,7 +29,7 @@ public class UserService {
         String username = requestDto.getUsername();
         String password = passwordEncoder.encode(requestDto.getPassword());
         String email = requestDto.getEmail();
-        UserRole role = requestDto.getRole();
+        UserRole role = requestDto.getRole(); //사용자가 입력 x -> 기본값 customer로 지정
 
         validateInfo(username, email);
 
