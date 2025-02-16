@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,6 +26,7 @@ public class RestaurantController {
     private final RestaurantService restaurantService;
 
     @PostMapping
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
     // 레스토랑 등록
     public ResponseEntity<ResultResponseDto> registerRestaurant(
         @RequestBody @Valid RestaurantRequestDto requestDto) {
@@ -42,6 +44,7 @@ public class RestaurantController {
     }
 
     @PutMapping("/{restaurantId}")
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
     // 레스토랑 단건 수정
     public ResponseEntity<ResultResponseDto> updateRestaurant(
         @PathVariable UUID restaurantId,
@@ -51,6 +54,7 @@ public class RestaurantController {
     }
 
     @DeleteMapping("/{restaurantId}")
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
     // 레스토랑 단건 삭제 - 삭제자와 삭제 시간 설정
     public ResponseEntity<ResultResponseDto> deleteRestaurant(@PathVariable UUID restaurantId) {
         restaurantService.deactivateRestaurant(restaurantId);
