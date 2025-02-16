@@ -1,6 +1,5 @@
 package com.hansarangdelivery.service;
 
-import com.hansarangdelivery.dto.PageRequestDto;
 import com.hansarangdelivery.dto.SignupRequestDto;
 import com.hansarangdelivery.dto.UserResponseDto;
 import com.hansarangdelivery.dto.UserUpdateDto;
@@ -58,10 +57,7 @@ public class UserService {
         return new UserResponseDto(user);
     }
 
-    public Page<UserResponseDto> getAllProfile(PageRequestDto requestDto) {
-        int page = requestDto.getPage()-1; // 0부터 시작하도록
-        int size = requestDto.getSize();
-        boolean isAsc = requestDto.isAsc();
+    public Page<UserResponseDto> getAllProfile(int page, int size, boolean isAsc) {
 
         Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
         Sort sort = Sort.by(direction, "createdAt");

@@ -33,8 +33,10 @@ public class UserController {
 
     @GetMapping()
     @PreAuthorize("hasRole('ROLE_MANAGER')")
-    public ResponseEntity<ResultResponseDto<Page<UserResponseDto>>> getAllProfile(@RequestBody PageRequestDto requestDto) {
-        Page<UserResponseDto> responseDtoPage = userService.getAllProfile(requestDto);
+    public ResponseEntity<ResultResponseDto<Page<UserResponseDto>>> getAllProfile(@RequestParam("page") int page,
+                                                                                  @RequestParam("size") int size,
+                                                                                  @RequestParam("isAsc") boolean isAsc) {
+        Page<UserResponseDto> responseDtoPage = userService.getAllProfile(page-1, size, isAsc);
         return ResponseEntity.status(200).body(new ResultResponseDto<>("조회 성공",200, responseDtoPage));
     }
 
