@@ -1,6 +1,7 @@
 package com.hansarangdelivery.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -33,6 +34,11 @@ public class Order extends TimeStamped {
     @Column(nullable = false)
     private OrderStatus status;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private OrderType orderType;
+
+
     @Column(name = "delivery_address", length = 100, nullable = false)
     private String deliveryAddress;
 
@@ -43,9 +49,10 @@ public class Order extends TimeStamped {
     @JsonManagedReference
     private List<OrderItem> orderItems = new ArrayList<>();
 
-    public Order(String storeName, int totalPrice, OrderStatus status, String deliveryAddress, String deliveryRequest, List<OrderItem> orderItems) {
+    public Order(String storeName, int totalPrice,OrderType orderType, OrderStatus status, String deliveryAddress, String deliveryRequest, List<OrderItem> orderItems) {
         this.storeName = storeName;
         this.totalPrice = totalPrice;
+        this.orderType = orderType;
         this.status = status;
         this.deliveryAddress = deliveryAddress;
         this.deliveryRequest = deliveryRequest;
