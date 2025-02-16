@@ -1,6 +1,5 @@
 package com.hansarangdelivery.service;
 
-import com.hansarangdelivery.dto.PageRequestDto;
 import com.hansarangdelivery.dto.SignupRequestDto;
 import com.hansarangdelivery.dto.UserResponseDto;
 import com.hansarangdelivery.dto.UserUpdateDto;
@@ -9,6 +8,7 @@ import com.hansarangdelivery.entity.UserRole;
 import com.hansarangdelivery.repository.UserRepository;
 import com.hansarangdelivery.repository.UserRepositoryQueryImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,13 +25,26 @@ public class UserService {
     private final UserRepositoryQueryImpl userRepositoryQuery;
     private final PasswordEncoder passwordEncoder;
 
+    @Value("${admin.code}")
+    private String adminCode;
+
     public void signup(SignupRequestDto requestDto) {
         String username = requestDto.getUsername();
         String password = passwordEncoder.encode(requestDto.getPassword());
         String email = requestDto.getEmail();
-        UserRole role = requestDto.getRole();
+        UserRole role = requestDto.getRole(); //사용자가 입력 x -> 기본값 customer로 지정
 
         validateInfo(username, email);
+        
+        if (role == null) {
+            role = UserRole.CUSTOMER;
+        } else if (role.equals(UserRole.MANAGER)) {
+            throw new IllegalArgumentException("선택 불가능한 Role 입니다.");            
+        } else if (role.equals(UserRole.MASTER)) {
+            if (!adminCode.equals(requestDto.getAdminCode())) {
+                throw new IllegalArgumentException("어드민 코드가 틀려 등록이 불가능 합니다.");
+            }
+        }
 
         // 사용자 등록
         User user = new User(username, password, email, role);
@@ -44,10 +57,7 @@ public class UserService {
         return new UserResponseDto(user);
     }
 
-    public Page<UserResponseDto> getAllProfile(PageRequestDto requestDto) {
-        int page = requestDto.getPage()-1; // 0부터 시작하도록
-        int size = requestDto.getSize();
-        boolean isAsc = requestDto.isAsc();
+    public Page<UserResponseDto> getAllProfile(int page, int size, boolean isAsc) {
 
         Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
         Sort sort = Sort.by(direction, "createdAt");

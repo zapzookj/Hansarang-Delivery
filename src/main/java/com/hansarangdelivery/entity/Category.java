@@ -23,6 +23,7 @@ public class Category extends TimeStamped{
 
     @NotBlank
     private String name;
+
 }
 
 
