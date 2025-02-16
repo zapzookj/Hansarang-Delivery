@@ -20,7 +20,7 @@ public class Review extends TimeStamped {
     private UUID id;
 
     @Column(nullable = false, unique = true, updatable = false)
-    private UUID order_id;
+    private UUID orderId;
 
     @Column(nullable = false)
     private String content;
@@ -29,7 +29,12 @@ public class Review extends TimeStamped {
     private int rating;
 
     public Review(UUID orderId, String content, int rating) {
-        this.order_id = orderId;
+        this.orderId = orderId;
+        this.content = content;
+        this.rating = rating;
+    }
+
+    public void update(String content, int rating) {
         this.content = content;
         this.rating = rating;
     }
