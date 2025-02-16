@@ -2,12 +2,14 @@ package com.hansarangdelivery.entity;
 
 
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
 
 @NoArgsConstructor
+@Getter
 @Entity
 @Table(name = "p_location")
 public class Location {
