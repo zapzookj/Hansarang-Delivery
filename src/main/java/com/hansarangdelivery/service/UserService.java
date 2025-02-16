@@ -9,6 +9,7 @@ import com.hansarangdelivery.entity.UserRole;
 import com.hansarangdelivery.repository.UserRepository;
 import com.hansarangdelivery.repository.UserRepositoryQueryImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +26,9 @@ public class UserService {
     private final UserRepositoryQueryImpl userRepositoryQuery;
     private final PasswordEncoder passwordEncoder;
 
+    @Value("${admin.code}")
+    private String adminCode;
+
     public void signup(SignupRequestDto requestDto) {
         String username = requestDto.getUsername();
         String password = passwordEncoder.encode(requestDto.getPassword());
@@ -32,6 +36,16 @@ public class UserService {
         UserRole role = requestDto.getRole();
 
         validateInfo(username, email);
+        
+        if (role == null) {
+            role = UserRole.CUSTOMER;
+        } else if (role.equals(UserRole.MANAGER)) {
+            throw new IllegalArgumentException("선택 불가능한 Role 입니다.");            
+        } else if (role.equals(UserRole.MASTER)) {
+            if (!adminCode.equals(requestDto.getAdminCode())) {
+                throw new IllegalArgumentException("어드민 코드가 틀려 등록이 불가능 합니다.");
+            }
+        }
 
         // 사용자 등록
         User user = new User(username, password, email, role);

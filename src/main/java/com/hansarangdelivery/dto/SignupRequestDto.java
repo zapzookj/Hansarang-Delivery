@@ -29,5 +29,6 @@ public class SignupRequestDto {
     private String email;
 
     private UserRole role;
+    private String adminCode = "";
 
 }
