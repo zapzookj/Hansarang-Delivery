@@ -1,9 +1,11 @@
 package com.hansarangdelivery.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +13,7 @@ import java.util.UUID;
 
 @Entity
 @Getter
+@Setter
 @Table(name = "p_order")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Order extends TimeStamped {
@@ -20,11 +23,11 @@ public class Order extends TimeStamped {
     @Column(name = "order_id", columnDefinition = "uuid")
     private UUID id;
 
-    @Column(name = "store_name" ,length = 100, nullable = false)
+    @Column(name = "store_name", length = 100, nullable = false)
     private String storeName;
 
-    @Column(name ="total_price",nullable = false)
-    private int price;
+    @Column(name = "total_price", nullable = false)
+    private int totalPrice;
 
     @Enumerated(EnumType.STRING) // Enum을 문자열로 저장
     @Column(nullable = false)
@@ -36,16 +39,18 @@ public class Order extends TimeStamped {
     @Column(name = "delivery_request", length = 100, nullable = false)
     private String deliveryRequest;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderItem> orderItems;
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<OrderItem> orderItems = new ArrayList<>();
 
-    public Order(String storeName, int price, OrderStatus status, String deliveryAddress, String deliveryRequest) {
+    public Order(String storeName, int totalPrice, OrderStatus status, String deliveryAddress, String deliveryRequest, List<OrderItem> orderItems) {
         this.storeName = storeName;
-        this.price = price;
+        this.totalPrice = totalPrice;
         this.status = status;
         this.deliveryAddress = deliveryAddress;
         this.deliveryRequest = deliveryRequest;
-        this.orderItems = new ArrayList<>(); // 생성자에서 초기화
+        this.orderItems = (orderItems != null) ? orderItems : new ArrayList<>(); // 생성자에서 초기화
+        this.orderItems.forEach(item -> item.setOrder(this));
     }
 
 
