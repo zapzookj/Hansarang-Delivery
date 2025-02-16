@@ -56,4 +56,10 @@ public class Restaurant extends TimeStamped{
         return this.status;
     }
 
+    public void update(String name, UUID categoryId, UUID ownerId, UUID locationId) {
+        this.name = name;
+        this.category = categoryId;
+        this.owner = ownerId;
+        this.location = locationId;
+    }
 }
