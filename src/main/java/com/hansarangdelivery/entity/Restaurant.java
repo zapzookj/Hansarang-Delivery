@@ -33,7 +33,6 @@ public class Restaurant extends TimeStamped{
     @Column(name="category_id",nullable = false)
     private UUID category; // 카테고리
 
-
     @JoinColumn(name="owner_id",nullable = false)
     private UUID owner; // 소유자
 
@@ -52,5 +51,6 @@ public class Restaurant extends TimeStamped{
         this.location = locationId; // locationId로 초기화
         this.status = false; // 초기 상태를 '닫음'으로 설정
     }
+
 
 }
