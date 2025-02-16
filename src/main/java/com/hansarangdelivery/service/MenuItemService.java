@@ -6,6 +6,7 @@ import com.hansarangdelivery.dto.ResultResponseDto;
 import com.hansarangdelivery.entity.MenuItem;
 import com.hansarangdelivery.entity.Restaurant;
 import com.hansarangdelivery.repository.MenuItemRepository;
+import com.hansarangdelivery.repository.RestaurantRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,8 @@ public class MenuItemService {
     private final RestaurantRepository restaurantRepository;
 
     public ResponseEntity<ResultResponseDto> addMenuItem(MenuItemRequestDto requestDto) {
-        Restaurant restaurant = restaurantRepository.findById(requestDto.getRestaurantId());
+        Restaurant restaurant = restaurantRepository.findById(requestDto.getRestaurantId()).orElseThrow(
+            () -> new IllegalArgumentException("존재하지 않는 메뉴입니다."));;
 
         MenuItem menuItem = new MenuItem(
             requestDto.getName(), requestDto.getPrice(), restaurant
