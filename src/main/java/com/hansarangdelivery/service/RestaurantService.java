@@ -96,7 +96,10 @@ public class RestaurantService {
     }
 
     public Page<RestaurantResponseDto> searchRestaurants(int page, int size, String sort, String direction , String search) {
-        //  름식점을 찾는 메서드
+        //  음식점을 찾는 메서드
+
+        page = page-1;
+
         // 파라미터 유효성 검사(size, sort, direction)
         if (size != 10 && size != 30 && size != 50) {
             size = 10; // 허용되지 않은 size는 기본값 10으로 설정

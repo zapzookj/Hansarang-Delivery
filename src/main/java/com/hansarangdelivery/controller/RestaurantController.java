@@ -68,7 +68,7 @@ public class RestaurantController {
 
     @GetMapping("/search")
     public ResultResponseDto<Page<RestaurantResponseDto>> searchRestaurants(
-        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "1") int page,
         @RequestParam(defaultValue = "10") int size,
         @RequestParam(defaultValue = "createdAt") String sort,
         @RequestParam(defaultValue = "desc") String direction,
