@@ -1,32 +1,48 @@
 package com.hansarangdelivery.entity;
 
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import java.util.UUID;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
+import java.util.UUID;
+
+
 @NoArgsConstructor
+@Getter
 @Entity
 @Table(name = "p_location")
-public class Location extends TimeStamped{
+public class Location {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", columnDefinition = "uuid")
-    private UUID id; // 고유 식별자
+    @Column(updatable = false, insertable = false)
+    private UUID id;
 
-    @Column(name = "location_code")
-    private Long location_code; // 위치 코드
-    // (법정동 코드 ex)111010100 서울특별시(시도+시군구 11110) 종로구(110) 청운효자동(101) 리 없어서 생략(00) )
+    @Column(updatable = false, insertable = false, nullable = false, length = 20)
+    private String lawCode; // 법정동 코드
 
-    @Column(name = "location" ,length = 255, nullable = false)
-    private String location; // 상세주소
+    @Column(updatable = false, insertable = false, nullable = false, length = 50)
+    private String city; // 시도명
+
+    @Column(updatable = false, insertable = false, nullable = false, length = 50)
+    private String district; // 시군구명
+
+    @Column(updatable = false, insertable = false, nullable = false, length = 50)
+    private String subDistrict; // 법정읍면동명
+
+    @Column(updatable = false, insertable = false, length = 10)
+    private String mainLotNumber; // 지번본번(번지)
+
+    @Column(updatable = false, insertable = false, length = 10)
+    private String subLotNumber; // 지번부번(호)
+
+    @Column(updatable = false, insertable = false, nullable = false)
+    private String roadNameCode; // 도로명 코드
+
+    @Column(updatable = false, insertable = false, length = 10)
+    private String buildingMainNumber; // 건물 본번
+
+    @Column(updatable = false, insertable = false, length = 10)
+    private String buildingSubNumber; // 건물 부번
 }
