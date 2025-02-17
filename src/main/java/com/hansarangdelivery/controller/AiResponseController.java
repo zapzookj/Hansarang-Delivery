@@ -20,6 +20,7 @@ public class AiResponseController {
 
     private final AiResponseService aiResponseService;
 
+    // AI 응답 생성 API
     @PostMapping()
     @PreAuthorize("hasRole('ROLE_OWNER') or hasRole('ROLE_MANAGER')")
     public ResultResponseDto<String> createAiResponse(@AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -28,6 +29,7 @@ public class AiResponseController {
         return new ResultResponseDto<>("Ai 응답 생성 성공", 200, response);
     }
 
+    // AI 응답 단건 조회 API (Permission : 본인이 생성한 응답이거나 권한이 MANAGER 인 경우)
     @GetMapping("/{aiResponseId}")
     public ResultResponseDto<AiResponseDto> getAiResponse(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                           @PathVariable("aiResponseId") UUID aiResponseId) {
@@ -35,6 +37,7 @@ public class AiResponseController {
         return new ResultResponseDto<>("조회 성공", 200, aiResponseDto);
     }
 
+    // 본인이 생성한 AI 응답 전체 조회 API
     @GetMapping()
     public ResultResponseDto<Page<AiResponseDto>> searchAiResponses(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                                     @RequestParam("page") int page,
@@ -44,6 +47,7 @@ public class AiResponseController {
         return new ResultResponseDto<>("조회 성공", 200, aiResponseDtos);
     }
 
+    // AI 응답 삭제 API (Permission : 본인이 생성한 응답이거나 권한이 MANAGER 인 경우)
     @DeleteMapping("/{aiResponseId}")
     public ResultResponseDto<Void> deleteAiResponse(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                     @PathVariable("aiResponseId") UUID aiResponseId) {
