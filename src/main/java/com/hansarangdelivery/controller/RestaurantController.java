@@ -7,6 +7,7 @@ import com.hansarangdelivery.service.RestaurantService;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -59,5 +61,28 @@ public class RestaurantController {
     public ResponseEntity<ResultResponseDto> deleteRestaurant(@PathVariable UUID restaurantId) {
         restaurantService.deactivateRestaurant(restaurantId);
         return ResponseEntity.ok(new ResultResponseDto<>("가게 삭제 성공", 200));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ResultResponseDto<Page<RestaurantResponseDto>>> searchRestaurants(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(defaultValue = "createdAt") String sort,
+        @RequestParam(defaultValue = "desc") String direction,
+        @RequestParam(required = false) String search) {
+
+        // 파라미터 유효성 검사(size, sort, direction)
+        if (size != 10 && size != 30 && size != 50) {
+            size = 10; // 허용되지 않은 size는 기본값 10으로 설정
+        }
+        if (!sort.equals("createdAt") && !sort.equals("updatedAt")) {
+            sort = "createdAt"; // 허용되지 않은 정렬 기준은 기본값 createdAt으로 설정
+        }
+        if (!direction.equals("asc") && !direction.equals("desc")) {
+            direction = "desc"; // 허용되지 않은 정렬 방향은 기본값 desc로 설정
+        }
+
+        Page<RestaurantResponseDto> restaurants = restaurantService.searchRestaurants(page, size, sort, direction, search);
+        return ResponseEntity.ok(new ResultResponseDto<>("가게 검색 성공", 200, restaurants));
     }
 }

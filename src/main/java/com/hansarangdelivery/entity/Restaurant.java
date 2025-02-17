@@ -1,17 +1,12 @@
 package com.hansarangdelivery.entity;
 
-import com.hansarangdelivery.dto.RestaurantRequestDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.util.UUID;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -56,10 +51,4 @@ public class Restaurant extends TimeStamped{
         return this.status;
     }
 
-    public void update(String name, UUID categoryId, UUID ownerId, UUID locationId) {
-        this.name = name;
-        this.category = categoryId;
-        this.owner = ownerId;
-        this.location = locationId;
-    }
 }

@@ -12,6 +12,10 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -105,5 +109,19 @@ public class RestaurantService {
         return restaurant;
     }
 
+
+    public Page<RestaurantResponseDto> searchRestaurants(int page, int size, String sort, String direction, String search) {
+        Sort sortBy = Sort.by(direction.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sort);
+        Pageable pageable = PageRequest.of(page, size, sortBy);
+
+        Page<Restaurant> restaurantPage;
+        if (search != null && !search.isEmpty()) {
+            restaurantPage = restaurantRepository.findByNameContainingAndDeletedAtIsNull(search, pageable);
+        } else {
+            restaurantPage = restaurantRepository.findAllByDeletedAtIsNull(pageable);
+        }
+
+        return restaurantPage.map(RestaurantResponseDto::new);
+    }
 
 }
