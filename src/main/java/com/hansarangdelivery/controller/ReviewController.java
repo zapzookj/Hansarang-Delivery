@@ -4,8 +4,10 @@ import com.hansarangdelivery.dto.ResultResponseDto;
 import com.hansarangdelivery.dto.ReviewRequestDto;
 import com.hansarangdelivery.service.ReviewService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 @RestController
@@ -18,7 +20,4 @@ public class ReviewController {
     public ResultResponseDto<Void> addReview(@RequestBody ReviewRequestDto requestDto) {
         return reviewService.addReview(requestDto);
     }
-
-    @GetMapping
-    public ResultResponseDto<List<ReviewResponseDto>>
 }
