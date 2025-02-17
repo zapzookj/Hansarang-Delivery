@@ -3,53 +3,69 @@ package com.hansarangdelivery.service;
 import com.hansarangdelivery.dto.OrderRequestDto;
 import com.hansarangdelivery.dto.OrderResponseDto;
 import com.hansarangdelivery.entity.*;
+import com.hansarangdelivery.repository.MenuItemRepository;
 import com.hansarangdelivery.repository.OrderRepository;
-import jakarta.transaction.Transactional;
+import com.hansarangdelivery.repository.RestaurantRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
-
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final MenuItemRepository menuItemRepository;
+    private final RestaurantRepository restaurantRepository; //  가게 정보 조회
 
     @Transactional
     public void createOrder(OrderRequestDto requestDto) {
-        MenuItem menuItem = new MenuItem();
-        menuItem.setPrice(1000); //테스트용
-        // 1. 주문 항목 생성 및 가격 계산
-        List<OrderItem> orderItems = requestDto.getMenu().stream()
-            .map(menuDto -> new OrderItem(
-                menuDto.getQuantity(),
-                menuItem.getPrice() * menuDto.getQuantity(), // 총 가격 계산
-                null
-                //menuDto.getMenuId()
-            ))
-            .toList();
-        // 2. 총 주문 가격 계산
-        int totalPrice = orderItems.stream().mapToInt(OrderItem::getMenuTotalPrice).sum();
+        Long userId = requestDto.getUserId();
 
-        // 3. 주문 객체 생성
+        Restaurant restaurant = restaurantRepository.findById(requestDto.getStoreId())
+            .orElseThrow(() -> new IllegalArgumentException("해당 가게 ID를 찾을 수 없습니다: " + requestDto.getStoreId()));
+
+        String storeName = restaurant.getName();
+
+        List<OrderItem> orderItems = requestDto.getMenu().stream().map(orderItemDto -> {
+
+            MenuItem menuItem = menuItemRepository.findById(orderItemDto.getMenuId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 메뉴 ID를 찾을 수 없습니다: " + orderItemDto.getMenuId()));
+
+            return new OrderItem(
+                menuItem.getId(),
+                menuItem.getName(),
+                menuItem.getPrice(),
+                orderItemDto.getQuantity(),
+                null
+            );
+        }).collect(Collectors.toList());
+
+        // 주문 총 가격 계산
+        int totalPrice = orderItems.stream()
+            .mapToInt(OrderItem::getMenuTotalPrice)
+            .sum();
+
+        // 주문 객체 생성
         Order order = new Order(
-            requestDto.getStoreName(),
+            userId,
+            requestDto.getStoreId(),
+            storeName, //RestaurantRepository 에서 가져온 storeName 사용
             totalPrice,
-            requestDto.getOrderType(),
-            OrderStatus.SUCCESS, // 기본 상태 SUCCESS 설정
+            OrderType.valueOf(requestDto.getOrderType()),
+            OrderStatus.SUCCESS, // 주문 성공 상태로 변경
             requestDto.getDeliveryAddress(),
             requestDto.getDeliveryRequest(),
             orderItems
         );
-
-        // 4. 주문 항목을 주문과 연결 (OrderItem의 order 필드 설정)
         orderItems.forEach(item -> item.setOrder(order));
 
-        // 5. 주문 저장 (OrderItem도 Cascade.ALL로 인해 자동 저장됨)
         orderRepository.save(order);
+
+        new OrderResponseDto(order);
     }
 
 
@@ -59,4 +75,53 @@ public class OrderService {
         return new OrderResponseDto(order);
     }
 }
+
+//    public void updateOrder(UUID orderId, OrderRequestDto requestDto) {
+//        // 1. 주문 객체 찾기
+//        Order order = findOrder(orderId);
+//
+//        // 2. 주문 정보 업데이트
+//        updateOrderDetails(order, requestDto);
+//
+//        // 3. 메뉴 항목 업데이트
+//        List<OrderItem> updatedItems = convertToOrderItems(requestDto.getMenu(), order);
+//
+//        // 4. 주문에 메뉴 항목 설정
+//        order.setOrderItems(updatedItems);
+//
+//        // 5. 변경된 주문 객체 저장
+//        orderRepository.save(order);
+//    }
+
+//    private void updateOrderDetails(Order order, OrderRequestDto requestDto) {
+//        order.setOrderType(requestDto.getOrderType());
+//        order.setDeliveryAddress(requestDto.getDeliveryAddress());
+//        order.setDeliveryRequest(requestDto.getDeliveryRequest());
+//    }
+//
+//
+//
+//    private List<OrderItem> convertToOrderItems(List<OrderItemDto> menuItems, Order order) {
+//        return menuItems.stream()
+//            .map(itemDto -> new OrderItem(itemDto.getQuantity(), calculateMenuTotalPrice(itemDto), order)) // 메뉴 가격 계산
+//            .collect(Collectors.toList());
+//    }
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//    private Order findOrder(UUID orderId) {
+//        return orderRepository.findById(orderId)
+//            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주문입니다."));
+//    }
+//}
 
