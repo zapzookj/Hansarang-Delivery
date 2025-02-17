@@ -21,7 +21,7 @@ public class ReviewController {
     public ResultResponseDto<Void> addReview(@RequestBody ReviewRequestDto requestDto) {
         return reviewService.addReview(requestDto);
     }
-
+  
     @GetMapping("/{restaurantId}")
     public ResultResponseDto<List<ReviewResponseDto>> readReview(@PathVariable UUID restaurantId) {
         return reviewService.readReview(restaurantId);
