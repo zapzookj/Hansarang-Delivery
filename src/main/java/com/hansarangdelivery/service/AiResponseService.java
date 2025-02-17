@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
@@ -35,6 +36,7 @@ public class AiResponseService {
     private String apiUrl;
 
 
+    @Transactional
     public String createAiResponse(Long userId, AiRequestDto requestDto) {
 
         // Google Ai Studio의 리퀘스트 형식에 맞게 데이터 변환
@@ -65,17 +67,16 @@ public class AiResponseService {
         return response;
     }
 
+    @Transactional(readOnly = true)
     public AiResponseDto getAiResponse(User user, UUID aiResponseId) {
-        AiResponse aiResponse = aiResponseRepository.findById(aiResponseId)
-            .orElseThrow(() -> new IllegalArgumentException("해당 Id를 가진 Ai 응답을 찾을 수 없습니다."));
+        AiResponse aiResponse = findAiResponse(aiResponseId);
 
-        if (!aiResponse.getUserId().equals(user.getId()) || !user.getRole().equals(UserRole.MANAGER)) {
-            throw new IllegalArgumentException("권한이 없습니다.");
-        }
+        checkPermissions(aiResponse, user);
 
         return new AiResponseDto(aiResponse);
     }
 
+    @Transactional(readOnly = true)
     public Page<AiResponseDto> searchAiResponses(User user, int page, int size, boolean isAsc) {
 
         Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
@@ -83,6 +84,15 @@ public class AiResponseService {
         Pageable pageable = PageRequest.of(page, size, sort);
 
         return aiResponseRepository.findByUserId(user.getId(), pageable).map(AiResponseDto::new);
+    }
+
+    @Transactional
+    public void deleteAiResponse(User user, UUID aiResponseId) {
+        AiResponse aiResponse = findAiResponse(aiResponseId);
+
+        checkPermissions(aiResponse, user);
+
+        aiResponseRepository.deleteById(aiResponseId);
     }
 
     private Map<String, Object> setRequest(String requestText) {
@@ -103,5 +113,16 @@ public class AiResponseService {
             .getParts()
             .get(0)
             .getText();
+    }
+
+    private AiResponse findAiResponse(UUID aiResponseId) {
+        return aiResponseRepository.findById(aiResponseId)
+            .orElseThrow(() -> new IllegalArgumentException("해당 Id를 가진 Ai 응답을 찾을 수 없습니다."));
+    }
+
+    private void checkPermissions(AiResponse aiResponse, User user) {
+        if (!aiResponse.getUserId().equals(user.getId()) || !user.getRole().equals(UserRole.MANAGER)) {
+            throw new IllegalArgumentException("권한이 없습니다.");
+        }
     }
 }

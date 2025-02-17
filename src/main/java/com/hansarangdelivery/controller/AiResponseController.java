@@ -43,4 +43,11 @@ public class AiResponseController {
         Page<AiResponseDto> aiResponseDtos = aiResponseService.searchAiResponses(userDetails.getUser(), page, size, isAsc);
         return new ResultResponseDto<>("조회 성공", 200, aiResponseDtos);
     }
+
+    @DeleteMapping("/{aiResponseId}")
+    public ResultResponseDto<Void> deleteAiResponse(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                    @PathVariable("aiResponseId") UUID aiResponseId) {
+        aiResponseService.deleteAiResponse(userDetails.getUser(), aiResponseId);
+        return new ResultResponseDto<>("삭제 성공", 200);
+    }
 }
