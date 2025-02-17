@@ -12,8 +12,8 @@ public class RestaurantResponseDto {
     private boolean status;
 
     public RestaurantResponseDto(Restaurant restaurant) {
-        name = restaurant.getName();
-        location = restaurant.getLocation().toString();
-        status = restaurant.getStatus();
+        this.name = restaurant.getName();
+        this.location = restaurant.getLocation().toString();
+        this.status = restaurant.getStatus();
     }
 }

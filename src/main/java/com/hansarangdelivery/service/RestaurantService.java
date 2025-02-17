@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +32,7 @@ public class RestaurantService {
         UUID locationId = requestDto.getLocation_id();
 
         // 입력 값 검증(가게 이름, 카테고리, 위치 ) TODO: owner에 대한 검증 어떻게 할지
-        if (name == null || name.trim().isEmpty()) {
+        if ((name.equals(StringUtils.hasText(name))) || name.trim().isEmpty()) {
             throw new IllegalArgumentException("가게 이름은 반드시 입력해야 합니다.");
         }
         if (name.length() > 255) {
