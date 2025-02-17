@@ -43,7 +43,7 @@ public class AiResponseController {
                                                                     @RequestParam("page") int page,
                                                                     @RequestParam("size") int size,
                                                                     @RequestParam("isAsc") boolean isAsc) {
-        Page<AiResponseDto> aiResponseDtos = aiResponseService.searchAiResponses(userDetails.getUser(), page, size, isAsc);
+        Page<AiResponseDto> aiResponseDtos = aiResponseService.searchAiResponses(userDetails.getUser(), page-1, size, isAsc);
         return new ResultResponseDto<>("조회 성공", 200, aiResponseDtos);
     }
 
