@@ -18,7 +18,4 @@ public class ReviewController {
     public ResultResponseDto<Void> addReview(@RequestBody ReviewRequestDto requestDto) {
         return reviewService.addReview(requestDto);
     }
-
-    @GetMapping
-    public ResultResponseDto<List<ReviewResponseDto>>
 }
