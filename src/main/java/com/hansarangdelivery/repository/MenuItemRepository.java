@@ -9,5 +9,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface MenuItemRepository extends JpaRepository<MenuItem, UUID> {
-    Optional<List<MenuItem>> findAllByRestaurant(Restaurant restaurant);
+
+    Optional<List<MenuItem>> findAllByRestaurantId(UUID restaurantId);
 }
