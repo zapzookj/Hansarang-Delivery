@@ -2,16 +2,24 @@ package com.hansarangdelivery.service;
 
 import com.hansarangdelivery.dto.AiRequestDto;
 import com.hansarangdelivery.dto.AiApiResponseDto;
+import com.hansarangdelivery.dto.AiResponseDto;
 import com.hansarangdelivery.entity.AiResponse;
+import com.hansarangdelivery.entity.User;
+import com.hansarangdelivery.entity.UserRole;
 import com.hansarangdelivery.repository.AiResponseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -55,6 +63,26 @@ public class AiResponseService {
         aiResponseRepository.save(airesponse);
 
         return response;
+    }
+
+    public AiResponseDto getAiResponse(User user, UUID aiResponseId) {
+        AiResponse aiResponse = aiResponseRepository.findById(aiResponseId)
+            .orElseThrow(() -> new IllegalArgumentException("해당 Id를 가진 Ai 응답을 찾을 수 없습니다."));
+
+        if (!aiResponse.getUserId().equals(user.getId()) || !user.getRole().equals(UserRole.MANAGER)) {
+            throw new IllegalArgumentException("권한이 없습니다.");
+        }
+
+        return new AiResponseDto(aiResponse);
+    }
+
+    public Page<AiResponseDto> searchAiResponses(User user, int page, int size, boolean isAsc) {
+
+        Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction, "createdAt");
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        return aiResponseRepository.findByUserId(user.getId(), pageable).map(AiResponseDto::new);
     }
 
     private Map<String, Object> setRequest(String requestText) {
