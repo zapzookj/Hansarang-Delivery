@@ -31,8 +31,10 @@ import org.springframework.util.StringUtils;
 public class RestaurantService {
     private final RestaurantRepository restaurantRepository;
     private final RestaurantRepositoryImpl restaurantRepositoryQuery;
-    private final CategoryRepository categoryRepository;
-    private final LocationRepository locationRepository;
+
+    private final CategoryService categoryService;
+    private final LocationService locationService;
+
 
     public void register(RestaurantRequestDto requestDto) {
         String name = requestDto.getName();
@@ -47,11 +49,11 @@ public class RestaurantService {
         if (name.length() > 255) {
             throw new IllegalArgumentException("가게 이름은 255자 이내여야 합니다.");
         }
-        if (categoryId == null || !categoryRepository.existsById(categoryId)) {
+        if (categoryId == null || !categoryService.existsById(categoryId)) {
             throw new IllegalArgumentException("유효하지 않은 카테고리입니다.");
         }
 
-        if (locationId == null || !locationRepository.existsById(locationId)) {
+        if (locationId == null || !locationService.existsById(locationId)) {
             throw new IllegalArgumentException("유효하지 않은 위치입니다.");
         }
 
