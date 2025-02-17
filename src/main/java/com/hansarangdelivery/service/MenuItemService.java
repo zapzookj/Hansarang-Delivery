@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -76,4 +77,10 @@ public class MenuItemService {
             new ResultResponseDto("수정되었습니다.", 201)
         );
     }
+
+    public MenuItem getMenuById(UUID menuId) {
+        return menuItemRepository.findById(menuId)
+            .orElseThrow(() -> new IllegalArgumentException("해당 ID의 메뉴를 찾을 수 없습니다: " + menuId));
+    }
+
 }

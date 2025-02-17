@@ -3,12 +3,11 @@ package com.hansarangdelivery.service;
 import com.hansarangdelivery.dto.OrderRequestDto;
 import com.hansarangdelivery.dto.OrderResponseDto;
 import com.hansarangdelivery.entity.*;
-import com.hansarangdelivery.repository.MenuItemRepository;
 import com.hansarangdelivery.repository.OrderRepository;
-import com.hansarangdelivery.repository.RestaurantRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -18,22 +17,20 @@ import java.util.stream.Collectors;
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final MenuItemRepository menuItemRepository;
-    private final RestaurantRepository restaurantRepository; //  가게 정보 조회
+    private final MenuItemService menuItemService;
+    private final RestaurantService restaurantService; //  가게 정보 조회
 
     @Transactional
     public void createOrder(OrderRequestDto requestDto) {
         Long userId = requestDto.getUserId();
 
-        Restaurant restaurant = restaurantRepository.findById(requestDto.getStoreId())
-            .orElseThrow(() -> new IllegalArgumentException("해당 가게 ID를 찾을 수 없습니다: " + requestDto.getStoreId()));
+        Restaurant restaurant = restaurantService.getRestaurantById(requestDto.getStoreId());
 
         String storeName = restaurant.getName();
 
         List<OrderItem> orderItems = requestDto.getMenu().stream().map(orderItemDto -> {
 
-            MenuItem menuItem = menuItemRepository.findById(orderItemDto.getMenuId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 메뉴 ID를 찾을 수 없습니다: " + orderItemDto.getMenuId()));
+            MenuItem menuItem = menuItemService.getMenuById(orderItemDto.getMenuId());
 
             return new OrderItem(
                 menuItem.getId(),
