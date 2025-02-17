@@ -2,7 +2,6 @@ package com.hansarangdelivery.service;
 
 import com.hansarangdelivery.dto.OrderRequestDto;
 import com.hansarangdelivery.dto.OrderResponseDto;
-import com.hansarangdelivery.dto.UserResponseDto;
 import com.hansarangdelivery.entity.*;
 import com.hansarangdelivery.repository.OrderRepository;
 import jakarta.transaction.Transactional;
@@ -39,6 +38,7 @@ public class OrderService {
         Order order = new Order(
             requestDto.getStoreName(),
             totalPrice,
+            requestDto.getOrderType(),
             OrderStatus.SUCCESS, // 기본 상태 SUCCESS 설정
             requestDto.getDeliveryAddress(),
             requestDto.getDeliveryRequest(),
