@@ -3,14 +3,17 @@ package com.hansarangdelivery.service;
 import com.hansarangdelivery.dto.OrderItemRequestDto;
 import com.hansarangdelivery.dto.OrderRequestDto;
 import com.hansarangdelivery.dto.OrderResponseDto;
+import com.hansarangdelivery.dto.ResultResponseDto;
 import com.hansarangdelivery.entity.*;
 import com.hansarangdelivery.entity.MenuItem;
 import com.hansarangdelivery.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.awt.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -118,11 +121,42 @@ public class OrderService {
         orderRepository.save(order);
     }
 
+    @Transactional
+    public void deleteOrder(UUID orderId, User user) {
+        Order order = findOrder(orderId);
+
+        // 주문이 생성된 시각
+        LocalDateTime createdAt = order.getCreatedAt();
+
+        // 현재 시각
+        LocalDateTime now = LocalDateTime.now();
+
+        // 주문이 5분이 초과되었는지 검사
+        if (createdAt.plusMinutes(5).isBefore(now)) {
+            throw new IllegalArgumentException();
+        }
+
+        // 주문 취소 처리
+        order.delete(now, user.getId().toString());
+
+        // 주문 상태 변경 (예: CANCELED)
+        order.setOrderStatus(OrderStatus.CANCELED);
+
+
+        // 변경 사항 저장
+        orderRepository.save(order);
+    }
+
+
+
+
 
 
     private Order findOrder(UUID orderId) {
         return orderRepository.findById(orderId)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주문입니다."));
     }
+
+
 }
 

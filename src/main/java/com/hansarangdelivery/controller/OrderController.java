@@ -3,10 +3,13 @@ package com.hansarangdelivery.controller;
 import com.hansarangdelivery.dto.OrderRequestDto;
 import com.hansarangdelivery.dto.OrderResponseDto;
 import com.hansarangdelivery.dto.ResultResponseDto;
+import com.hansarangdelivery.security.UserDetailsImpl;
 import com.hansarangdelivery.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -38,6 +41,18 @@ public class OrderController {
 
 
     }
+
+    @DeleteMapping("{orderId}")
+    public ResponseEntity<ResultResponseDto<Void>> updateOrder(@PathVariable("orderId") UUID orderId,@AuthenticationPrincipal UserDetailsImpl userDetails){
+        try {
+            orderService.deleteOrder(orderId, userDetails.getUser());
+            return ResponseEntity.ok(new ResultResponseDto("주문이 취소되었습니다.",200));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ResultResponseDto("주문 취소 불가능합니다.", 400));
+        }
+    }
+
+
 
 
 }

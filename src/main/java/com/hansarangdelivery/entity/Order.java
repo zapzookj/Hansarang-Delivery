@@ -6,6 +6,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.lang.Contract;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -65,4 +67,11 @@ public class Order extends TimeStamped {
         this.orderItems = (orderItems != null) ? orderItems : new ArrayList<>();
         this.orderItems.forEach(item -> item.setOrder(this));
     }
-}
+
+    public void setOrderStatus(OrderStatus orderStatus) {
+        orderStatus.getDescription();
+    }
+
+
+    }
+
