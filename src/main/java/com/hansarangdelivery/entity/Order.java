@@ -38,7 +38,7 @@ public class Order extends TimeStamped {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private OrderStatus status;
+    private OrderStatus orderStatus;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -61,7 +61,7 @@ public class Order extends TimeStamped {
         this.storeName = storeName;
         this.totalPrice = totalPrice;
         this.orderType = orderType;
-        this.status = status;
+        this.orderStatus = status;
         this.deliveryAddress = deliveryAddress;
         this.deliveryRequest = deliveryRequest;
         this.orderItems = (orderItems != null) ? orderItems : new ArrayList<>();
@@ -69,7 +69,7 @@ public class Order extends TimeStamped {
     }
 
     public void setOrderStatus(OrderStatus orderStatus) {
-        orderStatus.getDescription();
+        this.orderStatus =orderStatus;
     }
 
 

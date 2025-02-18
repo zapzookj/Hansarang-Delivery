@@ -24,7 +24,7 @@ public class OrderResponseDto {
         this.restaurantId = order.getRestaurantId();
         this.storeName = order.getStoreName();
         this.totalPrice = order.getTotalPrice();
-        this.status = order.getStatus().toString();
+        this.status = order.getOrderStatus().toString();
         this.deliveryAddress = order.getDeliveryAddress();
         this.deliveryRequest = order.getDeliveryRequest();
         this.orderItems = order.getOrderItems().stream().map(OrderItemDto::new).collect(Collectors.toList());
