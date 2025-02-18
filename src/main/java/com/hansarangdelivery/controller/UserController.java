@@ -67,4 +67,6 @@ public class UserController {
         return ResponseEntity.status(200).body(new ResultResponseDto<>("회원 탈퇴 성공", 200));
     }
 
+
+
 }

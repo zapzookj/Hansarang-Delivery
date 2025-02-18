@@ -1,30 +1,24 @@
 package com.hansarangdelivery.dto;
 
 import com.hansarangdelivery.entity.OrderItem;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
-
-import java.util.UUID;
-
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.util.UUID;
 
 @Getter
 @Setter
-@NoArgsConstructor
 public class OrderItemDto {
-
-    @NotNull
     private UUID menuId;
-
-    @NotNull
-    @Min(1)
-    private Integer quantity;
+    private String menuName;
+    private int menuPrice;
+    private int quantity;
+    private int menuTotalPrice;
 
     public OrderItemDto(OrderItem orderItem) {
-        this.menuId = orderItem.getId();
+        this.menuId = orderItem.getMenuId();
+        this.menuName = orderItem.getMenuName();
+        this.menuPrice = orderItem.getMenuPrice();
         this.quantity = orderItem.getQuantity();
-
+        this.menuTotalPrice = orderItem.getMenuTotalPrice();
     }
 }
