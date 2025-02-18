@@ -1,9 +1,11 @@
 package com.hansarangdelivery.dto;
 
+import com.hansarangdelivery.entity.Review;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -25,4 +27,13 @@ public class ReviewResponseDto {
     private String content;
 
     private int rating;
+
+    public ReviewResponseDto(Review review) {
+        this.id = review.getId();
+        this.createdAt = review.getCreatedAt();
+        this.createdBy = review.getCreatedBy();
+        this.orderId = review.getOrderId();
+        this.content = review.getContent();
+        this.rating = review.getRating();
+    }
 }
