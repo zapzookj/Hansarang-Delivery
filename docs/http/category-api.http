@@ -1,4 +1,7 @@
+
+
 # @name 카테고리 등록
+
 POST http://localhost:8080/api/categories
 Content-Type: application/json
 
@@ -8,6 +11,10 @@ Content-Type: application/json
 
 ###
 # @name 카테고리 검색
+
+GET http://localhost:8080/api/categories/search?name=양식
+Content-Type: application/json
+
 GET http://localhost:8080/api/categories/search
 Content-Type: application/json
 
@@ -21,6 +28,5 @@ PUT http://localhost:8080/api/categories/d2bba4aa-20db-4a1f-bb38-f61f9d5168c5
 ###
 # @name 카테고리 삭제
 DELETE http://localhost:8080/api/categories/d2bba4aa-20db-4a1f-bb38-f61f9d5168c5
-
 
 

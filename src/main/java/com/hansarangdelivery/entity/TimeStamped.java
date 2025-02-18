@@ -32,4 +32,10 @@ public abstract class TimeStamped {
 
     private LocalDateTime deletedAt;
     private String deletedBy;
+
+    public void delete(LocalDateTime now, String deletedBy) {
+//        삭제 공통 부분이 될것 같아 넣었음.
+        this.deletedAt = now;
+        this.deletedBy = deletedBy;
+    }
 }
