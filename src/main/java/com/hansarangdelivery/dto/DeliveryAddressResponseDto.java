@@ -14,13 +14,13 @@ public class DeliveryAddressResponseDto {
     private UUID deliveryAddressId;
     private UUID locationId;
     private String requestMessage;
-    private boolean isDefault;
+    private Boolean isDefault;
 
     public DeliveryAddressResponseDto(DeliveryAddress deliveryAddress) {
         this.deliveryAddressId = deliveryAddress.getId();
         this.locationId = deliveryAddress.getLocationId();
         this.requestMessage = deliveryAddress.getRequestMessage();
-        this.isDefault = deliveryAddress.isDefault();
+        this.isDefault = deliveryAddress.getIsDefault();
     }
 
 }

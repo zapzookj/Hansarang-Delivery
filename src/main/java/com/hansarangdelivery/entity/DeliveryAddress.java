@@ -31,7 +31,7 @@ public class DeliveryAddress extends TimeStamped {
     private String requestMessage;
 
     @Column(name = "is_default", nullable = false)
-    private boolean isDefault;
+    private Boolean isDefault;
 
     public DeliveryAddress(User user, UUID locationId, String requestMessage, boolean isDefault) {
         this.user = user;

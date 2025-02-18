@@ -4,6 +4,7 @@ import com.hansarangdelivery.entity.DeliveryAddress;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,6 +12,7 @@ import java.util.UUID;
 
 import static com.hansarangdelivery.entity.QDeliveryAddress.deliveryAddress;
 
+@Repository
 public class DeliveryAddressRepositoryQueryImpl implements DeliveryAddressRepositoryQuery {
     @PersistenceContext
     private EntityManager em;

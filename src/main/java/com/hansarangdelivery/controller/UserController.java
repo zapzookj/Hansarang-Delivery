@@ -6,6 +6,7 @@ import com.hansarangdelivery.service.DeliveryAddressService;
 import com.hansarangdelivery.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
+@Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api/users")
 public class UserController {
@@ -78,6 +80,7 @@ public class UserController {
     @PostMapping("/delivery-addresses") // 배송지 추가 API
     public ResultResponseDto<Void> createDeliveryAddress(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                          @RequestBody DeliveryAddressRequestDto requestDto) {
+        log.info("✅ isDefault from request: {}", requestDto.getIsDefault());
         deliveryAddressService.createDeliveryAddress(userDetails.getUser(), requestDto);
         return new ResultResponseDto<>("배송지 추가 완료", 200);
     }
