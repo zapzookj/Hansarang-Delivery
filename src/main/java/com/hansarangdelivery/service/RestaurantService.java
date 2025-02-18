@@ -6,12 +6,20 @@ import com.hansarangdelivery.entity.Restaurant;
 import com.hansarangdelivery.repository.CategoryRepository;
 import com.hansarangdelivery.repository.LocationRepository;
 import com.hansarangdelivery.repository.RestaurantRepository;
+import com.hansarangdelivery.repository.RestaurantRepositoryImpl;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -22,8 +30,11 @@ import org.springframework.util.StringUtils;
 @RequiredArgsConstructor
 public class RestaurantService {
     private final RestaurantRepository restaurantRepository;
-    private final CategoryRepository categoryRepository;
-    private final LocationRepository locationRepository;
+    private final RestaurantRepositoryImpl restaurantRepositoryQuery;
+
+    private final CategoryService categoryService;
+    private final LocationService locationService;
+
 
     public void register(RestaurantRequestDto requestDto) {
         String name = requestDto.getName();
@@ -38,11 +49,11 @@ public class RestaurantService {
         if (name.length() > 255) {
             throw new IllegalArgumentException("가게 이름은 255자 이내여야 합니다.");
         }
-        if (categoryId == null || !categoryRepository.existsById(categoryId)) {
+        if (categoryId == null || !categoryService.existsById(categoryId)) {
             throw new IllegalArgumentException("유효하지 않은 카테고리입니다.");
         }
 
-        if (locationId == null || !locationRepository.existsById(locationId)) {
+        if (locationId == null || !locationService.existsById(locationId)) {
             throw new IllegalArgumentException("유효하지 않은 위치입니다.");
         }
 
@@ -63,14 +74,13 @@ public class RestaurantService {
     public void updateRestaurant(UUID restaurantId, RestaurantRequestDto requestDto) {
         Restaurant restaurant = check(restaurantId);
 
-        updateIfNotNull(requestDto.getName(), restaurant::setName, restaurant.getName());
-        updateIfNotNull(requestDto.getOwner_id(), restaurant::setOwner, restaurant.getOwner());
-        updateIfNotNull(requestDto.getLocation_id(), restaurant::setLocation, restaurant.getLocation());
-
-        // categoryId는 필수 값이므로 무조건 업데이트
-        if (!requestDto.getCategory_id().equals(restaurant.getCategory())) {
-            restaurant.setCategory(requestDto.getCategory_id());
+        restaurant.update(requestDto);
+        if(requestDto.isOpen()){
+            restaurant.open();
+        }else{
+            restaurant.close();
         }
+        restaurantRepository.save(restaurant); // 수정된 음식점 정보 저장
     }
 
     @Transactional
@@ -87,10 +97,36 @@ public class RestaurantService {
         restaurantRepository.save(restaurant); // 수정된 음식점 정보 저장
     }
 
-    private <T> void updateIfNotNull(T newValue, Consumer<T> setter, T currentValue) {
-        if (newValue != null && !Objects.equals(newValue,currentValue)) {
-            setter.accept(newValue);
+    public Page<RestaurantResponseDto> searchRestaurants(int page, int size, String sort, String direction , String search) {
+        //  음식점을 찾는 메서드
+
+        page = page-1;
+
+        // 파라미터 유효성 검사(size, sort, direction)
+        if (size != 10 && size != 30 && size != 50) {
+            size = 10; // 허용되지 않은 size는 기본값 10으로 설정
         }
+
+        // sort 값이 여러 개 들어올 수 있도록 처리
+        List<String> validSortFields = List.of("createdAt", "updatedAt");
+        List<Order> orders = new ArrayList<>();
+
+        for (String sortField : sort.split(",")) { // "createdAt", "updatedAt" 정렬 기준을 지원
+            if (validSortFields.contains(sortField)) {
+                orders.add(new Order(direction.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortField));
+            }
+        }
+
+        if (orders.isEmpty()) {
+            orders.add(new Order(Sort.Direction.DESC, "createdAt"));  // 기본: 생성일 최신순
+            orders.add(new Order(Sort.Direction.DESC, "updatedAt"));  // 생성일 같을때 : 수정일 최신순
+        }
+
+        // Pageable 생성
+        Sort sortBy = Sort.by(orders);
+        Pageable pageable = PageRequest.of(page, size, sortBy);
+
+        return restaurantRepositoryQuery.searchRestaurant(pageable,search).map(RestaurantResponseDto::new);
     }
 
     private Restaurant check(UUID restaurantId){
@@ -104,6 +140,5 @@ public class RestaurantService {
 
         return restaurant;
     }
-
 
 }

@@ -3,15 +3,13 @@ package com.hansarangdelivery.entity;
 import com.hansarangdelivery.dto.RestaurantRequestDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.UUID;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -39,7 +37,6 @@ public class Restaurant extends TimeStamped{
     @Column(name="location_id",nullable = false)
     private UUID location; // 위치
 
-
     @Column(name = "status", nullable = false)
     private boolean status; // 가게 상태 (운영 중 여부)
 
@@ -56,10 +53,31 @@ public class Restaurant extends TimeStamped{
         return this.status;
     }
 
-    public void update(String name, UUID categoryId, UUID ownerId, UUID locationId) {
-        this.name = name;
-        this.category = categoryId;
-        this.owner = ownerId;
-        this.location = locationId;
+    public void update(RestaurantRequestDto requestDto){
+        if(requestDto.getName() != null){
+            this.name = requestDto.getName();
+        }
+        if(requestDto.getLocation_id() != null){
+            this.location = requestDto.getLocation_id();
+        }
+        if(requestDto.getCategory_id() != null){
+            this.category = requestDto.getCategory_id();
+        }
+        if(requestDto.getOwner_id() != null){
+            this.owner = requestDto.getOwner_id();
+        }
     }
+
+    public void open(){
+        if(!this.status){
+            this.status = true;
+        }
+    }
+
+    public void close(){
+        if(this.status){
+            this.status = true;
+        }
+    }
+
 }

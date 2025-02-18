@@ -17,4 +17,6 @@ public class RestaurantRequestDto {
     private UUID owner_id; // 가게 주인 ID
 
     private UUID location_id; // 위치 ID
+
+    private boolean isOpen; // 열려있는 상태
 }
