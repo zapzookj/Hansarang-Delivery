@@ -27,7 +27,7 @@ public class MenuItemController {
 
         menuItemService.addMenuItem(requestDto);
 
-        return new ResultResponseDto<>("리뷰 저장 성공", 200);
+        return new ResultResponseDto<>("메뉴 저장 성공", 200);
     }
 
     @GetMapping("/")
