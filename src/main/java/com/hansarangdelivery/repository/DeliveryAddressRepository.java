@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface DeliveryAddressRepository extends JpaRepository<DeliveryAddress, UUID> {
@@ -15,4 +17,8 @@ public interface DeliveryAddressRepository extends JpaRepository<DeliveryAddress
     @Modifying
     @Query("UPDATE DeliveryAddress d SET d.isDefault = false WHERE d.user = :user and d.isDefault = true")
     void resetDefault(@Param("user") User user);
+
+    Optional<DeliveryAddress> findByUserIdAndDefaultIsTrue(Long userId);
+
+    List<DeliveryAddress> findAllByUserId(Long userId);
 }

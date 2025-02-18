@@ -12,6 +12,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/users")
@@ -72,10 +74,38 @@ public class UserController {
 
     // DeliveryAddress(배송지) CRUD API
 
-    @PostMapping("/delivery-address")
+    @PostMapping("/delivery-addresses") // 배송지 추가 API
     public ResultResponseDto<Void> createDeliveryAddress(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                          @RequestBody DeliveryAddressRequestDto requestDto) {
         deliveryAddressService.createDeliveryAddress(userDetails.getUser(), requestDto);
         return new ResultResponseDto<>("배송지 추가 완료", 200);
+    }
+
+    @GetMapping("/delivery-addresses/default") // 로그인한 유저의 기본 배송지 단건 조회
+    public ResultResponseDto<DeliveryAddressResponseDto> getMyDeliveryAddress(
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        DeliveryAddressResponseDto responseDto = deliveryAddressService.getDeliveryAddress(userDetails.getUser().getId());
+        return new ResultResponseDto<>("조회 완료", 200, responseDto);
+    }
+
+    @GetMapping("/delivery-addresses") // 로그인한 유저의 배송지 전체 조회
+    public ResultResponseDto<List<DeliveryAddressResponseDto>> getMyAllDeliveryAddresses(
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        List<DeliveryAddressResponseDto> deliveryAddresses = deliveryAddressService.getAllDeliveryAddresses(userDetails.getUser().getId());
+        return new ResultResponseDto<>("전체 조회 성공", 200, deliveryAddresses);
+    }
+
+    @GetMapping("/{userId}/delivery-addresses/default") // 특정 유저의 기본 배송지 단건 조회 (MANAGER 권한 필요)
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
+    public ResultResponseDto<DeliveryAddressResponseDto> getDeliveryAddress(@PathVariable("userId") Long userId) {
+        DeliveryAddressResponseDto responseDto = deliveryAddressService.getDeliveryAddress(userId);
+        return new ResultResponseDto<>("조회 완료", 200, responseDto);
+    }
+
+    @GetMapping("/{userId}/delivery-addresses") // 특정 유저의 배송지 전체 조회 (MANAGER 권한 필요)
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
+    public ResultResponseDto<List<DeliveryAddressResponseDto>> getAllDeliveryAddresses(@PathVariable("userId") Long userId) {
+        List<DeliveryAddressResponseDto> deliveryAddresses = deliveryAddressService.getAllDeliveryAddresses(userId);
+        return new ResultResponseDto<>("전체 조회 성공", 200, deliveryAddresses);
     }
 }
