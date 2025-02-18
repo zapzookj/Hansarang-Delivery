@@ -23,13 +23,22 @@ public class Review extends TimeStamped {
     private UUID orderId;
 
     @Column(nullable = false)
+    private UUID restaurantId;
+
+    @Column(nullable = false)
     private String content;
 
     @Column(nullable = false)
     private int rating;
 
-    public Review(UUID orderId, String content, int rating) {
+    public Review(UUID orderId, UUID restaurantId, String content, int rating) {
         this.orderId = orderId;
+        this.restaurantId = restaurantId;
+        this.content = content;
+        this.rating = rating;
+    }
+
+    public void update(String content, int rating) {
         this.content = content;
         this.rating = rating;
     }
