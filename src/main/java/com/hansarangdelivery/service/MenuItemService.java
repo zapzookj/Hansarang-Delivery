@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -78,4 +79,10 @@ public class MenuItemService {
             menuItem.delete(LocalDateTime.now(), user.getId().toString());
         }
     }
+
+    public MenuItem getMenuById(UUID menuId) {
+        return menuItemRepository.findById(menuId)
+            .orElseThrow(() -> new IllegalArgumentException("해당 ID의 메뉴를 찾을 수 없습니다: " + menuId));
+    }
+
 }
