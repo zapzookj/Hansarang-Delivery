@@ -40,9 +40,10 @@ public class DeliveryAddress extends TimeStamped {
         this.isDefault = isDefault;
     }
 
-    public void update(UUID locationId, String requestMessage) {
+    public void update(UUID locationId, String requestMessage, Boolean isDefault) {
         this.locationId = locationId;
         this.requestMessage = requestMessage;
+        this.isDefault = isDefault;
     }
 }
 

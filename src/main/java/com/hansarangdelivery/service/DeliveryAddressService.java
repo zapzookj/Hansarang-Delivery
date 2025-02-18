@@ -6,7 +6,6 @@ import com.hansarangdelivery.entity.DeliveryAddress;
 import com.hansarangdelivery.entity.User;
 import com.hansarangdelivery.repository.DeliveryAddressRepository;
 import com.hansarangdelivery.repository.DeliveryAddressRepositoryQueryImpl;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,7 +23,6 @@ public class DeliveryAddressService {
     private final LocationService locationService;
     private final DeliveryAddressRepository deliveryAddressRepository;
     private final DeliveryAddressRepositoryQueryImpl deliveryAddressRepositoryQuery;
-    private final EntityManager em;
 
 
 
@@ -79,9 +77,7 @@ public class DeliveryAddressService {
         if (requestDto.getIsDefault()) {
             resetExistingDefault(userId);
         }
-        log.info("requestDto isDefault : {}", requestDto.getIsDefault());
-        deliveryAddress.update(requestDto.getLocationId(), requestDto.getRequestMessage());
-        log.info("deliveryAddress isDefault : {}", deliveryAddress.getIsDefault());
+        deliveryAddress.update(requestDto.getLocationId(), requestDto.getRequestMessage(), requestDto.getIsDefault());
     }
 
     public void deleteDeliveryAddress(Long userId, UUID addressId) {
