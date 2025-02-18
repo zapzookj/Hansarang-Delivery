@@ -13,13 +13,17 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "p_menu_item")
+@Entity
+@Table(name = "p_menu_item")
 public class MenuItem extends TimeStamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(updatable = false)
     private UUID id;
+
+    @Column(nullable = false)
+    private UUID restaurantId;
 
     @Column(nullable = false)
     private String name;
@@ -30,14 +34,10 @@ public class MenuItem extends TimeStamped {
     @Column(nullable = false)
     private boolean available;
 
-    @ManyToOne
-    @JoinColumn(name = "restaurant_id")
-    private Restaurant restaurant;
-
-    public MenuItem(String name, Integer price, Restaurant restaurant) {
+    public MenuItem(String name, Integer price, UUID restaurantId) {
         this.name = name;
         this.price = price;
-        this.restaurant = restaurant;
+        this.restaurantId = restaurantId;
     }
 
     public void update(MenuItemRequestDto requestDto) {
