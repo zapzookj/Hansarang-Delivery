@@ -11,6 +11,8 @@ public class ReviewRequestDto {
 
     private UUID orderId;
 
+    private UUID restaurantId;
+
     private String content;
 
     private int rating;
