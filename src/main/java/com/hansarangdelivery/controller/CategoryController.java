@@ -25,12 +25,14 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
     public ResultResponseDto create(@RequestBody @Valid CategoryRequestDto categoryRequestDto) {
         ResultResponseDto result = categoryService.createCategory(categoryRequestDto);
         return result;
     }
 
     @PutMapping("/{categoryId}")
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
     public ResultResponseDto updateCategory(@PathVariable UUID categoryId, @RequestBody CategoryRequestDto categoryRequestDto) {
         ResultResponseDto result = categoryService.updateCategory(categoryId,categoryRequestDto);
         return result;
@@ -38,6 +40,7 @@ public class CategoryController {
 
 
     @DeleteMapping("/{categoryId}")
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
     public ResultResponseDto deleteCategory(@PathVariable UUID categoryId) {
         ResultResponseDto result = categoryService.deleteCategory(categoryId);
         return result;
