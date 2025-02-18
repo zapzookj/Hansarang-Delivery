@@ -17,7 +17,7 @@ import java.util.UUID;
 public class DeliveryAddress extends TimeStamped {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.hansarangdelivery.entity.QDeliveryAddress.deliveryAddress;
+import static com.hansarangdelivery.entity.QDeliveryAddress.deliveryAddress;
 
 public class DeliveryAddressRepositoryQueryImpl implements DeliveryAddressRepositoryQuery {
     @PersistenceContext
