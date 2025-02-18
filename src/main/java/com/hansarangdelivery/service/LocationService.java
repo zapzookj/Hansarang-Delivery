@@ -24,7 +24,7 @@ public class LocationService {
         return locationRepositoryQuery.searchLocations(pageable, requestDto).map(LocationResponseDto::new);
     }
 
-    public boolean existsById(UUID categoryId){
-        return locationRepository.existsById(categoryId);
+    public boolean existsById(UUID locationId){
+        return locationRepository.existsById(locationId);
     }
 }
