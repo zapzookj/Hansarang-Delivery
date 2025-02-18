@@ -31,13 +31,13 @@ public class OrderController {
         return ResponseEntity.status(200).body(new ResultResponseDto<>("특정 주문 상세 정보 조회 성공", 200, responseDto));
     }
 
-//    @PutMapping("/{orderId}")  //특정 주문 수정 (오너만)
-//    public ResponseEntity<ResultResponseDto<Void>> updateOrder(@PathVariable("orderId") UUID orderId,@RequestBody OrderRequestDto requestDto){
-//        orderService.updateOrder(orderId,requestDto);
-//        return ResponseEntity.ok(new ResultResponseDto<>("주문 수정 성공", 200));
-//
-//
-//    }
+    @PutMapping("/{orderId}")  //특정 주문 수정 (오너만)
+    public ResponseEntity<ResultResponseDto<Void>> updateOrder(@PathVariable("orderId") UUID orderId,@RequestBody OrderRequestDto requestDto){
+        orderService.updateOrder(orderId,requestDto);
+        return ResponseEntity.ok(new ResultResponseDto<>("주문 수정 성공", 200));
+
+
+    }
 
 
 }
