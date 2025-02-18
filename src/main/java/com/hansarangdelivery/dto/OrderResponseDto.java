@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 @Setter
 public class OrderResponseDto {
     private Long userId;
-    private UUID storeId;
+    private UUID restaurantId;
     private String storeName;
     private int totalPrice;
     private String status;
@@ -21,7 +21,7 @@ public class OrderResponseDto {
 
     public OrderResponseDto(Order order) {
         this.userId = order.getUserId();
-        this.storeId = order.getRestaurantId();
+        this.restaurantId = order.getRestaurantId();
         this.storeName = order.getStoreName();
         this.totalPrice = order.getTotalPrice();
         this.status = order.getStatus().toString();
