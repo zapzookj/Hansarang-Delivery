@@ -39,6 +39,10 @@ public class CategoryService {
         return categoryRepository.findById(id);
     }
 
+    public boolean existsById(UUID categoryId){
+        return categoryRepository.existsById(categoryId);
+    }
+
     public void saveCategory(Category category) {
 
         categoryRepository.save(category);
