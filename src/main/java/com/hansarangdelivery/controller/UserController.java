@@ -13,6 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -107,5 +108,20 @@ public class UserController {
     public ResultResponseDto<List<DeliveryAddressResponseDto>> getAllDeliveryAddresses(@PathVariable("userId") Long userId) {
         List<DeliveryAddressResponseDto> deliveryAddresses = deliveryAddressService.getAllDeliveryAddresses(userId);
         return new ResultResponseDto<>("전체 조회 성공", 200, deliveryAddresses);
+    }
+
+    @PutMapping("/delivery-addresses/{deliveryAddressId}")
+    public ResultResponseDto<Void> updateDeliveryAddress(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                         @PathVariable("deliveryAddressId") UUID addressId,
+                                                         @RequestBody DeliveryAddressRequestDto requestDto) {
+        deliveryAddressService.updateDeliveryAddress(userDetails.getUser().getId(), addressId, requestDto);
+        return new ResultResponseDto<>("배송지 정보 수정 완료", 200);
+    }
+
+    @DeleteMapping("/delivery-addresses/{deliveryAddressId}")
+    public ResultResponseDto<Void> deleteDeliveryAddress(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                         @PathVariable("deliveryAddressId") UUID addressId) {
+        deliveryAddressService.deleteDeliveryAddress(userDetails.getUser().getId(), addressId);
+        return new ResultResponseDto<>("배송지 삭제 완료", 200);
     }
 }

@@ -15,4 +15,5 @@ public class DeliveryAddressRequestDto {
 
     @Size(max = 20)
     private String requestMessage;
+    private boolean isDefault;
 }

@@ -12,13 +12,17 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface DeliveryAddressRepository extends JpaRepository<DeliveryAddress, UUID> {
-    int countByUser(User user);
-
     @Modifying
-    @Query("UPDATE DeliveryAddress d SET d.isDefault = false WHERE d.user = :user and d.isDefault = true")
-    void resetDefault(@Param("user") User user);
+    @Query("UPDATE DeliveryAddress d SET d.isDefault = false WHERE d.user.id = :userId and d.isDefault = true")
+    void resetDefault(@Param("userId") Long userId);
+
+    int countByUserId(Long userId);
 
     Optional<DeliveryAddress> findByUserIdAndDefaultIsTrue(Long userId);
 
     List<DeliveryAddress> findAllByUserId(Long userId);
+
+    Optional<DeliveryAddress> findByIdAndUserId(UUID addressId, Long userId);
+
+    boolean existsByIdAndUserId(UUID addressId, Long userId);
 }

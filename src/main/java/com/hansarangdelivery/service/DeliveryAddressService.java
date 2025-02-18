@@ -6,9 +6,12 @@ import com.hansarangdelivery.entity.DeliveryAddress;
 import com.hansarangdelivery.entity.User;
 import com.hansarangdelivery.repository.DeliveryAddressRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -18,21 +21,30 @@ public class DeliveryAddressService {
     private final DeliveryAddressRepository deliveryAddressRepository;
 
 
+    @Transactional
     public void createDeliveryAddress(User user, DeliveryAddressRequestDto requestDto) {
         if (!locationService.existsById(requestDto.getLocationId())) {
             throw new IllegalArgumentException("해당 위치 정보를 찾을 수 없습니다.");
         }
 
-        if (deliveryAddressRepository.countByUser(user) >= 3) {
+        int count = deliveryAddressRepository.countByUserId(user.getId());
+        boolean isDefault = requestDto.isDefault();
+
+        if (count >= 3) {
             throw new IllegalArgumentException("배송지는 최대 3개까지 등록할 수 있습니다."); // 한 유저당 배송지 등록은 최대 3개까지로 제한
         }
 
-        deliveryAddressRepository.resetDefault(user); // 기존에 존재하던 기본 배송지를 (is_default = false 로 수정)
+        isDefault = count == 0 || requestDto.isDefault(); // 처음 등록하는 배송지라면 기본 배송지로 설정
 
-        DeliveryAddress deliveryAddress = new DeliveryAddress(user, requestDto.getLocationId(), requestDto.getRequestMessage());
+        if (isDefault || count >= 1) {
+            deliveryAddressRepository.resetDefault(user.getId()); // 기존에 존재하던 기본 배송지를 is_default = false 로 수정
+        }
+
+        DeliveryAddress deliveryAddress = new DeliveryAddress(user, requestDto.getLocationId(), requestDto.getRequestMessage(), isDefault);
         deliveryAddressRepository.save(deliveryAddress);
     }
 
+    @Transactional(readOnly = true)
     public DeliveryAddressResponseDto getDeliveryAddress(Long userId) {
         DeliveryAddress deliveryAddress = deliveryAddressRepository.findByUserIdAndDefaultIsTrue(userId)
             .orElseThrow(() -> new IllegalArgumentException("기본 배송지가 설정되어 있지 않습니다."));
@@ -40,6 +52,7 @@ public class DeliveryAddressService {
         return new DeliveryAddressResponseDto(deliveryAddress);
     }
 
+    @Transactional(readOnly = true)
     public List<DeliveryAddressResponseDto> getAllDeliveryAddresses(Long userId) {
         List<DeliveryAddress> deliveryAddressList = deliveryAddressRepository.findAllByUserId(userId);
 
@@ -48,5 +61,26 @@ public class DeliveryAddressService {
         }
 
         return deliveryAddressList.stream().map(DeliveryAddressResponseDto::new).toList();
+    }
+
+    @Transactional
+    public void updateDeliveryAddress(Long userId, UUID addressId, DeliveryAddressRequestDto requestDto) {
+        DeliveryAddress deliveryAddress = deliveryAddressRepository.findByIdAndUserId(addressId, userId).orElseThrow(
+            () -> new IllegalArgumentException("해당 Id를 가진 배송지 정보를 찾을 수 없습니다. 또는 권한이 없습니다.")
+        );
+
+        if (requestDto.isDefault()) {
+            deliveryAddressRepository.resetDefault(userId);
+        }
+
+        deliveryAddress.update(requestDto.getLocationId(), requestDto.getRequestMessage());
+    }
+
+    public void deleteDeliveryAddress(Long userId, UUID addressId) {
+        if (deliveryAddressRepository.existsByIdAndUserId(addressId, userId)) {
+            deliveryAddressRepository.deleteById(addressId);
+        } else {
+            throw new IllegalArgumentException("해당 Id를 가진 배송지 정보를 찾을 수 없습니다. 또는 권한이 없습니다.");
+        }
     }
 }
