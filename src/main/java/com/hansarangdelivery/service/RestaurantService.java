@@ -141,10 +141,11 @@ public class RestaurantService {
         return restaurant;
     }
 
-    public Restaurant getRestaurantById(UUID storeId) {
-        return restaurantRepository.findById(storeId)
+
+    public Restaurant getRestaurantById(UUID restaurantId) {
+        return restaurantRepository.findById(restaurantId)
             .filter(restaurant -> restaurant.getDeletedAt() == null) // 삭제된 가게인지 확인
-            .orElseThrow(() -> new EntityNotFoundException("해당 ID의 음식점을 찾을 수 없습니다: " + storeId));
+            .orElseThrow(() -> new EntityNotFoundException("해당 ID의 음식점을 찾을 수 없습니다: " + restaurantId));
     }
 
 }

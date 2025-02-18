@@ -21,7 +21,7 @@ public class OrderResponseDto {
 
     public OrderResponseDto(Order order) {
         this.userId = order.getUserId();
-        this.storeId = order.getStoreId();
+        this.storeId = order.getRestaurantId();
         this.storeName = order.getStoreName();
         this.totalPrice = order.getTotalPrice();
         this.status = order.getStatus().toString();

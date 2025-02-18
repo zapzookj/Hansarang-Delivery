@@ -25,8 +25,8 @@ public class Order extends TimeStamped {
     @Column(name = "user_id", nullable = false) // ✅ 주문자 ID 추가
     private Long userId;
 
-    @Column(name = "store_id", nullable = false) // ✅ 주문자 ID 추가
-    private UUID storeId;
+    @Column(name = "restaurant_id", nullable = false) // ✅ 주문자 ID 추가
+    private UUID restaurantId;
 
     @Column(name = "store_name", length = 100, nullable = false)
     private String storeName;
@@ -52,10 +52,10 @@ public class Order extends TimeStamped {
     @JsonManagedReference
     private List<OrderItem> orderItems = new ArrayList<>();
 
-    public Order(Long userId,UUID storeId, String storeName, int totalPrice, OrderType orderType, OrderStatus status,
+    public Order(Long userId,UUID restaurantId, String storeName, int totalPrice, OrderType orderType, OrderStatus status,
                  String deliveryAddress, String deliveryRequest, List<OrderItem> orderItems) {
-        this.userId = userId; // ✅ 주문자 ID 저장
-        this.storeId =storeId;
+        this.userId = userId;
+        this.restaurantId =restaurantId;
         this.storeName = storeName;
         this.totalPrice = totalPrice;
         this.orderType = orderType;

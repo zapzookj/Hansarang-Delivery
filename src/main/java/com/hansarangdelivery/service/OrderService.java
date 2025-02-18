@@ -24,7 +24,7 @@ public class OrderService {
     public void createOrder(OrderRequestDto requestDto) {
         Long userId = requestDto.getUserId();
 
-        Restaurant restaurant = restaurantService.getRestaurantById(requestDto.getStoreId());
+        Restaurant restaurant = restaurantService.getRestaurantById(requestDto.getRestaurantId());
 
         String storeName = restaurant.getName();
 
@@ -49,7 +49,7 @@ public class OrderService {
         // 주문 객체 생성
         Order order = new Order(
             userId,
-            requestDto.getStoreId(),
+            requestDto.getRestaurantId(),
             storeName, //RestaurantRepository 에서 가져온 storeName 사용
             totalPrice,
             OrderType.valueOf(requestDto.getOrderType()),
@@ -71,54 +71,17 @@ public class OrderService {
             () -> new IllegalArgumentException("존재하지 않는 주문입니다."));
         return new OrderResponseDto(order);
     }
-}
+
 
 //    public void updateOrder(UUID orderId, OrderRequestDto requestDto) {
 //        // 1. 주문 객체 찾기
 //        Order order = findOrder(orderId);
 //
-//        // 2. 주문 정보 업데이트
-//        updateOrderDetails(order, requestDto);
-//
-//        // 3. 메뉴 항목 업데이트
-//        List<OrderItem> updatedItems = convertToOrderItems(requestDto.getMenu(), order);
-//
-//        // 4. 주문에 메뉴 항목 설정
-//        order.setOrderItems(updatedItems);
-//
-//        // 5. 변경된 주문 객체 저장
-//        orderRepository.save(order);
 //    }
-
-//    private void updateOrderDetails(Order order, OrderRequestDto requestDto) {
-//        order.setOrderType(requestDto.getOrderType());
-//        order.setDeliveryAddress(requestDto.getDeliveryAddress());
-//        order.setDeliveryRequest(requestDto.getDeliveryRequest());
-//    }
-//
-//
-//
-//    private List<OrderItem> convertToOrderItems(List<OrderItemDto> menuItems, Order order) {
-//        return menuItems.stream()
-//            .map(itemDto -> new OrderItem(itemDto.getQuantity(), calculateMenuTotalPrice(itemDto), order)) // 메뉴 가격 계산
-//            .collect(Collectors.toList());
-//    }
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 //
 //    private Order findOrder(UUID orderId) {
 //        return orderRepository.findById(orderId)
 //            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주문입니다."));
 //    }
-//}
+}
 

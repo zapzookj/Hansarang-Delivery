@@ -9,7 +9,7 @@ import java.util.UUID;
 @Setter
 public class OrderRequestDto {
     private Long userId;
-    private UUID storeId;
+    private UUID restaurantId;
     private String deliveryAddress;
     private String deliveryRequest;
     private String orderType;
