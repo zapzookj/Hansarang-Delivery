@@ -92,7 +92,7 @@ public class UserService {
         if (userId == null) {
             userRepository.deleteById(currentUser.getId());
         } else {
-            if (currentUser.getRole() != UserRole.MASTER) {
+            if (currentUser.getRole() != UserRole.MANAGER) {
                 throw new IllegalArgumentException("권한이 없습니다.");
             }
             userRepository.deleteById(userId);
