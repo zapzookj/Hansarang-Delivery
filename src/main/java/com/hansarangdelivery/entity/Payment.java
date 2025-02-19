@@ -21,7 +21,7 @@ public class Payment extends TimeStamped {
     private UUID id;
 
     @Column(nullable = false)
-    private Long orderId;
+    private UUID orderId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

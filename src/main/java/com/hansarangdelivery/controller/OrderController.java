@@ -2,7 +2,6 @@ package com.hansarangdelivery.controller;
 
 import com.hansarangdelivery.dto.OrderRequestDto;
 import com.hansarangdelivery.dto.OrderResponseDto;
-import com.hansarangdelivery.dto.RestaurantResponseDto;
 import com.hansarangdelivery.dto.ResultResponseDto;
 import com.hansarangdelivery.security.UserDetailsImpl;
 import com.hansarangdelivery.service.OrderService;
@@ -23,8 +22,8 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping //주문 생성
-    public ResponseEntity<ResultResponseDto<Void>> createOrder(@Valid @RequestBody OrderRequestDto requestDto,@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        orderService.createOrder(requestDto,userDetails.getUser());  // 주문 생성 로직 실행
+    public ResponseEntity<ResultResponseDto<Void>> createOrder(@Valid @RequestBody OrderRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        orderService.createOrder(requestDto, userDetails.getUser());  // 주문 생성 로직 실행
         return ResponseEntity.ok(new ResultResponseDto<>("주문 생성 성공", 200));
     }
 
@@ -36,18 +35,17 @@ public class OrderController {
     }
 
     @PutMapping("/{orderId}")  //특정 주문 수정 (오너만)
-    public ResponseEntity<ResultResponseDto<Void>> updateOrder(@PathVariable("orderId") UUID orderId,@RequestBody OrderRequestDto requestDto){
-        orderService.updateOrder(orderId,requestDto);
+    public ResponseEntity<ResultResponseDto<Void>> updateOrder(@PathVariable("orderId") UUID orderId, @RequestBody OrderRequestDto requestDto) {
+        orderService.updateOrder(orderId, requestDto);
         return ResponseEntity.ok(new ResultResponseDto<>("주문 수정 성공", 200));
-
 
     }
 
     @DeleteMapping("{orderId}")
-    public ResponseEntity<ResultResponseDto<Void>> updateOrder(@PathVariable("orderId") UUID orderId,@AuthenticationPrincipal UserDetailsImpl userDetails){
+    public ResponseEntity<ResultResponseDto<Void>> updateOrder(@PathVariable("orderId") UUID orderId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         try {
             orderService.deleteOrder(orderId, userDetails.getUser());
-            return ResponseEntity.ok(new ResultResponseDto("주문이 취소되었습니다.",200));
+            return ResponseEntity.ok(new ResultResponseDto("주문이 취소되었습니다.", 200));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ResultResponseDto("주문 취소 불가능합니다.", 400));
         }
@@ -60,7 +58,7 @@ public class OrderController {
         @RequestParam(defaultValue = "desc") String direction,
         @RequestParam(required = false) String search) {
 
-        Page<OrderResponseDto> orders = orderService.searchOrders(page,size,direction,search);
+        Page<OrderResponseDto> orders = orderService.searchOrders(page, size, direction, search);
         return new ResultResponseDto<>("주문 검색 성공", 200, orders);
     }
 
@@ -74,8 +72,6 @@ public class OrderController {
         Page<OrderResponseDto> orders = orderService.getAllOrders(page, size, direction);
         return new ResultResponseDto<>("주문 목록 조회 성공", 200, orders);
     }
-
-
 
 
 }
