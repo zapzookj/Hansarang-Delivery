@@ -60,6 +60,12 @@ public class UserApiIntegrationTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private DeliveryAddressRepository deliveryAddressRepository;
+
+    @MockitoBean
+    private LocationService locationService;
+
     protected User testUser;
     protected User testUser2;
     protected User manager;
@@ -68,6 +74,10 @@ public class UserApiIntegrationTest {
     protected String testUser2Token;
     protected String managerToken;
     protected String masterToken;
+    protected DeliveryAddress testAddress;
+    protected UUID testAddressId;
+    protected UUID locationId;
+
 
     @BeforeEach
     void setUp() {
@@ -89,6 +99,25 @@ public class UserApiIntegrationTest {
         userRepository.save(master);
         masterToken = jwtUtil.createToken(master.getUsername(), master.getRole());
     }
+
+    // 배송지를 생성하는 메서드 (기본 배송지 설정 로직 테스트용)
+    private void createDeliveryAddress(String token, UUID locationId, String requestMessage, boolean isDefault) throws Exception {
+        when(locationService.existsById(ArgumentMatchers.eq(locationId))).thenReturn(true); // locationId는 유효하다고 가정
+
+        DeliveryAddressRequestDto requestDto = new DeliveryAddressRequestDto();
+        requestDto.setLocationId(locationId);
+        requestDto.setRequestMessage(requestMessage);
+        requestDto.setIsDefault(isDefault);
+
+        mockMvc.perform(post("/api/users/delivery-addresses")
+                .header(JwtUtil.AUTHORIZATION_HEADER, token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("배송지 추가 완료"));
+    }
+
+    // ====================== User API 테스트 ======================
 
     @Test
     @DisplayName("유저 회원 가입 API 테스트")
@@ -207,5 +236,149 @@ public class UserApiIntegrationTest {
             .andExpect(jsonPath("$.message").value("회원 탈퇴 성공"));
 
         assertFalse(userRepository.findById(testUser.getId()).isPresent());
+    }
+
+    // ====================== DeliveryAddress(배송지) API 테스트 ======================
+
+    @Test
+    @DisplayName("배송지 생성 API 테스트")
+    void testCreateDeliveryAddress() throws Exception {
+        // Given
+        UUID locationId = UUID.randomUUID();
+        when(locationService.existsById(ArgumentMatchers.eq(locationId))).thenReturn(true); // locationId는 유효하다고 가정
+
+        DeliveryAddressRequestDto requestDto = new DeliveryAddressRequestDto();
+        requestDto.setLocationId(locationId);
+        requestDto.setRequestMessage("문 앞에 놔주세요.");
+        requestDto.setIsDefault(true);
+
+        // When & Then
+        mockMvc.perform(post("/api/users/delivery-addresses")
+                .header(JwtUtil.AUTHORIZATION_HEADER, testUserToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("배송지 추가 완료"));
+
+        List<DeliveryAddress> addresses = deliveryAddressRepository.findAll();
+        assertFalse(addresses.isEmpty());
+    }
+
+    @Test
+    @DisplayName("자신의 기본 배송지 조회 API 테스트")
+    void testReadMyDeliveryAddress() throws Exception {
+        // Given
+        UUID locationId = UUID.randomUUID();
+        createDeliveryAddress(testUserToken, locationId, "test", false);
+
+
+        // When & Then
+        mockMvc.perform(get("/api/users/delivery-addresses/default")
+                .header(JwtUtil.AUTHORIZATION_HEADER, testUserToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.locationId").value(locationId.toString()))
+            .andExpect(jsonPath("$.data.requestMessage").value("test"))
+            .andExpect(jsonPath("$.data.isDefault").value(true)); // 첫 배송지는 기본 배송지로 설정
+    }
+
+    @Test
+    @DisplayName("자신의 배송지 전체 조회 API 테스트")
+    void testSearchMyDeliveryAddresses() throws Exception {
+        // Given
+        UUID locationId1 = UUID.randomUUID();
+        UUID locationId2 = UUID.randomUUID();
+        createDeliveryAddress(testUserToken, locationId1, "test1", true);
+        createDeliveryAddress(testUserToken, locationId2, "test2", false);
+
+        // When & Then
+        mockMvc.perform(get("/api/users/delivery-addresses")
+                .header(JwtUtil.AUTHORIZATION_HEADER, testUserToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data").isArray())
+            .andExpect(jsonPath("$.data.length()").value(2));
+    }
+
+    @Test
+    @DisplayName("특정 유저의 기본 배송지 조회 API 테스트")
+    void testReadDeliveryAddress() throws Exception {
+        // Given
+        UUID locationId = UUID.randomUUID();
+        createDeliveryAddress(testUserToken, locationId, "test", true);
+
+        // When & Then
+        mockMvc.perform(get("/api/users/" + testUser.getId() + "/delivery-addresses/default")
+                .header(JwtUtil.AUTHORIZATION_HEADER, managerToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.locationId").value(locationId.toString()))
+            .andExpect(jsonPath("$.data.requestMessage").value("test"))
+            .andExpect(jsonPath("$.data.isDefault").value(true));
+    }
+
+    @Test
+    @DisplayName("특정 유저의 배송지 전체 조회 API 테스트")
+    void testSearchDeliveryAddresses() throws Exception {
+        // Given
+        UUID locationId1 = UUID.randomUUID();
+        UUID locationId2 = UUID.randomUUID();
+        createDeliveryAddress(testUserToken, locationId1, "test1", true);
+        createDeliveryAddress(testUserToken, locationId2, "test2", false);
+
+        // When & Then
+        mockMvc.perform(get("/api/users/" + testUser.getId() + "/delivery-addresses")
+                .header(JwtUtil.AUTHORIZATION_HEADER, managerToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data").isArray())
+            .andExpect(jsonPath("$.data.length()").value(2));
+    }
+
+    @Test
+    @DisplayName("배송지 수정 API 테스트")
+    void testUpdateDeliveryAddress() throws Exception {
+        // Given
+        UUID locationId = UUID.randomUUID();
+        createDeliveryAddress(testUserToken, locationId, "test", true);
+
+        List<DeliveryAddress> addresses = deliveryAddressRepository.findAll();
+        assertFalse(addresses.isEmpty());
+        DeliveryAddress address = addresses.get(0);
+
+        UUID newLocationId = UUID.randomUUID();
+        when(locationService.existsById(ArgumentMatchers.eq(newLocationId))).thenReturn(true);
+
+        DeliveryAddressRequestDto updateDto = new DeliveryAddressRequestDto();
+        updateDto.setLocationId(newLocationId);
+        updateDto.setRequestMessage("update");
+        updateDto.setIsDefault(true);
+
+        // When & Then
+        mockMvc.perform(put("/api/users/delivery-addresses/" + address.getId())
+                .header(JwtUtil.AUTHORIZATION_HEADER, testUserToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDto)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("배송지 정보 수정 완료"));
+
+        DeliveryAddress updatedAddress = deliveryAddressRepository.findById(address.getId()).orElseThrow();
+        assertEquals(newLocationId, updatedAddress.getLocationId());
+        assertEquals("update", updatedAddress.getRequestMessage());
+        assertTrue(updatedAddress.getIsDefault());
+    }
+
+    @Test
+    @DisplayName("배송지 삭제 API 테스트")
+    void testDeleteDeliveryAddress() throws Exception {
+        UUID locationId = UUID.randomUUID();
+        createDeliveryAddress(testUserToken, locationId, "test", true);
+
+        List<DeliveryAddress> addresses = deliveryAddressRepository.findAll();
+        assertFalse(addresses.isEmpty());
+        DeliveryAddress address = addresses.get(0);
+
+        mockMvc.perform(delete("/api/users/delivery-addresses/" + address.getId())
+                .header(JwtUtil.AUTHORIZATION_HEADER, testUserToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("배송지 삭제 완료"));
+
+        assertFalse(deliveryAddressRepository.findById(address.getId()).isPresent());
     }
 }

@@ -25,7 +25,7 @@ public class UserController {
     private final UserService userService;
     private final DeliveryAddressService deliveryAddressService;
 
-    // User CRUD API
+    // ====================== User CRUD API ======================
     @PostMapping("/signup")
     public ResponseEntity<ResultResponseDto<Void>> SignUp(@Valid @RequestBody SignupRequestDto requestDto) {
         userService.signup(requestDto);
@@ -75,7 +75,7 @@ public class UserController {
         return ResponseEntity.status(200).body(new ResultResponseDto<>("회원 탈퇴 성공", 200));
     }
 
-    // DeliveryAddress(배송지) CRUD API
+    // ====================== DeliveryAddress CRUD API ======================
 
     @PostMapping("/delivery-addresses") // 배송지 추가 API
     public ResultResponseDto<Void> createDeliveryAddress(@AuthenticationPrincipal UserDetailsImpl userDetails,
