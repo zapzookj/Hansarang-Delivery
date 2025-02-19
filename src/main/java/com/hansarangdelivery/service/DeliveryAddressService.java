@@ -50,7 +50,7 @@ public class DeliveryAddressService {
     }
 
     @Transactional(readOnly = true)
-    public DeliveryAddressResponseDto getDeliveryAddress(Long userId) {
+    public DeliveryAddressResponseDto readDeliveryAddress(Long userId) {
         DeliveryAddress deliveryAddress = deliveryAddressRepositoryQuery.findDefaultByUserId(userId)
             .orElseThrow(() -> new IllegalArgumentException("기본 배송지가 설정되어 있지 않습니다."));
 
@@ -58,7 +58,7 @@ public class DeliveryAddressService {
     }
 
     @Transactional(readOnly = true)
-    public List<DeliveryAddressResponseDto> getAllDeliveryAddresses(Long userId) {
+    public List<DeliveryAddressResponseDto> searchDeliveryAddresses(Long userId) {
         List<DeliveryAddress> deliveryAddressList = deliveryAddressRepositoryQuery.findAllByUserId(userId);
 
         if (deliveryAddressList.isEmpty()) {

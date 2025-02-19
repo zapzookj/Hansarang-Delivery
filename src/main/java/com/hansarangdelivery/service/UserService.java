@@ -51,13 +51,13 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public UserResponseDto getProfile(Long userId) {
+    public UserResponseDto readProfile(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(
             () -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
         return new UserResponseDto(user);
     }
 
-    public Page<UserResponseDto> getAllProfile(int page, int size, boolean isAsc) {
+    public Page<UserResponseDto> searchProfiles(int page, int size, boolean isAsc) {
 
         Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
         Sort sort = Sort.by(direction, "createdAt");
