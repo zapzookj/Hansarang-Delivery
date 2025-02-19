@@ -1,5 +1,6 @@
 package com.hansarangdelivery.entity;
 
+import com.hansarangdelivery.dto.CategoryRequestDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -24,6 +25,13 @@ public class Category extends TimeStamped{
     @NotBlank
     private String name;
 
+    public Category(String name) {
+        this.name = name;
+    }
+
+    public void update(CategoryRequestDto categoryRequestDto){
+        name = categoryRequestDto.getName();
+    }
 }
 
 
