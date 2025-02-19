@@ -2,11 +2,13 @@ package com.hansarangdelivery.controller;
 
 import com.hansarangdelivery.dto.OrderRequestDto;
 import com.hansarangdelivery.dto.OrderResponseDto;
+import com.hansarangdelivery.dto.RestaurantResponseDto;
 import com.hansarangdelivery.dto.ResultResponseDto;
 import com.hansarangdelivery.security.UserDetailsImpl;
 import com.hansarangdelivery.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -28,8 +30,8 @@ public class OrderController {
 
 
     @GetMapping("/{orderId}") // 특정 주문 상세 정보 조회
-    public ResponseEntity<ResultResponseDto<OrderResponseDto>> getOrder(@PathVariable("orderId") UUID orderId) {
-        OrderResponseDto responseDto = orderService.getOrder(orderId);
+    public ResponseEntity<ResultResponseDto<OrderResponseDto>> readOrder(@PathVariable("orderId") UUID orderId) {
+        OrderResponseDto responseDto = orderService.readOrder(orderId);
         return ResponseEntity.status(200).body(new ResultResponseDto<>("특정 주문 상세 정보 조회 성공", 200, responseDto));
     }
 
@@ -49,6 +51,17 @@ public class OrderController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ResultResponseDto("주문 취소 불가능합니다.", 400));
         }
+    }
+
+    @GetMapping("/search")
+    public ResultResponseDto<Page<OrderResponseDto>> searchOrder(
+        @RequestParam(defaultValue = "1") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(defaultValue = "desc") String direction,
+        @RequestParam(required = false) String search) {
+
+        Page<OrderResponseDto> orders = orderService.searchOrders(page,size,direction,search);
+        return new ResultResponseDto<>("주문 검색 성공", 200, orders);
     }
 
 

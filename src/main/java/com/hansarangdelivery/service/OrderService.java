@@ -3,10 +3,16 @@ package com.hansarangdelivery.service;
 import com.hansarangdelivery.dto.OrderItemRequestDto;
 import com.hansarangdelivery.dto.OrderRequestDto;
 import com.hansarangdelivery.dto.OrderResponseDto;
+import com.hansarangdelivery.dto.RestaurantResponseDto;
 import com.hansarangdelivery.entity.*;
 import com.hansarangdelivery.entity.MenuItem;
 import com.hansarangdelivery.repository.OrderRepository;
+import com.hansarangdelivery.repository.OrderRepositoryQueryImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +30,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final MenuItemService menuItemService;
     private final RestaurantService restaurantService; //  가게 정보 조회
+    private final OrderRepositoryQueryImpl orderRepositoryQuery;
 
     @Transactional
     public void createOrder(OrderRequestDto requestDto,User user) {
@@ -70,7 +77,7 @@ public class OrderService {
     }
 
 
-    public OrderResponseDto getOrder(UUID orderId) {
+    public OrderResponseDto readOrder(UUID orderId) {
         Order order = orderRepository.findById(orderId).orElseThrow(
             () -> new IllegalArgumentException("존재하지 않는 주문입니다."));
         return new OrderResponseDto(order);
@@ -86,6 +93,7 @@ public class OrderService {
         order.setDeliveryAddress(requestDto.getDeliveryAddress());
         order.setDeliveryRequest(requestDto.getDeliveryRequest());
         order.setOrderType(OrderType.valueOf(requestDto.getOrderType()));
+        order.setOrderStatus(OrderStatus.valueOf(requestDto.getOrderStatus()));
 
         // 3. 기존 OrderItem 목록을 삭제하기 전에 부모 연관 관계를 해제
         order.getOrderItems().forEach(orderItem -> orderItem.setOrder(null));
@@ -145,6 +153,34 @@ public class OrderService {
     }
 
 
+    public Page<OrderResponseDto> searchOrders(int page, int size, String direction, String search) {
+        page = Math.max(page - 1, 0); // 페이지 최소값 0부터 시작
+
+
+        List<Integer> validSizes = List.of(10, 30, 50);
+        if (!validSizes.contains(size)) {
+            size = 10;
+        }
+
+        Sort.Direction sortDirection = "asc".equalsIgnoreCase(direction) ? Sort.Direction.ASC : Sort.Direction.DESC;
+
+
+        List<Sort.Order> orders = List.of(
+            new Sort.Order(sortDirection, "createdAt"), // 1순위 정렬 (생성일)
+            new Sort.Order(sortDirection, "updatedAt")  // 2순위 정렬 (수정일)
+        );
+
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(orders));
+
+
+        return orderRepositoryQuery.searchOrders(pageable, search)
+            .map(OrderResponseDto::new);
+    }
+
+
+
+
 
 
 
@@ -153,6 +189,7 @@ public class OrderService {
         return orderRepository.findById(orderId)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주문입니다."));
     }
+
 
 
 }
