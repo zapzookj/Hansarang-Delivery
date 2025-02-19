@@ -65,6 +65,17 @@ public class OrderController {
     }
 
 
+    @GetMapping("/searchAll")
+    public ResultResponseDto<Page<OrderResponseDto>> getAllOrders(
+        @RequestParam(defaultValue = "1") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(defaultValue = "desc") String direction) {
+
+        Page<OrderResponseDto> orders = orderService.getAllOrders(page, size, direction);
+        return new ResultResponseDto<>("주문 목록 조회 성공", 200, orders);
+    }
+
+
 
 
 }

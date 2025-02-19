@@ -7,5 +7,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface OrderRepositoryQuery {
     Page<Order> searchOrders(Pageable pageable, String search);
+
+    Page<Order> getAllOrders(Pageable pageable);
 }
 
