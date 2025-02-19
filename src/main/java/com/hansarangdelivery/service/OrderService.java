@@ -3,16 +3,14 @@ package com.hansarangdelivery.service;
 import com.hansarangdelivery.dto.OrderItemRequestDto;
 import com.hansarangdelivery.dto.OrderRequestDto;
 import com.hansarangdelivery.dto.OrderResponseDto;
-import com.hansarangdelivery.dto.ResultResponseDto;
 import com.hansarangdelivery.entity.*;
 import com.hansarangdelivery.entity.MenuItem;
 import com.hansarangdelivery.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.awt.*;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +27,6 @@ public class OrderService {
 
     @Transactional
     public void createOrder(OrderRequestDto requestDto,User user) {
-        Long userId = requestDto.getUserId();
 
         Restaurant restaurant = restaurantService.getRestaurantById(requestDto.getRestaurantId());
 
