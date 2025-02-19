@@ -22,8 +22,8 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping //주문 생성
-    public ResponseEntity<ResultResponseDto<Void>> createOrder(@Valid @RequestBody OrderRequestDto requestDto) {
-        orderService.createOrder(requestDto);  // 주문 생성 로직 실행
+    public ResponseEntity<ResultResponseDto<Void>> createOrder(@Valid @RequestBody OrderRequestDto requestDto,@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        orderService.createOrder(requestDto,userDetails.getUser());  // 주문 생성 로직 실행
         return ResponseEntity.ok(new ResultResponseDto<>("주문 생성 성공", 200));
     }
 

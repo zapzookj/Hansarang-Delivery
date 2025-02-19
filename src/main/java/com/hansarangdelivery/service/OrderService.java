@@ -28,7 +28,7 @@ public class OrderService {
     private final RestaurantService restaurantService; //  가게 정보 조회
 
     @Transactional
-    public void createOrder(OrderRequestDto requestDto) {
+    public void createOrder(OrderRequestDto requestDto,User user) {
         Long userId = requestDto.getUserId();
 
         Restaurant restaurant = restaurantService.getRestaurantById(requestDto.getRestaurantId());
@@ -55,7 +55,7 @@ public class OrderService {
 
         // 주문 객체 생성
         Order order = new Order(
-            userId,
+            user.getId(),
             requestDto.getRestaurantId(),
             storeName, //RestaurantRepository 에서 가져온 storeName 사용
             totalPrice,
