@@ -4,6 +4,7 @@ import com.hansarangdelivery.dto.DeliveryAddressRequestDto;
 import com.hansarangdelivery.dto.DeliveryAddressResponseDto;
 import com.hansarangdelivery.entity.DeliveryAddress;
 import com.hansarangdelivery.entity.User;
+import com.hansarangdelivery.exception.ResourceNotFoundException;
 import com.hansarangdelivery.repository.DeliveryAddressRepository;
 import com.hansarangdelivery.repository.DeliveryAddressRepositoryQueryImpl;
 import lombok.RequiredArgsConstructor;
@@ -24,12 +25,10 @@ public class DeliveryAddressService {
     private final DeliveryAddressRepository deliveryAddressRepository;
     private final DeliveryAddressRepositoryQueryImpl deliveryAddressRepositoryQuery;
 
-
-
     @Transactional
     public void createDeliveryAddress(User user, DeliveryAddressRequestDto requestDto) {
         if (!locationService.existsById(requestDto.getLocationId())) {
-            throw new IllegalArgumentException("해당 위치 정보를 찾을 수 없습니다.");
+            throw new ResourceNotFoundException("해당 위치 정보를 찾을 수 없습니다.");
         }
 
         int count = deliveryAddressRepositoryQuery.countByUserId(user.getId());
@@ -52,7 +51,7 @@ public class DeliveryAddressService {
     @Transactional(readOnly = true)
     public DeliveryAddressResponseDto readDeliveryAddress(Long userId) {
         DeliveryAddress deliveryAddress = deliveryAddressRepositoryQuery.findDefaultByUserId(userId)
-            .orElseThrow(() -> new IllegalArgumentException("기본 배송지가 설정되어 있지 않습니다."));
+            .orElseThrow(() -> new ResourceNotFoundException("기본 배송지가 설정되어 있지 않습니다."));
 
         return new DeliveryAddressResponseDto(deliveryAddress);
     }
@@ -62,7 +61,7 @@ public class DeliveryAddressService {
         List<DeliveryAddress> deliveryAddressList = deliveryAddressRepositoryQuery.findAllByUserId(userId);
 
         if (deliveryAddressList.isEmpty()) {
-            throw new IllegalArgumentException("등록된 배송지가 없습니다.");
+            throw new ResourceNotFoundException("등록된 배송지가 없습니다.");
         }
 
         return deliveryAddressList.stream().map(DeliveryAddressResponseDto::new).toList();
@@ -71,7 +70,7 @@ public class DeliveryAddressService {
     @Transactional
     public void updateDeliveryAddress(Long userId, UUID addressId, DeliveryAddressRequestDto requestDto) {
         DeliveryAddress deliveryAddress = deliveryAddressRepositoryQuery.findByIdAndUserId(addressId, userId).orElseThrow(
-            () -> new IllegalArgumentException("해당 Id를 가진 배송지 정보를 찾을 수 없습니다. 또는 권한이 없습니다.")
+            () -> new ResourceNotFoundException("해당 Id를 가진 배송지 정보를 찾을 수 없습니다. 또는 권한이 없습니다.")
         );
 
         if (requestDto.getIsDefault()) {
@@ -84,7 +83,7 @@ public class DeliveryAddressService {
         if (deliveryAddressRepositoryQuery.existsByIdAndUserId(addressId, userId)) {
             deliveryAddressRepository.deleteById(addressId);
         } else {
-            throw new IllegalArgumentException("해당 Id를 가진 배송지 정보를 찾을 수 없습니다. 또는 권한이 없습니다.");
+            throw new ResourceNotFoundException("해당 Id를 가진 배송지 정보를 찾을 수 없습니다. 또는 권한이 없습니다.");
         }
     }
 
