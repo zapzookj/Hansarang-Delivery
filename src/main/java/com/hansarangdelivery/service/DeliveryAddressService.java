@@ -10,7 +10,6 @@ import com.hansarangdelivery.repository.DeliveryAddressRepositoryQueryImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -32,7 +31,7 @@ public class DeliveryAddressService {
         }
 
         int count = deliveryAddressRepositoryQuery.countByUserId(user.getId());
-        boolean isDefault = requestDto.getIsDefault();
+        boolean isDefault;
 
         if (count >= 3) {
             throw new IllegalArgumentException("배송지는 최대 3개까지 등록할 수 있습니다."); // 한 유저당 배송지 등록은 최대 3개까지로 제한
@@ -74,21 +73,17 @@ public class DeliveryAddressService {
         );
 
         if (requestDto.getIsDefault()) {
-            resetExistingDefault(userId);
+            deliveryAddressRepositoryQuery.resetDefault(userId); // 기존에 존재하던 기본 배송지를 is_default = false 로 수정
         }
         deliveryAddress.update(requestDto.getLocationId(), requestDto.getRequestMessage(), requestDto.getIsDefault());
     }
 
+    @Transactional
     public void deleteDeliveryAddress(Long userId, UUID addressId) {
         if (deliveryAddressRepositoryQuery.existsByIdAndUserId(addressId, userId)) {
             deliveryAddressRepository.deleteById(addressId);
         } else {
             throw new ResourceNotFoundException("해당 Id를 가진 배송지 정보를 찾을 수 없습니다. 또는 권한이 없습니다.");
         }
-    }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void resetExistingDefault(Long userId) {
-        deliveryAddressRepositoryQuery.resetDefault(userId);
     }
 }

@@ -31,6 +31,7 @@ public class UserService {
     @Value("${admin.code}")
     private String adminCode;
 
+    @Transactional
     public void signup(SignupRequestDto requestDto) {
         String username = requestDto.getUsername();
         String password = passwordEncoder.encode(requestDto.getPassword());
@@ -54,12 +55,14 @@ public class UserService {
         userRepository.save(user);
     }
 
+    @Transactional(readOnly = true)
     public UserResponseDto readProfile(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(
             () -> new ResourceNotFoundException("존재하지 않는 사용자입니다."));
         return new UserResponseDto(user);
     }
 
+    @Transactional(readOnly = true)
     public Page<UserResponseDto> searchProfiles(int page, int size, boolean isAsc) {
 
         Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
@@ -79,7 +82,6 @@ public class UserService {
         validateInfo(username, email);
 
         user.updateProfile(username, email);
-        userRepository.save(user);
     }
 
     @Transactional
@@ -87,7 +89,6 @@ public class UserService {
         User user = findUser(userId);
 
         user.updateRole();
-        userRepository.save(user);
     }
 
     @Transactional
