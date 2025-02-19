@@ -6,6 +6,8 @@ import com.hansarangdelivery.dto.AiResponseDto;
 import com.hansarangdelivery.entity.AiResponse;
 import com.hansarangdelivery.entity.User;
 import com.hansarangdelivery.entity.UserRole;
+import com.hansarangdelivery.exception.ForbiddenActionException;
+import com.hansarangdelivery.exception.ResourceNotFoundException;
 import com.hansarangdelivery.repository.AiResponseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -116,12 +118,12 @@ public class AiResponseService {
 
     private AiResponse findAiResponse(UUID aiResponseId) {
         return aiResponseRepository.findById(aiResponseId)
-            .orElseThrow(() -> new IllegalArgumentException("해당 Id를 가진 Ai 응답을 찾을 수 없습니다."));
+            .orElseThrow(() -> new ResourceNotFoundException("해당 Id를 가진 Ai 응답을 찾을 수 없습니다."));
     }
 
     private void checkPermissions(AiResponse aiResponse, User user) {
         if (!aiResponse.getUserId().equals(user.getId()) || !user.getRole().equals(UserRole.MANAGER)) {
-            throw new IllegalArgumentException("권한이 없습니다.");
+            throw new ForbiddenActionException("권한이 없습니다.");
         }
     }
 }
