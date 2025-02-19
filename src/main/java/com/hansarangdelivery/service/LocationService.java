@@ -4,7 +4,6 @@ import com.hansarangdelivery.dto.LocationRequestDto;
 import com.hansarangdelivery.dto.LocationResponseDto;
 import com.hansarangdelivery.repository.LocationRepository;
 import com.hansarangdelivery.repository.LocationRepositoryQuery;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

@@ -68,7 +68,7 @@ public class AiResponseService {
     }
 
     @Transactional(readOnly = true)
-    public AiResponseDto getAiResponse(User user, UUID aiResponseId) {
+    public AiResponseDto readAiResponse(User user, UUID aiResponseId) {
         AiResponse aiResponse = findAiResponse(aiResponseId);
 
         checkPermissions(aiResponse, user);

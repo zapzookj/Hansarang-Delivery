@@ -31,9 +31,9 @@ public class AiResponseController {
 
     // AI 응답 단건 조회 API (Permission : 본인이 생성한 응답이거나 권한이 MANAGER 인 경우)
     @GetMapping("/{aiResponseId}")
-    public ResultResponseDto<AiResponseDto> getAiResponse(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                          @PathVariable("aiResponseId") UUID aiResponseId) {
-        AiResponseDto aiResponseDto = aiResponseService.getAiResponse(userDetails.getUser(), aiResponseId);
+    public ResultResponseDto<AiResponseDto> readAiResponse(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                           @PathVariable("aiResponseId") UUID aiResponseId) {
+        AiResponseDto aiResponseDto = aiResponseService.readAiResponse(userDetails.getUser(), aiResponseId);
         return new ResultResponseDto<>("조회 성공", 200, aiResponseDto);
     }
 
