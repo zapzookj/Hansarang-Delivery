@@ -63,13 +63,12 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Page<UserResponseDto> searchProfiles(int page, int size, boolean isAsc) {
+    public Page<UserResponseDto> searchProfiles(Pageable pageable) {
 
-        Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
-        Sort sort = Sort.by(direction, "createdAt");
-        Pageable pageable = PageRequest.of(page, size, sort);
+        Sort sort = pageable.getSort().isSorted() ? pageable.getSort() : Sort.by(Sort.Direction.DESC, "createdAt", "updatedAt");
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
 
-        return userRepositoryQuery.searchUsers(pageable).map(UserResponseDto::new);
+        return userRepositoryQuery.searchUsers(sortedPageable).map(UserResponseDto::new);
     }
 
     @Transactional

@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -41,10 +42,8 @@ public class UserController {
 
     @GetMapping()
     @PreAuthorize("hasRole('ROLE_MANAGER')")
-    public ResponseEntity<ResultResponseDto<Page<UserResponseDto>>> searchProfiles(@RequestParam("page") int page,
-                                                                                   @RequestParam("size") int size,
-                                                                                   @RequestParam("isAsc") boolean isAsc) {
-        Page<UserResponseDto> responseDtoPage = userService.searchProfiles(page-1, size, isAsc);
+    public ResponseEntity<ResultResponseDto<Page<UserResponseDto>>> searchProfiles(Pageable pageable) {
+        Page<UserResponseDto> responseDtoPage = userService.searchProfiles(pageable);
         return ResponseEntity.status(200).body(new ResultResponseDto<>("조회 성공",200, responseDtoPage));
     }
 
