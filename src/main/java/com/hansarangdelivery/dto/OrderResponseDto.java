@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 public class OrderResponseDto {
-    private Long userId;
     private UUID restaurantId;
     private String storeName;
     private int totalPrice;
@@ -20,11 +19,10 @@ public class OrderResponseDto {
     private List<OrderItemDto> orderItems;
 
     public OrderResponseDto(Order order) {
-        this.userId = order.getUserId();
         this.restaurantId = order.getRestaurantId();
         this.storeName = order.getStoreName();
         this.totalPrice = order.getTotalPrice();
-        this.status = order.getStatus().toString();
+        this.status = order.getOrderStatus().toString();
         this.deliveryAddress = order.getDeliveryAddress();
         this.deliveryRequest = order.getDeliveryRequest();
         this.orderItems = order.getOrderItems().stream().map(OrderItemDto::new).collect(Collectors.toList());
