@@ -3,7 +3,6 @@ package com.hansarangdelivery.service;
 import com.hansarangdelivery.dto.OrderItemRequestDto;
 import com.hansarangdelivery.dto.OrderRequestDto;
 import com.hansarangdelivery.dto.OrderResponseDto;
-import com.hansarangdelivery.dto.RestaurantResponseDto;
 import com.hansarangdelivery.entity.*;
 import com.hansarangdelivery.entity.MenuItem;
 import com.hansarangdelivery.repository.OrderRepository;
@@ -31,6 +30,7 @@ public class OrderService {
     private final MenuItemService menuItemService;
     private final RestaurantService restaurantService; //  가게 정보 조회
     private final OrderRepositoryQueryImpl orderRepositoryQuery;
+    private final PaymentService paymentService;
 
     @Transactional
     public void createOrder(OrderRequestDto requestDto,User user) {
@@ -64,7 +64,7 @@ public class OrderService {
             storeName, //RestaurantRepository 에서 가져온 storeName 사용
             totalPrice,
             OrderType.valueOf(requestDto.getOrderType()),
-            OrderStatus.SUCCESS, // 주문 성공 상태로 변경
+            OrderStatus.PENDING, // 주문 생성 되었으나 결제 전
             requestDto.getDeliveryAddress(),
             requestDto.getDeliveryRequest(),
             orderItems
@@ -88,6 +88,8 @@ public class OrderService {
     public void updateOrder(UUID orderId, OrderRequestDto requestDto) {
         // 1. 기존 주문 찾기
         Order order = findOrder(orderId);
+
+        paymentService.createMockPayment(orderId,order.getTotalPrice());
 
         // 2. 기본 정보 업데이트
         order.setDeliveryAddress(requestDto.getDeliveryAddress());
@@ -191,6 +193,19 @@ public class OrderService {
     }
 
 
+    public Page<OrderResponseDto> getAllOrders(int page, int size, String direction) {
 
-}
+            page = Math.max(page - 1, 0); // 페이지 최소값 0부터 시작
+
+            Sort.Direction sortDirection = "asc".equalsIgnoreCase(direction) ? Sort.Direction.ASC : Sort.Direction.DESC;
+            Pageable pageable = PageRequest.of(page, size, Sort.by(
+                new Sort.Order(sortDirection, "createdAt"),
+                new Sort.Order(sortDirection, "updatedAt")
+            ));
+
+            return orderRepositoryQuery.getAllOrders(pageable).map(OrderResponseDto::new);
+        }
+
+    }
+
 

@@ -1,9 +1,7 @@
 package com.hansarangdelivery.repository;
 
 import com.hansarangdelivery.entity.Order;
-import com.hansarangdelivery.entity.OrderStatus;
 import com.hansarangdelivery.entity.QOrder;
-import com.hansarangdelivery.repository.OrderRepositoryQuery;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+
 import java.util.List;
 
 @Repository
@@ -47,5 +46,27 @@ public class OrderRepositoryQueryImpl implements OrderRepositoryQuery {
 
         return new PageImpl<>(results, pageable, total);
     }
+
+
+
+    @Override
+    public Page<Order> getAllOrders(Pageable pageable) {
+        QOrder order = QOrder.order;
+
+        List<Order> results = queryFactory
+            .selectFrom(order)
+            .orderBy(order.createdAt.desc(), order.updatedAt.desc())
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .fetch();
+
+        long total = queryFactory
+            .select(order.count())
+            .from(order)
+            .fetchOne();
+
+        return new PageImpl<>(results, pageable, total);
+    }
+
 
 }
