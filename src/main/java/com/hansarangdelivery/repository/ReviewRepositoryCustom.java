@@ -12,5 +12,5 @@ public interface ReviewRepositoryCustom {
 
     Page<Review> searchByRestaurantId(UUID restaurantId, Pageable pageable);
 
-    Page<Review> searchByUserId(Long userId, Pageable pageable);
+    Page<Review> searchByUserId(String userId, Pageable pageable);
 }

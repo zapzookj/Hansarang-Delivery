@@ -49,7 +49,7 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
     }
 
     @Override
-    public Page<Review> searchByUserId(Long userId, Pageable pageable) {
+    public Page<Review> searchByUserId(String userId, Pageable pageable) {
 
         QReview review = QReview.review;
 
@@ -59,7 +59,7 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
             .orderBy(review.createdAt.desc(), review.updatedAt.desc())
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize())
-            .fetch;
+            .fetch();
 
         long total = queryFactory
             .selectFrom(review)
