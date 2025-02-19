@@ -39,21 +39,22 @@ public class ReviewService {
         reviewRepository.save(review);
     }
 
-    public Page<ReviewResponseDto> readRestaurantReview(ReviewRequestDto requestDto, Pageable pageable) {
+    public Page<ReviewResponseDto> readRestaurantReview(UUID restaurantId, Pageable pageable) {
 
-        Page<Review> reviews = reviewRepository.findAllByRestaurantId(requestDto.getRestaurantId(), pageable);
+        Page<Review> reviews = reviewRepository.searchByRestaurantId(restaurantId, pageable);
 
         return reviews.map(ReviewResponseDto::new);
     }
 
     public Page<ReviewResponseDto> readMyReview(Long userId, Pageable pageable) {
 
-        Page<Review> reviews = reviewRepository.findAllByCreatedBy(userId, pageable);
+        Page<Review> reviews = reviewRepository.searchByUserId(userId, pageable);
 
         return reviews.map(ReviewResponseDto::new);
     }
 
     public void updateReview(UUID reviewId, ReviewRequestDto requestDto, User user) {
+
         Review review = reviewRepository.findById(reviewId).orElseThrow(
             () -> new IllegalArgumentException("찾는 리뷰가 없습니다.")
         );
@@ -67,6 +68,7 @@ public class ReviewService {
 
     @Transactional
     public void deleteReview(UUID reviewId, User user) {
+
         Review review = reviewRepository.findById(reviewId)
             .orElseThrow(() -> new IllegalArgumentException("이미 삭제되거나 리뷰 정보를 찾을 수 없습니다."));
 

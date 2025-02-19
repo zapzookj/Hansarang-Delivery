@@ -29,10 +29,10 @@ public class ReviewController {
         return new ResultResponseDto<>("리뷰 작성 완료", 200);
     }
 
-    @GetMapping("/")
-    public ResultResponseDto<Page<ReviewResponseDto>> readRestaurantReview(@RequestBody ReviewRequestDto requestDto, Pageable pageable) {
+    @GetMapping("/{restaurantId}")
+    public ResultResponseDto<Page<ReviewResponseDto>> readRestaurantReview(@PathVariable UUID restaurantId, Pageable pageable) {
 
-        Page<ReviewResponseDto> responseList = reviewService.readRestaurantReview(requestDto, pageable);
+        Page<ReviewResponseDto> responseList = reviewService.readRestaurantReview(restaurantId, pageable);
 
         return new ResultResponseDto<>("식당 리뷰 조회 성공", 200, responseList);
     }
