@@ -13,7 +13,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Payment extends TimeStamped{
+public class Payment extends TimeStamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -27,9 +27,8 @@ public class Payment extends TimeStamped{
     @Column(nullable = false)
     private PaymentMethod paymentMethod; // 결제 방법 (카드, 간편결제 등)
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private PaymentStatus paymentStatus; // 결제 상태
+    private boolean isSuccess; // 결제 성공 여부
 
     @Column(nullable = false)
     private int totalPrice; // 결제 금액

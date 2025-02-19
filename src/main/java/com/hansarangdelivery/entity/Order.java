@@ -6,6 +6,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.lang.Contract;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -36,7 +38,7 @@ public class Order extends TimeStamped {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private OrderStatus status;
+    private OrderStatus orderStatus;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -59,10 +61,17 @@ public class Order extends TimeStamped {
         this.storeName = storeName;
         this.totalPrice = totalPrice;
         this.orderType = orderType;
-        this.status = status;
+        this.orderStatus = status;
         this.deliveryAddress = deliveryAddress;
         this.deliveryRequest = deliveryRequest;
         this.orderItems = (orderItems != null) ? orderItems : new ArrayList<>();
         this.orderItems.forEach(item -> item.setOrder(this));
     }
-}
+
+    public void setOrderStatus(OrderStatus orderStatus) {
+        this.orderStatus =orderStatus;
+    }
+
+
+    }
+

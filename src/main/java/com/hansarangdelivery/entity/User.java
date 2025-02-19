@@ -34,7 +34,7 @@ public class User extends TimeStamped{
     private UserRole role;  // CUSTOMER, OWNER, MANAGER, MASTER
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<DeliveryLocation> deliveries = new ArrayList<>();
+    private List<DeliveryAddress> addressList = new ArrayList<>();
 
     public User(String username, String password, String email, UserRole role) {
         this.username = username;

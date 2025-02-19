@@ -2,21 +2,15 @@ package com.hansarangdelivery.service;
 
 import com.hansarangdelivery.dto.MenuItemRequestDto;
 import com.hansarangdelivery.dto.MenuItemResponseDto;
-import com.hansarangdelivery.dto.ResultResponseDto;
 import com.hansarangdelivery.entity.MenuItem;
-import com.hansarangdelivery.entity.Restaurant;
 import com.hansarangdelivery.entity.User;
 import com.hansarangdelivery.repository.MenuItemRepository;
-import com.hansarangdelivery.repository.RestaurantRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -34,8 +28,11 @@ public class MenuItemService {
     }
 
     public List<MenuItemResponseDto> searchAllMenuItem(UUID restaurantId) {
-        List<MenuItem> menuItemList = menuItemRepository.findAllByRestaurantId(restaurantId)
-            .orElseThrow(() -> new IllegalArgumentException("조회딘 메뉴가 없습니다."));
+        List<MenuItem> menuItemList = menuItemRepository.findAllByRestaurantId(restaurantId);
+
+        if(menuItemList.isEmpty()){
+            throw new IllegalArgumentException("조회된 정보가 없습니다.");
+        }
 
         List<MenuItemResponseDto> responseList = new ArrayList<>();
 
@@ -71,11 +68,14 @@ public class MenuItemService {
     }
 
     // 레스토랑이 삭제될 경우 호출
-    public void deleteMenuItemByRestaurantId(UUID restaurantId, User user){
-        List<MenuItem> menuItemList = menuItemRepository.findAllByRestaurantId(restaurantId)
-            .orElseThrow(() -> new IllegalArgumentException("이미 삭제된 메뉴입니다."));
+    public void deleteMenuItemByRestaurantId(UUID restaurantId, User user) {
+        List<MenuItem> menuItemList = menuItemRepository.findAllByRestaurantId(restaurantId);
 
-        for(MenuItem menuItem : menuItemList){
+        if(menuItemList.isEmpty()){
+            throw new IllegalArgumentException("이미 삭제된 정보입니다.");
+        }
+
+        for (MenuItem menuItem : menuItemList) {
             menuItem.delete(LocalDateTime.now(), user.getId().toString());
         }
     }

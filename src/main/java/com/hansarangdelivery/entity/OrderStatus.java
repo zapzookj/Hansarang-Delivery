@@ -7,7 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum OrderStatus {
     SUCCESS("주문 성공"),
-    FAILURE("주문 실패");
+    CANCELED("주문 취소");
 
     private final String description;
 
