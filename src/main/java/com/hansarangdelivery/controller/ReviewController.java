@@ -22,7 +22,7 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @PostMapping("/")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_CUSTOMER')")
     public ResultResponseDto<Void> addReview(@RequestBody ReviewRequestDto requestDto) {
 
         reviewService.addReview(requestDto);
