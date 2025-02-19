@@ -31,8 +31,11 @@ public class MenuItemController {
         return new ResultResponseDto<>("메뉴 저장 성공", 200);
     }
 
-    @GetMapping("/{restaurantId}")
-    public ResultResponseDto<Page<MenuItemResponseDto>> searchAllMenuItem(@PathVariable UUID restaurantId, Pageable pageable) {
+    @GetMapping("/restaurant")
+    public ResultResponseDto<Page<MenuItemResponseDto>> searchAllMenuItem(@RequestParam UUID restaurantId, Pageable pageable) {
+
+        // PageSize 검증
+        // PageableConfig.validatePageSize(pageable);
 
         Page<MenuItemResponseDto> responseDtoList = menuItemService.searchAllMenuItem(restaurantId, pageable);
 
@@ -41,9 +44,9 @@ public class MenuItemController {
 
     // 메뉴 ID로 특정 메뉴 조회
     @GetMapping("/{menuItemId}")
-    public ResultResponseDto<MenuItemResponseDto> searchMenuItem(@PathVariable UUID menuItemId) {
+    public ResultResponseDto<MenuItemResponseDto> readMenuItem(@PathVariable UUID menuItemId) {
 
-        MenuItemResponseDto responseDto = menuItemService.searchMenuItem(menuItemId);
+        MenuItemResponseDto responseDto = menuItemService.readMenuItem(menuItemId);
 
         return new ResultResponseDto<>("메뉴 조회 성공", 200, responseDto);
     }

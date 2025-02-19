@@ -39,7 +39,7 @@ public class MenuItemService {
         return menuItems.map(MenuItemResponseDto::new);
     }
 
-    public MenuItemResponseDto searchMenuItem(UUID menuItemId) {
+    public MenuItemResponseDto readMenuItem(UUID menuItemId) {
         MenuItem menuItem = menuItemRepository.findById(menuItemId)
             .orElseThrow(() -> new IllegalArgumentException("찾는 메뉴가 없습니다."));
 
