@@ -19,5 +19,14 @@ public class PageableConfig implements WebMvcConfigurer {
         resolver.setMaxPageSize(50); // 최대 페이지 크기 제한
         resolvers.add(resolver);
     }
+
+    public void validatePageSize(PageRequest request) {
+        if(request.getPageSize() != PageType.TEN.getSize()
+            && request.getPageSize() != PageType.THIRTY.getSize()
+            && request.getPageSize() != PageType.FIFTY.getSize()
+        ) {
+            throw new IllegalArgumentException("페이지 사이즈는 10 / 30 / 50 중에서 입력 가능합니다.");
+        }
+    }
 }
 
