@@ -7,6 +7,7 @@ import com.hansarangdelivery.security.UserDetailsImpl;
 import com.hansarangdelivery.service.AiResponseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -40,10 +41,8 @@ public class AiResponseController {
     // 본인이 생성한 AI 응답 전체 조회 API
     @GetMapping()
     public ResultResponseDto<Page<AiResponseDto>> searchAiResponses(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                                    @RequestParam("page") int page,
-                                                                    @RequestParam("size") int size,
-                                                                    @RequestParam("isAsc") boolean isAsc) {
-        Page<AiResponseDto> aiResponseDtos = aiResponseService.searchAiResponses(userDetails.getUser(), page-1, size, isAsc);
+                                                                    Pageable pageable) {
+        Page<AiResponseDto> aiResponseDtos = aiResponseService.searchAiResponses(userDetails.getUser(), pageable);
         return new ResultResponseDto<>("조회 성공", 200, aiResponseDtos);
     }
 

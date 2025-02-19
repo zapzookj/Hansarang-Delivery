@@ -77,13 +77,12 @@ public class AiResponseService {
     }
 
     @Transactional(readOnly = true)
-    public Page<AiResponseDto> searchAiResponses(User user, int page, int size, boolean isAsc) {
+    public Page<AiResponseDto> searchAiResponses(User user, Pageable pageable) {
 
-        Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
-        Sort sort = Sort.by(direction, "createdAt");
-        Pageable pageable = PageRequest.of(page, size, sort);
+        Sort sort = pageable.getSort().isSorted() ? pageable.getSort() : Sort.by(Sort.Direction.DESC, "createdAt");
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
 
-        return aiResponseRepository.findByUserId(user.getId(), pageable).map(AiResponseDto::new);
+        return aiResponseRepository.findByUserId(user.getId(), sortedPageable).map(AiResponseDto::new);
     }
 
     @Transactional
