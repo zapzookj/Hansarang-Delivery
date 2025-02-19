@@ -1,5 +1,6 @@
 package com.hansarangdelivery.controller;
 
+import com.hansarangdelivery.config.PageableConfig;
 import com.hansarangdelivery.dto.*;
 import com.hansarangdelivery.security.UserDetailsImpl;
 import com.hansarangdelivery.service.ReviewService;
@@ -32,6 +33,8 @@ public class ReviewController {
     @GetMapping("/{restaurantId}")
     public ResultResponseDto<Page<ReviewResponseDto>> readRestaurantReview(@PathVariable UUID restaurantId, Pageable pageable) {
 
+        PageableConfig.validatePageSize(pageable);
+
         Page<ReviewResponseDto> responseList = reviewService.readRestaurantReview(restaurantId, pageable);
 
         return new ResultResponseDto<>("식당 리뷰 조회 성공", 200, responseList);
@@ -39,6 +42,8 @@ public class ReviewController {
 
     @GetMapping("/me")
     public ResultResponseDto<Page<ReviewResponseDto>> readMyReview(@AuthenticationPrincipal UserDetailsImpl userDetails, Pageable pageable) {
+
+        PageableConfig.validatePageSize(pageable);
 
         Page<ReviewResponseDto> responseList = reviewService.readMyReview(userDetails.getUser().getId(), pageable);
 
