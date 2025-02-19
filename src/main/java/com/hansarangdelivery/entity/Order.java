@@ -54,10 +54,10 @@ public class Order extends TimeStamped {
     @JsonManagedReference
     private List<OrderItem> orderItems = new ArrayList<>();
 
-    public Order(Long userId,UUID restaurantId, String storeName, int totalPrice, OrderType orderType, OrderStatus status,
+    public Order(Long userId, UUID restaurantId, String storeName, int totalPrice, OrderType orderType, OrderStatus status,
                  String deliveryAddress, String deliveryRequest, List<OrderItem> orderItems) {
         this.userId = userId;
-        this.restaurantId =restaurantId;
+        this.restaurantId = restaurantId;
         this.storeName = storeName;
         this.totalPrice = totalPrice;
         this.orderType = orderType;
@@ -69,9 +69,13 @@ public class Order extends TimeStamped {
     }
 
     public void setOrderStatus(OrderStatus orderStatus) {
-        this.orderStatus =orderStatus;
+        this.orderStatus = orderStatus;
     }
 
 
+    public void setOrderItems(List<OrderItem> orderItems) {
+        this.orderItems.clear();
+        this.orderItems.addAll(orderItems);
     }
+}
 

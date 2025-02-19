@@ -7,6 +7,7 @@ import com.hansarangdelivery.security.UserDetailsImpl;
 import com.hansarangdelivery.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -21,37 +22,56 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping //주문 생성
-    public ResponseEntity<ResultResponseDto<Void>> createOrder(@Valid @RequestBody OrderRequestDto requestDto,@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        orderService.createOrder(requestDto,userDetails.getUser());  // 주문 생성 로직 실행
+    public ResponseEntity<ResultResponseDto<Void>> createOrder(@Valid @RequestBody OrderRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        orderService.createOrder(requestDto, userDetails.getUser());  // 주문 생성 로직 실행
         return ResponseEntity.ok(new ResultResponseDto<>("주문 생성 성공", 200));
     }
 
 
     @GetMapping("/{orderId}") // 특정 주문 상세 정보 조회
-    public ResponseEntity<ResultResponseDto<OrderResponseDto>> getOrder(@PathVariable("orderId") UUID orderId) {
-        OrderResponseDto responseDto = orderService.getOrder(orderId);
+    public ResponseEntity<ResultResponseDto<OrderResponseDto>> readOrder(@PathVariable("orderId") UUID orderId) {
+        OrderResponseDto responseDto = orderService.readOrder(orderId);
         return ResponseEntity.status(200).body(new ResultResponseDto<>("특정 주문 상세 정보 조회 성공", 200, responseDto));
     }
 
     @PutMapping("/{orderId}")  //특정 주문 수정 (오너만)
-    public ResponseEntity<ResultResponseDto<Void>> updateOrder(@PathVariable("orderId") UUID orderId,@RequestBody OrderRequestDto requestDto){
-        orderService.updateOrder(orderId,requestDto);
+    public ResponseEntity<ResultResponseDto<Void>> updateOrder(@PathVariable("orderId") UUID orderId, @RequestBody OrderRequestDto requestDto) {
+        orderService.updateOrder(orderId, requestDto);
         return ResponseEntity.ok(new ResultResponseDto<>("주문 수정 성공", 200));
-
 
     }
 
     @DeleteMapping("{orderId}")
-    public ResponseEntity<ResultResponseDto<Void>> updateOrder(@PathVariable("orderId") UUID orderId,@AuthenticationPrincipal UserDetailsImpl userDetails){
+    public ResponseEntity<ResultResponseDto<Void>> updateOrder(@PathVariable("orderId") UUID orderId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         try {
             orderService.deleteOrder(orderId, userDetails.getUser());
-            return ResponseEntity.ok(new ResultResponseDto("주문이 취소되었습니다.",200));
+            return ResponseEntity.ok(new ResultResponseDto("주문이 취소되었습니다.", 200));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ResultResponseDto("주문 취소 불가능합니다.", 400));
         }
     }
 
+    @GetMapping("/search")
+    public ResultResponseDto<Page<OrderResponseDto>> searchOrder(
+        @RequestParam(defaultValue = "1") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(defaultValue = "desc") String direction,
+        @RequestParam(required = false) String search) {
 
+        Page<OrderResponseDto> orders = orderService.searchOrders(page, size, direction, search);
+        return new ResultResponseDto<>("주문 검색 성공", 200, orders);
+    }
+
+
+    @GetMapping("/searchAll")
+    public ResultResponseDto<Page<OrderResponseDto>> getAllOrders(
+        @RequestParam(defaultValue = "1") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(defaultValue = "desc") String direction) {
+
+        Page<OrderResponseDto> orders = orderService.getAllOrders(page, size, direction);
+        return new ResultResponseDto<>("주문 목록 조회 성공", 200, orders);
+    }
 
 
 }

@@ -14,7 +14,7 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
 
-    public boolean createMockPayment(Long orderId, int totalPrice) {
+    public boolean createMockPayment(UUID orderId, int totalPrice) {
         Payment payment = new Payment();
         payment.setOrderId(orderId);
         payment.setTotalPrice(totalPrice);
