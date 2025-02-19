@@ -6,11 +6,12 @@ import com.hansarangdelivery.dto.ResultResponseDto;
 import com.hansarangdelivery.security.UserDetailsImpl;
 import com.hansarangdelivery.service.MenuItemService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -30,10 +31,10 @@ public class MenuItemController {
         return new ResultResponseDto<>("메뉴 저장 성공", 200);
     }
 
-    @GetMapping("/")
-    public ResultResponseDto<List<MenuItemResponseDto>> searchAllMenuItem(@RequestBody MenuItemRequestDto requestDto) {
+    @GetMapping("/{restaurantId}")
+    public ResultResponseDto<Page<MenuItemResponseDto>> searchAllMenuItem(@PathVariable UUID restaurantId, Pageable pageable) {
 
-        List<MenuItemResponseDto> responseDtoList = menuItemService.searchAllMenuItem(requestDto.getRestaurantId());
+        Page<MenuItemResponseDto> responseDtoList = menuItemService.searchAllMenuItem(restaurantId, pageable);
 
         return new ResultResponseDto<>("메뉴 조회 성공", 200, responseDtoList);
     }

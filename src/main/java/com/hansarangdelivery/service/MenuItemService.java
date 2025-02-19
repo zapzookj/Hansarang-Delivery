@@ -6,10 +6,11 @@ import com.hansarangdelivery.entity.MenuItem;
 import com.hansarangdelivery.entity.User;
 import com.hansarangdelivery.repository.MenuItemRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,20 +28,15 @@ public class MenuItemService {
         menuItemRepository.save(menuItem);
     }
 
-    public List<MenuItemResponseDto> searchAllMenuItem(UUID restaurantId) {
-        List<MenuItem> menuItemList = menuItemRepository.findAllByRestaurantId(restaurantId);
+    public Page<MenuItemResponseDto> searchAllMenuItem(UUID restaurantId, Pageable pageable) {
 
-        if(menuItemList.isEmpty()){
-            throw new IllegalArgumentException("조회된 정보가 없습니다.");
+        Page<MenuItem> menuItems = menuItemRepository.searchMenuItemByRestaurantId(restaurantId, pageable);
+
+        if(menuItems.isEmpty()){
+            throw new IllegalArgumentException("조회된 메뉴가 없습니다.");
         }
 
-        List<MenuItemResponseDto> responseList = new ArrayList<>();
-
-        for (MenuItem menuItem : menuItemList) {
-            responseList.add(new MenuItemResponseDto(menuItem.getId(), menuItem.getName(), menuItem.getPrice(), menuItem.isAvailable()));
-        }
-
-        return responseList;
+        return menuItems.map(MenuItemResponseDto::new);
     }
 
     public MenuItemResponseDto searchMenuItem(UUID menuItemId) {
