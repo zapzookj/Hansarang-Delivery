@@ -2,11 +2,10 @@ package com.hansarangdelivery.service;
 
 import com.hansarangdelivery.dto.ReviewRequestDto;
 import com.hansarangdelivery.dto.ReviewResponseDto;
-import com.hansarangdelivery.entity.QReview;
 import com.hansarangdelivery.entity.Review;
 import com.hansarangdelivery.entity.User;
 import com.hansarangdelivery.repository.ReviewRepository;
-import com.hansarangdelivery.repository.ReviewRepositoryCustom;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +20,7 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
 
 
-    public Double countAverageRating(UUID restaurantId){
+    public Double countAverageRating(UUID restaurantId) {
 
         return reviewRepository.getAverageRating(restaurantId);
     }
@@ -47,24 +46,33 @@ public class ReviewService {
         return reviews.map(ReviewResponseDto::new);
     }
 
-    public Page<ReviewResponseDto> readMyReview(UUID userId, Pageable pageable) {
+    public Page<ReviewResponseDto> readMyReview(Long userId, Pageable pageable) {
 
-        Page<Review> reviews = reviewRepository.findAllByCreatedBy(userId.toString(), pageable);
+        Page<Review> reviews = reviewRepository.findAllByCreatedBy(userId, pageable);
 
         return reviews.map(ReviewResponseDto::new);
     }
 
-    public void updateReview(UUID reviewId, ReviewRequestDto requestDto) {
+    public void updateReview(UUID reviewId, ReviewRequestDto requestDto, User user) {
         Review review = reviewRepository.findById(reviewId).orElseThrow(
             () -> new IllegalArgumentException("찾는 리뷰가 없습니다.")
         );
 
+        if (!review.getCreatedBy().equals(user.getId()) && !user.getRole().equals("ROLE_MANAGER")) {
+            throw new RuntimeException("수정 권한이 없습니다.");
+        }
+
         review.update(requestDto.getContent(), requestDto.getRating());
     }
 
+    @Transactional
     public void deleteReview(UUID reviewId, User user) {
         Review review = reviewRepository.findById(reviewId)
             .orElseThrow(() -> new IllegalArgumentException("이미 삭제되거나 리뷰 정보를 찾을 수 없습니다."));
+
+        if (!review.getCreatedBy().equals(user.getId()) && !user.getRole().equals("ROLE_MANAGER")) {
+            throw new RuntimeException("삭제 권한이 없습니다.");
+        }
 
         review.delete(LocalDateTime.now(), user.getId().toString());
     }
