@@ -39,9 +39,9 @@ public class ReviewService {
         reviewRepository.save(review);
     }
 
-    public Page<ReviewResponseDto> readRestaurantReview(UUID restaurantId, Pageable pageable) {
+    public Page<ReviewResponseDto> readRestaurantReview(ReviewRequestDto requestDto, Pageable pageable) {
 
-        Page<Review> reviews = reviewRepository.findAllByRestaurantId(restaurantId, pageable);
+        Page<Review> reviews = reviewRepository.findAllByRestaurantId(requestDto.getRestaurantId(), pageable);
 
         return reviews.map(ReviewResponseDto::new);
     }

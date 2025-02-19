@@ -1,13 +1,12 @@
 package com.hansarangdelivery.controller;
 
-import com.hansarangdelivery.dto.ResultResponseDto;
-import com.hansarangdelivery.dto.ReviewRequestDto;
-import com.hansarangdelivery.dto.ReviewResponseDto;
+import com.hansarangdelivery.dto.*;
 import com.hansarangdelivery.security.UserDetailsImpl;
 import com.hansarangdelivery.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -30,10 +29,10 @@ public class ReviewController {
         return new ResultResponseDto<>("리뷰 작성 완료", 200);
     }
 
-    @GetMapping("/{restaurantId}")
-    public ResultResponseDto<Page<ReviewResponseDto>> readRestaurantReview(@PathVariable UUID restaurantId, Pageable pageable) {
+    @GetMapping("/")
+    public ResultResponseDto<Page<ReviewResponseDto>> readRestaurantReview(@RequestBody ReviewRequestDto requestDto, Pageable pageable) {
 
-        Page<ReviewResponseDto> responseList = reviewService.readRestaurantReview(restaurantId, pageable);
+        Page<ReviewResponseDto> responseList = reviewService.readRestaurantReview(requestDto, pageable);
 
         return new ResultResponseDto<>("식당 리뷰 조회 성공", 200, responseList);
     }
