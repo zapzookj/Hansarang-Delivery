@@ -6,7 +6,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.lang.Contract;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,10 +23,10 @@ public class Order extends TimeStamped {
     @Column(name = "order_id", columnDefinition = "uuid")
     private UUID id;
 
-    @Column(name = "user_id", nullable = false) // ✅ 주문자 ID 추가
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Column(name = "restaurant_id", nullable = false) // ✅ 주문자 ID 추가
+    @Column(name = "restaurant_id", nullable = false)
     private UUID restaurantId;
 
     @Column(name = "store_name", length = 100, nullable = false)
@@ -45,7 +44,10 @@ public class Order extends TimeStamped {
     private OrderType orderType;
 
     @Column(name = "delivery_address", length = 100, nullable = false)
-    private String deliveryAddress;
+    private UUID deliveryAddress; // 변경된 필드
+
+    @Column(name = "detail_address", length = 100, nullable = false)
+    private String detailAddress;
 
     @Column(name = "delivery_request", length = 100, nullable = false)
     private String deliveryRequest;
@@ -54,15 +56,17 @@ public class Order extends TimeStamped {
     @JsonManagedReference
     private List<OrderItem> orderItems = new ArrayList<>();
 
+    // 변경된 생성자
     public Order(Long userId, UUID restaurantId, String storeName, int totalPrice, OrderType orderType, OrderStatus status,
-                 String deliveryAddress, String deliveryRequest, List<OrderItem> orderItems) {
+                 UUID deliveryAddress,String detailAddress, String deliveryRequest, List<OrderItem> orderItems) {
         this.userId = userId;
         this.restaurantId = restaurantId;
         this.storeName = storeName;
         this.totalPrice = totalPrice;
         this.orderType = orderType;
         this.orderStatus = status;
-        this.deliveryAddress = deliveryAddress;
+        this.deliveryAddress = deliveryAddress; // 변경된 부분
+        this.detailAddress = detailAddress;
         this.deliveryRequest = deliveryRequest;
         this.orderItems = (orderItems != null) ? orderItems : new ArrayList<>();
         this.orderItems.forEach(item -> item.setOrder(this));
@@ -72,10 +76,8 @@ public class Order extends TimeStamped {
         this.orderStatus = orderStatus;
     }
 
-
     public void setOrderItems(List<OrderItem> orderItems) {
         this.orderItems.clear();
         this.orderItems.addAll(orderItems);
     }
 }
-
