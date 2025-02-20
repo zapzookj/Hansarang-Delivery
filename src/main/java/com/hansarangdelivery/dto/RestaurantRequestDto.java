@@ -6,10 +6,12 @@ import jakarta.validation.constraints.Pattern;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
 
 @Getter
 @Setter
 public class RestaurantRequestDto {
+    @Length(min = 1, max = 255)
     private String name; // 가게 이름
 
     private UUID category_id; // 카테고리 ID

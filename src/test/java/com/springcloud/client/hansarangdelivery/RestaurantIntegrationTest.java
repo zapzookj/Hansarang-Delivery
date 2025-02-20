@@ -1,23 +1,10 @@
 package com.springcloud.client.hansarangdelivery;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hansarangdelivery.HansarangDeliveryApplication;
 import com.hansarangdelivery.dto.RestaurantRequestDto;
-import com.hansarangdelivery.entity.Category;
-import com.hansarangdelivery.entity.Location;
-import com.hansarangdelivery.entity.Restaurant;
-import com.hansarangdelivery.entity.User;
-import com.hansarangdelivery.entity.UserRole;
-import com.hansarangdelivery.jwt.JwtUtil;
-import com.hansarangdelivery.repository.CategoryRepository;
-import com.hansarangdelivery.repository.LocationRepository;
 import com.hansarangdelivery.repository.RestaurantRepository;
-import com.hansarangdelivery.repository.UserRepository;
 import jakarta.persistence.EntityManager;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,6 +14,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(classes = HansarangDeliveryApplication.class)
 @AutoConfigureMockMvc
@@ -141,6 +133,7 @@ class RestaurantIntegrationTest {
 
     @Test
     @DisplayName("restaurant search API test")
+
     void searchRestaurants() throws Exception {
         // Given
         createTestRestaurant();
@@ -155,6 +148,7 @@ class RestaurantIntegrationTest {
     }
 
     private UUID createTestRestaurant() {
+
         Restaurant restaurant = new com.hansarangdelivery.entity.Restaurant(
             "테스트 음식점", UUID.randomUUID(), 10480L, UUID.randomUUID());
         restaurantRepository.save(restaurant);
