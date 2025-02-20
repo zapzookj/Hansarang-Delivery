@@ -4,6 +4,7 @@ import com.hansarangdelivery.dto.ReviewRequestDto;
 import com.hansarangdelivery.dto.ReviewResponseDto;
 import com.hansarangdelivery.entity.Review;
 import com.hansarangdelivery.entity.User;
+import com.hansarangdelivery.entity.UserRole;
 import com.hansarangdelivery.repository.ReviewRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ public class ReviewService {
         return reviewRepository.getAverageRating(restaurantId);
     }
 
-    public void addReview(ReviewRequestDto requestDto) {
+    public void createReview(ReviewRequestDto requestDto) {
 
         // orderId는 Unique 제약 조건으로 한 주문은 한 개의 리뷰만 작성 가능
         if (reviewRepository.existsByOrderId(requestDto.getOrderId())) {
@@ -39,26 +40,40 @@ public class ReviewService {
         reviewRepository.save(review);
     }
 
-    public Page<ReviewResponseDto> readRestaurantReview(UUID restaurantId, Pageable pageable) {
+    public ReviewResponseDto readReview(UUID reviewId) {
 
-        Page<Review> reviews = reviewRepository.findAllByRestaurantId(restaurantId, pageable);
+        Review review = reviewRepository.findById(reviewId)
+            .orElseThrow(() -> new IllegalArgumentException("찾는 리뷰가 없습니다."));
+
+        return new ReviewResponseDto(review);
+    }
+
+    public Page<ReviewResponseDto> searchRestaurantReview(UUID restaurantId, Pageable pageable) {
+
+        Page<Review> reviews = reviewRepository.searchByRestaurantId(restaurantId, pageable);
 
         return reviews.map(ReviewResponseDto::new);
     }
 
-    public Page<ReviewResponseDto> readMyReview(Long userId, Pageable pageable) {
+    public Page<ReviewResponseDto> searchMyReview(Long userId, Pageable pageable) {
 
-        Page<Review> reviews = reviewRepository.findAllByCreatedBy(userId, pageable);
+        String userIdStr = String.valueOf(userId);
+
+        Page<Review> reviews = reviewRepository.searchByUserId(userIdStr, pageable);
 
         return reviews.map(ReviewResponseDto::new);
     }
 
     public void updateReview(UUID reviewId, ReviewRequestDto requestDto, User user) {
+
+        String userId = String.valueOf(user.getId());
+
         Review review = reviewRepository.findById(reviewId).orElseThrow(
             () -> new IllegalArgumentException("찾는 리뷰가 없습니다.")
         );
 
-        if (!review.getCreatedBy().equals(user.getId()) && !user.getRole().equals("ROLE_MANAGER")) {
+        if (!review.getCreatedBy().equals(userId)
+            && !user.getRole().equals(UserRole.MANAGER)) {
             throw new RuntimeException("수정 권한이 없습니다.");
         }
 
@@ -67,10 +82,14 @@ public class ReviewService {
 
     @Transactional
     public void deleteReview(UUID reviewId, User user) {
+
+        String userId = String.valueOf(user.getId());
+
         Review review = reviewRepository.findById(reviewId)
             .orElseThrow(() -> new IllegalArgumentException("이미 삭제되거나 리뷰 정보를 찾을 수 없습니다."));
 
-        if (!review.getCreatedBy().equals(user.getId()) && !user.getRole().equals("ROLE_MANAGER")) {
+        if (!review.getCreatedBy().equals(userId)
+            && !user.getRole().equals(UserRole.MANAGER)) {
             throw new RuntimeException("삭제 권한이 없습니다.");
         }
 

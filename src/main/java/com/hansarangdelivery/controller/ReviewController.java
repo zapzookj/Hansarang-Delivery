@@ -1,5 +1,6 @@
 package com.hansarangdelivery.controller;
 
+import com.hansarangdelivery.config.PageableConfig;
 import com.hansarangdelivery.dto.ResultResponseDto;
 import com.hansarangdelivery.dto.ReviewRequestDto;
 import com.hansarangdelivery.dto.ReviewResponseDto;
@@ -23,25 +24,37 @@ public class ReviewController {
 
     @PostMapping("/")
     @PreAuthorize("hasRole('ROLE_CUSTOMER')")
-    public ResultResponseDto<Void> addReview(@RequestBody ReviewRequestDto requestDto) {
+    public ResultResponseDto<Void> createReview(@RequestBody ReviewRequestDto requestDto) {
 
-        reviewService.addReview(requestDto);
+        reviewService.createReview(requestDto);
 
         return new ResultResponseDto<>("리뷰 작성 완료", 200);
     }
 
-    @GetMapping("/{restaurantId}")
-    public ResultResponseDto<Page<ReviewResponseDto>> readRestaurantReview(@PathVariable UUID restaurantId, Pageable pageable) {
+    @GetMapping("/{reviewId}")
+    public ResultResponseDto<ReviewResponseDto> readReview(@PathVariable UUID reviewId) {
 
-        Page<ReviewResponseDto> responseList = reviewService.readRestaurantReview(restaurantId, pageable);
+        ReviewResponseDto responseDto = reviewService.readReview(reviewId);
+
+        return new ResultResponseDto<>("리뷰 조회 완료", 200, responseDto);
+    }
+
+    @GetMapping("/")
+    public ResultResponseDto<Page<ReviewResponseDto>> searchRestaurantReview(@RequestParam UUID restaurantId, Pageable pageable) {
+
+        PageableConfig.validatePageSize(pageable);
+
+        Page<ReviewResponseDto> responseList = reviewService.searchRestaurantReview(restaurantId, pageable);
 
         return new ResultResponseDto<>("식당 리뷰 조회 성공", 200, responseList);
     }
 
     @GetMapping("/me")
-    public ResultResponseDto<Page<ReviewResponseDto>> readMyReview(@AuthenticationPrincipal UserDetailsImpl userDetails, Pageable pageable) {
+    public ResultResponseDto<Page<ReviewResponseDto>> searchMyReview(@AuthenticationPrincipal UserDetailsImpl userDetails, Pageable pageable) {
 
-        Page<ReviewResponseDto> responseList = reviewService.readMyReview(userDetails.getUser().getId(), pageable);
+        PageableConfig.validatePageSize(pageable);
+
+        Page<ReviewResponseDto> responseList = reviewService.searchMyReview(userDetails.getUser().getId(), pageable);
 
         return new ResultResponseDto<>("나의 리뷰 조회 성공", 200, responseList);
     }
