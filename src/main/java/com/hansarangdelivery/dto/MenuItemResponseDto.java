@@ -1,5 +1,6 @@
 package com.hansarangdelivery.dto;
 
+import com.hansarangdelivery.entity.MenuItem;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,4 +23,11 @@ public class MenuItemResponseDto {
     private Integer price;
 
     private boolean isAvailable;
+
+    public MenuItemResponseDto(MenuItem menuItem) {
+        this.id = menuItem.getId();
+        this.name = menuItem.getName();
+        this.price = menuItem.getPrice();
+        this.isAvailable = menuItem.isAvailable();
+    }
 }
