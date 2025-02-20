@@ -31,10 +31,4 @@ public class LocationService {
     public boolean existsById(UUID locationId){
         return locationRepository.existsById(locationId);
     }
-
-    public Location findById(UUID location) {
-        return locationRepository.findById(location).orElseThrow(
-            () -> new ResourceNotFoundException("유효한 위치 정보가 아닙니다.")
-        );
-    }
 }

@@ -37,7 +37,7 @@ public class RestaurantService {
     public RestaurantResponseDto getRestaurantInfo(UUID restaurantId) {
 //      가게 정보 조회하기
         Restaurant restaurant = checkedRestaurant(restaurantId);
-        Location location = locationService.findById(restaurant.getLocation());
+        Location location = locationService.findLocation(restaurant.getLocation());
         String location_str = location.getCity()+" "+location.getDistrict()+" "+location.getSubDistrict();
         String category = categoryService.getCategoryById(restaurant.getCategory()).getName();
         return new RestaurantResponseDto(restaurant.getName(),location_str,restaurant.getStatus(),category);
