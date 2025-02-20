@@ -201,5 +201,50 @@ public class AiResponseIntegrationTest {
             .andExpect(jsonPath("$.data.content.length()").value(greaterThanOrEqualTo(2)));
     }
 
+    @Test
+    @DisplayName("자신이 생성한 AI 응답 삭제 API 테스트")
+    void testDeleteAiResponseTest_Success() throws Exception {
+        // Given
+        AiResponse aiResponse = new AiResponse(owner.getId(), "test request", "test response");
+        aiResponseRepository.save(aiResponse);
 
+        // When & Then
+        mockMvc.perform(delete("/api/ai/" + aiResponse.getId())
+                .header(JwtUtil.AUTHORIZATION_HEADER, ownerToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("삭제 성공"));
+
+        assertFalse(aiResponseRepository.findById(aiResponse.getId()).isPresent());
+    }
+
+    @Test
+    @DisplayName("다른 유저가 생성한 AI 응답 삭제 API 테스트 (MANAGER 권한)")
+    void testDeleteAiResponseTest_AsManager_Success() throws Exception {
+        // Given
+        AiResponse aiResponse = new AiResponse(owner.getId(), "test request", "test response");
+        aiResponseRepository.save(aiResponse);
+
+        // When & Then
+        mockMvc.perform(delete("/api/ai/" + aiResponse.getId())
+                .header(JwtUtil.AUTHORIZATION_HEADER, managerToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("삭제 성공"));
+
+        assertFalse(aiResponseRepository.findById(aiResponse.getId()).isPresent());
+    }
+
+    @Test
+    @DisplayName("다른 유저가 생성한 AI 응답 삭제 API 테스트 (OWNER 권한)")
+    void testDeleteAiResponseTest_Fail() throws Exception {
+        // Given
+        AiResponse aiResponse = new AiResponse(owner.getId(), "test request", "test response");
+        aiResponseRepository.save(aiResponse);
+
+        // When & Then
+        mockMvc.perform(delete("/api/ai/" + aiResponse.getId())
+                .header(JwtUtil.AUTHORIZATION_HEADER, owner2Token))
+            .andExpect(status().isForbidden());
+
+        assertTrue(aiResponseRepository.findById(aiResponse.getId()).isPresent());
+    }
 }
