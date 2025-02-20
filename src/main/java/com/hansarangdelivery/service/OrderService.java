@@ -36,7 +36,6 @@ public class OrderService {
     public OrderResponseDto createOrder(OrderRequestDto requestDto, User user) {
         Restaurant restaurant = restaurantService.getRestaurantById(requestDto.getRestaurantId());
         String storeName = restaurant.getName();
-        Location location = locationService.findLocationById(requestDto.getDeliveryAddress());
 
         List<OrderItem> orderItems = requestDto.getMenu().stream()
             .map(orderItemDto -> {
@@ -65,7 +64,7 @@ public class OrderService {
             totalPrice,
             OrderType.valueOf(requestDto.getOrderType()),
             OrderStatus.PENDING,
-            location.getId(),
+            requestDto.getDeliveryAddress(),
             requestDto.getDetailAddress(),
             requestDto.getDeliveryRequest(),
             orderItems
