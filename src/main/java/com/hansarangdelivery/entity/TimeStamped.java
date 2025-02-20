@@ -28,7 +28,7 @@ public abstract class TimeStamped {
     private String createdBy;
 
     @LastModifiedBy
-    private String modifiedBy;
+    private String updatedBy;
 
     private LocalDateTime deletedAt;
     private String deletedBy;
