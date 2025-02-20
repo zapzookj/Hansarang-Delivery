@@ -28,43 +28,43 @@ public class UserController {
 
     // User CRUD API
     @PostMapping("/signup")
-    public ResponseEntity<ResultResponseDto<Void>> SignUp(@Valid @RequestBody SignupRequestDto requestDto) {
-        userService.signup(requestDto);
-        return ResponseEntity.status(200).body(new ResultResponseDto<>("회원가입 성공", 200));
+    public ResultResponseDto<UserResponseDto> SignUp(@Valid @RequestBody SignupRequestDto requestDto) {
+        UserResponseDto responseDto = userService.signup(requestDto);
+        return new ResultResponseDto<>("회원가입 성공", 200, responseDto);
     }
 
     @GetMapping("/{userId}")
     @PreAuthorize("hasRole('ROLE_MANAGER')")
-    public ResponseEntity<ResultResponseDto<UserResponseDto>> readProfile(@PathVariable("userId") Long userId) {
+    public ResultResponseDto<UserResponseDto> readProfile(@PathVariable("userId") Long userId) {
         UserResponseDto responseDto = userService.readProfile(userId);
-        return ResponseEntity.status(200).body(new ResultResponseDto<>("조회 성공", 200, responseDto));
+        return new ResultResponseDto<>("조회 성공", 200, responseDto);
     }
 
     @GetMapping()
     @PreAuthorize("hasRole('ROLE_MANAGER')")
-    public ResponseEntity<ResultResponseDto<Page<UserResponseDto>>> searchProfiles(Pageable pageable) {
+    public ResultResponseDto<Page<UserResponseDto>> searchProfiles(Pageable pageable) {
         Page<UserResponseDto> responseDtoPage = userService.searchProfiles(pageable);
-        return ResponseEntity.status(200).body(new ResultResponseDto<>("조회 성공",200, responseDtoPage));
+        return new ResultResponseDto<>("조회 성공",200, responseDtoPage);
     }
 
     @GetMapping("/my-profile")
-    public ResponseEntity<ResultResponseDto<UserResponseDto>> readMyProfile(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResultResponseDto<UserResponseDto> readMyProfile(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         UserResponseDto responseDto = new UserResponseDto(userDetails.getUser());
-        return ResponseEntity.status(200).body(new ResultResponseDto<>("조회 성공", 200, responseDto));
+        return new ResultResponseDto<>("조회 성공", 200, responseDto);
     }
 
     @PutMapping("/my-profile")
-    public ResponseEntity<ResultResponseDto<Void>> updateProfile(@AuthenticationPrincipal UserDetailsImpl userDetails,
+    public ResultResponseDto<UserResponseDto> updateProfile(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                                  @RequestBody UserUpdateDto requestDto) {
-        userService.updateProfile(userDetails.getUser().getId(), requestDto);
-        return ResponseEntity.status(200).body(new ResultResponseDto<>("회원 정보 수정 성공", 200));
+        UserResponseDto responseDto = userService.updateProfile(userDetails.getUser().getId(), requestDto);
+        return new ResultResponseDto<>("회원 정보 수정 성공", 200, responseDto);
     }
 
     @PutMapping("/{userId}")
     @PreAuthorize("hasRole('ROLE_MASTER')")
-    public ResponseEntity<ResultResponseDto<Void>> updateRole(@PathVariable("userId")Long userId) {
-        userService.updateRole(userId);
-        return ResponseEntity.status(200).body(new ResultResponseDto<>("권한 변경 성공", 200));
+    public ResultResponseDto<UserResponseDto> updateRole(@PathVariable("userId")Long userId) {
+        UserResponseDto responseDto = userService.updateRole(userId);
+        return new ResultResponseDto<>("권한 변경 성공", 200, responseDto);
     }
 
     @DeleteMapping()
@@ -77,11 +77,10 @@ public class UserController {
     // DeliveryAddress(배송지) CRUD API
 
     @PostMapping("/delivery-addresses") // 배송지 추가 API
-    public ResultResponseDto<Void> createDeliveryAddress(@AuthenticationPrincipal UserDetailsImpl userDetails,
+    public ResultResponseDto<DeliveryAddressResponseDto> createDeliveryAddress(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                          @RequestBody DeliveryAddressRequestDto requestDto) {
-        log.info("✅ isDefault from request: {}", requestDto.getIsDefault());
-        deliveryAddressService.createDeliveryAddress(userDetails.getUser(), requestDto);
-        return new ResultResponseDto<>("배송지 추가 완료", 200);
+        DeliveryAddressResponseDto responseDto = deliveryAddressService.createDeliveryAddress(userDetails.getUser(), requestDto);
+        return new ResultResponseDto<>("배송지 추가 완료", 200, responseDto);
     }
 
     @GetMapping("/delivery-addresses/default") // 로그인한 유저의 기본 배송지 단건 조회
@@ -113,11 +112,12 @@ public class UserController {
     }
 
     @PutMapping("/delivery-addresses/{deliveryAddressId}")
-    public ResultResponseDto<Void> updateDeliveryAddress(@AuthenticationPrincipal UserDetailsImpl userDetails,
+    public ResultResponseDto<DeliveryAddressResponseDto> updateDeliveryAddress(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                          @PathVariable("deliveryAddressId") UUID addressId,
                                                          @RequestBody DeliveryAddressRequestDto requestDto) {
-        deliveryAddressService.updateDeliveryAddress(userDetails.getUser().getId(), addressId, requestDto);
-        return new ResultResponseDto<>("배송지 정보 수정 완료", 200);
+        DeliveryAddressResponseDto responseDto =
+            deliveryAddressService.updateDeliveryAddress(userDetails.getUser().getId(), addressId, requestDto);
+        return new ResultResponseDto<>("배송지 정보 수정 완료", 200, responseDto);
     }
 
     @DeleteMapping("/delivery-addresses/{deliveryAddressId}")

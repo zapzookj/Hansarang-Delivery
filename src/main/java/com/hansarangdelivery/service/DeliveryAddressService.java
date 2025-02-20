@@ -25,7 +25,7 @@ public class DeliveryAddressService {
     private final DeliveryAddressRepositoryQueryImpl deliveryAddressRepositoryQuery;
 
     @Transactional
-    public void createDeliveryAddress(User user, DeliveryAddressRequestDto requestDto) {
+    public DeliveryAddressResponseDto createDeliveryAddress(User user, DeliveryAddressRequestDto requestDto) {
         if (!locationService.existsById(requestDto.getLocationId())) {
             throw new ResourceNotFoundException("해당 위치 정보를 찾을 수 없습니다.");
         }
@@ -45,6 +45,7 @@ public class DeliveryAddressService {
 
         DeliveryAddress deliveryAddress = new DeliveryAddress(user, requestDto.getLocationId(), requestDto.getRequestMessage(), isDefault);
         deliveryAddressRepository.save(deliveryAddress);
+        return new DeliveryAddressResponseDto(deliveryAddress);
     }
 
     @Transactional(readOnly = true)
@@ -67,7 +68,7 @@ public class DeliveryAddressService {
     }
 
     @Transactional
-    public void updateDeliveryAddress(Long userId, UUID addressId, DeliveryAddressRequestDto requestDto) {
+    public DeliveryAddressResponseDto updateDeliveryAddress(Long userId, UUID addressId, DeliveryAddressRequestDto requestDto) {
         DeliveryAddress deliveryAddress = deliveryAddressRepositoryQuery.findByIdAndUserId(addressId, userId).orElseThrow(
             () -> new ResourceNotFoundException("해당 Id를 가진 배송지 정보를 찾을 수 없습니다. 또는 권한이 없습니다.")
         );
@@ -76,6 +77,7 @@ public class DeliveryAddressService {
             deliveryAddressRepositoryQuery.resetDefault(userId); // 기존에 존재하던 기본 배송지를 is_default = false 로 수정
         }
         deliveryAddress.update(requestDto.getLocationId(), requestDto.getRequestMessage(), requestDto.getIsDefault());
+        return new DeliveryAddressResponseDto(deliveryAddress);
     }
 
     @Transactional

@@ -32,7 +32,7 @@ public class UserService {
     private String adminCode;
 
     @Transactional
-    public void signup(SignupRequestDto requestDto) {
+    public UserResponseDto signup(SignupRequestDto requestDto) {
         String username = requestDto.getUsername();
         String password = passwordEncoder.encode(requestDto.getPassword());
         String email = requestDto.getEmail();
@@ -53,6 +53,7 @@ public class UserService {
         // 사용자 등록
         User user = new User(username, password, email, role);
         userRepository.save(user);
+        return new UserResponseDto(user);
     }
 
     @Transactional(readOnly = true)
@@ -72,7 +73,7 @@ public class UserService {
     }
 
     @Transactional
-    public void updateProfile(Long userId, UserUpdateDto requestDto) {
+    public UserResponseDto updateProfile(Long userId, UserUpdateDto requestDto) {
         User user = findUser(userId);
 
         String username = requestDto.getUsername();
@@ -81,13 +82,15 @@ public class UserService {
         validateInfo(username, email);
 
         user.updateProfile(username, email);
+        return new UserResponseDto(user);
     }
 
     @Transactional
-    public void updateRole(Long userId) {
+    public UserResponseDto updateRole(Long userId) {
         User user = findUser(userId);
 
         user.updateRole();
+        return new UserResponseDto(user);
     }
 
     @Transactional
