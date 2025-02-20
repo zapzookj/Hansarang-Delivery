@@ -32,7 +32,7 @@ public class Restaurant extends TimeStamped{
     private UUID category; // 카테고리
 
     @Column(name="owner_id",nullable = false)
-    private UUID owner; // 소유자
+    private Long owner; // 소유자
 
     @Column(name="location_id",nullable = false)
     private UUID location; // 위치
@@ -40,7 +40,7 @@ public class Restaurant extends TimeStamped{
     @Column(name = "status", nullable = false)
     private boolean status; // 가게 상태 (운영 중 여부)
 
-    public Restaurant(String name, UUID categoryId, UUID ownerId, UUID locationId) {
+    public Restaurant(String name, UUID categoryId, Long ownerId, UUID locationId) {
         super();
         this.name = name;
         this.category = categoryId;

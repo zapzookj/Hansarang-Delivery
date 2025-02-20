@@ -14,7 +14,7 @@ public class RestaurantRequestDto {
 
     private UUID category_id; // 카테고리 ID
 
-    private UUID owner_id; // 가게 주인 ID
+    private Long owner_id; // 가게 주인 ID
 
     private UUID location_id; // 위치 ID
 

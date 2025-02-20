@@ -39,7 +39,7 @@ public class RestaurantService {
     public void register(RestaurantRequestDto requestDto) {
         String name = requestDto.getName();
         UUID categoryId = requestDto.getCategory_id();
-        UUID ownerId = requestDto.getOwner_id();
+        Long ownerId = requestDto.getOwner_id();
         UUID locationId = requestDto.getLocation_id();
 
         // 입력 값 검증(가게 이름, 카테고리, 위치 ) TODO: owner에 대한 검증 어떻게 할지
