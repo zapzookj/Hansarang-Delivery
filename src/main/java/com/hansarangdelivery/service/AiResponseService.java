@@ -122,7 +122,7 @@ public class AiResponseService {
     }
 
     private void checkPermissions(AiResponse aiResponse, User user) {
-        if (!aiResponse.getUserId().equals(user.getId()) || !user.getRole().equals(UserRole.MANAGER)) {
+        if (!aiResponse.getUserId().equals(user.getId()) && !user.getRole().equals(UserRole.MANAGER)) {
             throw new ForbiddenActionException("권한이 없습니다.");
         }
     }
