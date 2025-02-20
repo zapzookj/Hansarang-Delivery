@@ -1,5 +1,6 @@
 package com.hansarangdelivery.service;
 
+import com.hansarangdelivery.dto.LocationResponseDto;
 import com.hansarangdelivery.dto.RestaurantRequestDto;
 import com.hansarangdelivery.dto.RestaurantResponseDto;
 import com.hansarangdelivery.entity.Location;
@@ -39,7 +40,7 @@ public class RestaurantService {
     public RestaurantResponseDto getRestaurantInfo(UUID restaurantId) {
 //      가게 정보 조회하기
         Restaurant restaurant = checkedRestaurant(restaurantId);
-        Location location = locationService.findLocation(restaurant.getLocation());
+        LocationResponseDto location = locationService.readLocation(restaurant.getLocation());
         String location_str = location.getCity()+" "+location.getDistrict()+" "+location.getSubDistrict();
         String category = categoryService.getCategoryById(restaurant.getCategory()).getName();
         return new RestaurantResponseDto(restaurant.getName(),location_str,restaurant.getStatus(),category);
@@ -57,7 +58,7 @@ public class RestaurantService {
             restaurant.close();
         }
         restaurantRepository.save(restaurant); // 수정된 음식점 정보 저장
-        Location location = locationService.findById(restaurant.getLocation());
+        LocationResponseDto location = locationService.readLocation(restaurant.getLocation());
         String location_str = location.getCity()+" "+location.getDistrict()+" "+location.getSubDistrict();
         String category = categoryService.getCategoryById(restaurant.getCategory()).getName();
         return new RestaurantResponseDto(restaurant.getName(),location_str,restaurant.getStatus(),category);
