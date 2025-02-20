@@ -171,7 +171,7 @@ public class UserApiIntegrationTest {
         // When & Then
         mockMvc.perform(get("/api/users")
                 .header(JwtUtil.AUTHORIZATION_HEADER, managerToken)
-                .param("page", "1")
+                .param("page", "0")
                 .param("size", "10")
                 .param("isAsc", "true"))
             .andExpect(status().isOk())
