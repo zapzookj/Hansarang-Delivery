@@ -1,4 +1,4 @@
-package com.springcloud.client.hansarangdelivery.user;
+package com.hansarangdelivery.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hansarangdelivery.HansarangDeliveryApplication;
