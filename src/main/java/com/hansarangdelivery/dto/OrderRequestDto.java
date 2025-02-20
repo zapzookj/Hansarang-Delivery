@@ -13,5 +13,6 @@ public class OrderRequestDto {
     private String deliveryAddress;
     private String deliveryRequest;
     private String orderType;
+    private String orderStatus;
     private List<OrderItemRequestDto> menu;
 }
