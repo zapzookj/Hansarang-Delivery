@@ -14,7 +14,8 @@ public class OrderResponseDto {
     private String storeName;
     private int totalPrice;
     private String status;
-    private String deliveryAddress;
+    private UUID deliveryAddress;
+    private String detailAddress;
     private String deliveryRequest;
     private List<OrderItemDto> orderItems;
 
@@ -24,6 +25,7 @@ public class OrderResponseDto {
         this.totalPrice = order.getTotalPrice();
         this.status = order.getOrderStatus().toString();
         this.deliveryAddress = order.getDeliveryAddress();
+        this.detailAddress = order.getDetailAddress();
         this.deliveryRequest = order.getDeliveryRequest();
         this.orderItems = order.getOrderItems().stream().map(OrderItemDto::new).collect(Collectors.toList());
     }
