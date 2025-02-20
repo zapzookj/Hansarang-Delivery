@@ -2,6 +2,7 @@ package com.hansarangdelivery.service;
 
 import com.hansarangdelivery.dto.LocationRequestDto;
 import com.hansarangdelivery.dto.LocationResponseDto;
+import com.hansarangdelivery.entity.Location;
 import com.hansarangdelivery.repository.LocationRepository;
 import com.hansarangdelivery.repository.LocationRepositoryQuery;
 import java.util.UUID;
@@ -29,4 +30,10 @@ public class LocationService {
     public boolean existsById(UUID locationId){
         return locationRepository.existsById(locationId);
     }
+
+    public Location findLocationById(UUID locationId) {
+        return locationRepository.findById(locationId)
+            .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 위치 ID입니다."));
+    }
+
 }
