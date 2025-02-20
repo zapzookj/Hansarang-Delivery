@@ -1,9 +1,17 @@
-package com.springcloud.client.hansarangdelivery;
+package com.hansarangdelivery;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hansarangdelivery.HansarangDeliveryApplication;
 import com.hansarangdelivery.dto.RestaurantRequestDto;
+import com.hansarangdelivery.entity.Category;
+import com.hansarangdelivery.entity.Location;
+import com.hansarangdelivery.entity.Restaurant;
+import com.hansarangdelivery.entity.User;
+import com.hansarangdelivery.entity.UserRole;
+import com.hansarangdelivery.jwt.JwtUtil;
+import com.hansarangdelivery.repository.CategoryRepository;
+import com.hansarangdelivery.repository.LocationRepository;
 import com.hansarangdelivery.repository.RestaurantRepository;
+import com.hansarangdelivery.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -180,7 +188,7 @@ class RestaurantIntegrationTest {
 
     private String getJwtTokenByCustomer(){
         String jwtToken;
-        User user = new User("customer1","1111","customer1@mail.com",UserRole.CUSTOMER);
+        User user = new User("customer1","1111","customer1@mail.com", UserRole.CUSTOMER);
         userRepository.save(user);
         entityManager.flush();
         entityManager.clear();
