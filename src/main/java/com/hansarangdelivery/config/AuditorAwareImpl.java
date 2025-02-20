@@ -15,7 +15,7 @@ public class AuditorAwareImpl implements AuditorAware<String> {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ForbiddenActionException("로그인을 해주세요.");
+            return Optional.empty();
         }
 
         Object principal = authentication.getPrincipal();

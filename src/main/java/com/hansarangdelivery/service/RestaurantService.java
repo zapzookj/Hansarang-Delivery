@@ -33,8 +33,6 @@ public class RestaurantService {
         RestaurantRequestDto request = checkedRequest(requestDto);
         Restaurant restaurant = new Restaurant(request);
         return new RestaurantResponseDto(restaurantRepository.save(restaurant));
-
-   
     }
 
     public RestaurantResponseDto getRestaurantInfo(UUID restaurantId) {
@@ -50,8 +48,7 @@ public class RestaurantService {
     @Transactional
     public RestaurantResponseDto updateRestaurant(UUID restaurantId, RestaurantRequestDto requestDto) {
         Restaurant restaurant = checkedRestaurant(restaurantId);
-        RestaurantRequestDto request = checkedRequest(requestDto);
-        restaurant.update(request); // 찾은 음식점의 정보를 요청을 토대로 수정
+        restaurant.update(requestDto); // 찾은 음식점의 정보를 요청을 토대로 수정
         if(requestDto.isOpen()){ // 요청시 오픈 상태 변경 확인 후 변경
             restaurant.open();
         }else{

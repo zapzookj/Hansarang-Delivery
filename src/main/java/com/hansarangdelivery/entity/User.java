@@ -17,7 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "p_user")
-@SQLDelete(sql = "UPDATE User SET deleted_at=CURRENT_TIMESTAMP where id=?")
+//@SQLDelete(sql = "UPDATE p_user SET deleted_at=CURRENT_TIMESTAMP where id=?")
 @Where(clause = "deleted_at IS NULL")
 public class User extends TimeStamped{
     @Id

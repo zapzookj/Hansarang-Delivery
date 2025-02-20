@@ -20,6 +20,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,6 +63,9 @@ class RestaurantIntegrationTest {
     private EntityManager entityManager;
 
     @Autowired
+    private UserDetailsService userDetailsService;
+
+    @Autowired
     JwtUtil jwtUtil;
 
     @BeforeEach
@@ -69,13 +80,13 @@ class RestaurantIntegrationTest {
 
 
     @Test
-    @DisplayName("가게 등록 API 테스트")
+    @DisplayName("restaurant register API test")
     void registerRestaurant() throws Exception {
         // Given
         RestaurantRequestDto requestDto = new RestaurantRequestDto();
         requestDto.setName("통합 테스트 음식점");
         requestDto.setCategory_id(createTestCategory());
-        requestDto.setOwner_id(getUserUUID());
+        requestDto.setOwner_id(getOwnerUUID());
         requestDto.setLocation_id(createTestLocation());
         requestDto.setOpen(true);
 
@@ -87,8 +98,8 @@ class RestaurantIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestDto)))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.message").value("가게 등록 성공"));
-//            .andExpect(jsonPath("$.data.name").value("통합 테스트 음식점"));
+            .andExpect(jsonPath("$.message").value("가게 등록 성공"))
+            .andExpect(jsonPath("$.data.name").value("통합 테스트 음식점"));
     }
 
     @Test
@@ -106,7 +117,7 @@ class RestaurantIntegrationTest {
     }
 
     @Test
-    @DisplayName("가게 수정 API 테스트")
+    @DisplayName("restaurant update API test")
     void updateRestaurant() throws Exception {
         // Given
         UUID restaurantId = createTestRestaurant();
@@ -122,7 +133,8 @@ class RestaurantIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateDto)))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.message").value("가게 수정 성공"));
+            .andExpect(jsonPath("$.message").value("가게 수정 성공"))
+            .andExpect(jsonPath("$.data.name").value("닫은 음식점"));
     }
 
     @Test
@@ -156,9 +168,25 @@ class RestaurantIntegrationTest {
     }
 
     private UUID createTestRestaurant() {
+        Location location = new Location("1111010100","서울특별시","종로구","청운동","123456" );
+        locationRepository.save(location);
 
-        Restaurant restaurant = new com.hansarangdelivery.entity.Restaurant(
-            "테스트 음식점", UUID.randomUUID(), 10480L, UUID.randomUUID());
+        Category category = new Category("테스트 카테고리");
+        categoryRepository.save(category);
+
+
+        User user = new User("searchCustomer","1111","searchCustomer@mail.com",UserRole.OWNER);
+        userRepository.save(user);
+
+        entityManager.flush();
+        entityManager.clear();
+
+        UUID locationId = location.getId();
+        UUID categoryId = category.getId();
+        Long ownerId = user.getId();
+
+        Restaurant restaurant = new Restaurant(
+            "테스트 음식점", categoryId, ownerId,locationId);
         restaurantRepository.save(restaurant);
         entityManager.flush();
         entityManager.clear();
@@ -175,11 +203,6 @@ class RestaurantIntegrationTest {
 
     private UUID createTestLocation() {
         Location location = new Location("1111010100","서울특별시","종로구","청운동","123456" );
-
-        System.out.println(location.getLawCode());
-        System.out.println(location.getCity());
-        System.out.println(location.getDistrict());
-
         locationRepository.save(location);
         entityManager.flush();
         entityManager.clear();
@@ -192,12 +215,23 @@ class RestaurantIntegrationTest {
         userRepository.save(user);
         entityManager.flush();
         entityManager.clear();
+
+        // 인증 객체 생성
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        Authentication authentication = createAuthentication(user.getUsername());
+        context.setAuthentication(authentication);
+
         jwtToken = jwtUtil.createToken("customer1",UserRole.CUSTOMER);
         return jwtToken;
     }
+    private Authentication createAuthentication(String username) {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+    }
 
-    private Long getUserUUID(){
-        User user = new User("customer1","1111","customer1@mail.com",UserRole.CUSTOMER);
+    private Long getOwnerUUID(){
+        User user = new User("owner","1111","owner@mail.com",UserRole.OWNER);
+
         userRepository.save(user);
         entityManager.flush();
         entityManager.clear();
@@ -210,6 +244,12 @@ class RestaurantIntegrationTest {
         userRepository.save(user);
         entityManager.flush();
         entityManager.clear();
+
+        // 인증 객체 생성
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        Authentication authentication = createAuthentication(user.getUsername());
+        context.setAuthentication(authentication);
+
         jwtToken = jwtUtil.createToken("manager1",UserRole.MANAGER);
         return jwtToken;
     }
