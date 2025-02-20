@@ -10,7 +10,7 @@ import java.util.UUID;
 public interface ReviewRepository extends JpaRepository<Review, UUID>, ReviewRepositoryCustom {
     Boolean existsByOrderId(UUID orderId);
 
-    Page<Review> findAllByCreatedBy(Long userId, Pageable pageable);
+    Page<Review> findAllByCreatedBy(String createdBy, Pageable pageable);
 
     Page<Review> findAllByRestaurantId(UUID restaurantId, Pageable pageable);
 }
