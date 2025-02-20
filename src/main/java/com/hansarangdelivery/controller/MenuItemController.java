@@ -6,11 +6,12 @@ import com.hansarangdelivery.dto.ResultResponseDto;
 import com.hansarangdelivery.security.UserDetailsImpl;
 import com.hansarangdelivery.service.MenuItemService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -30,19 +31,22 @@ public class MenuItemController {
         return new ResultResponseDto<>("메뉴 저장 성공", 200);
     }
 
-    @GetMapping("/")
-    public ResultResponseDto<List<MenuItemResponseDto>> searchAllMenuItem(@RequestBody MenuItemRequestDto requestDto) {
+    @GetMapping("/restaurant")
+    public ResultResponseDto<Page<MenuItemResponseDto>> searchAllMenuItem(@RequestParam UUID restaurantId, Pageable pageable) {
 
-        List<MenuItemResponseDto> responseDtoList = menuItemService.searchAllMenuItem(requestDto.getRestaurantId());
+        // PageSize 검증
+        // PageableConfig.validatePageSize(pageable);
+
+        Page<MenuItemResponseDto> responseDtoList = menuItemService.searchAllMenuItem(restaurantId, pageable);
 
         return new ResultResponseDto<>("메뉴 조회 성공", 200, responseDtoList);
     }
 
     // 메뉴 ID로 특정 메뉴 조회
     @GetMapping("/{menuItemId}")
-    public ResultResponseDto<MenuItemResponseDto> searchMenuItem(@PathVariable UUID menuItemId) {
+    public ResultResponseDto<MenuItemResponseDto> readMenuItem(@PathVariable UUID menuItemId) {
 
-        MenuItemResponseDto responseDto = menuItemService.searchMenuItem(menuItemId);
+        MenuItemResponseDto responseDto = menuItemService.readMenuItem(menuItemId);
 
         return new ResultResponseDto<>("메뉴 조회 성공", 200, responseDto);
     }
