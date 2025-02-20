@@ -2,6 +2,8 @@ package com.hansarangdelivery.service;
 
 import com.hansarangdelivery.dto.LocationRequestDto;
 import com.hansarangdelivery.dto.LocationResponseDto;
+import com.hansarangdelivery.entity.Location;
+import com.hansarangdelivery.exception.ResourceNotFoundException;
 import com.hansarangdelivery.repository.LocationRepository;
 import com.hansarangdelivery.repository.LocationRepositoryQuery;
 import java.util.UUID;
@@ -28,5 +30,11 @@ public class LocationService {
 
     public boolean existsById(UUID locationId){
         return locationRepository.existsById(locationId);
+    }
+
+    public Location findById(UUID location) {
+        return locationRepository.findById(location).orElseThrow(
+            () -> new ResourceNotFoundException("유효한 위치 정보가 아닙니다.")
+        );
     }
 }
