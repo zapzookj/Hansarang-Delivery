@@ -41,17 +41,18 @@ public class OrderController {
     }
 
     @PutMapping("/{orderId}")  //특정 주문 수정 (오너만)
-    public ResultResponseDto<Order> updateOrder(@PathVariable("orderId") UUID orderId, @RequestBody OrderRequestDto requestDto) {
-        Order order = orderService.updateOrder(orderId, requestDto);
-        return new ResultResponseDto<>("주문 수정 성공", 200,order);
+    public ResultResponseDto<OrderResponseDto> updateOrder(@PathVariable("orderId") UUID orderId, @RequestBody OrderRequestDto requestDto) {
+        OrderResponseDto responseDto = orderService.updateOrder(orderId, requestDto);
+        return new ResultResponseDto<>("주문 수정 성공", 200,responseDto);
 
     }
 
+
     @DeleteMapping("{orderId}")
-    public ResultResponseDto<Order> updateOrder(@PathVariable("orderId") UUID orderId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResultResponseDto<OrderResponseDto> updateOrder(@PathVariable("orderId") UUID orderId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         try {
-            Order order = orderService.deleteOrder(orderId, userDetails.getUser());
-            return new ResultResponseDto("주문이 취소되었습니다.", 200,order);
+            OrderResponseDto responseDto = orderService.deleteOrder(orderId, userDetails.getUser());
+            return new ResultResponseDto("주문이 취소되었습니다.", 200,responseDto);
         } catch (ForbiddenActionException e) {
             return new ResultResponseDto("주문 취소 불가능합니다.", 400);
         }
