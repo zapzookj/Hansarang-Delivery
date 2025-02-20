@@ -43,8 +43,11 @@ public class Order extends TimeStamped {
     @Column(nullable = false)
     private OrderType orderType;
 
-    @Column(name = "delivery_address", length = 100, nullable = false)
-    private UUID deliveryAddress; // 변경된 필드
+//    @Column(name = "delivery_address", length = 100, nullable = false)
+//    private UUID deliveryAddress; // 변경된 필드
+
+    @Column(name = "road_name_code", length = 100, nullable = false)
+    private String roadNameCode; // 변경된 필드
 
     @Column(name = "detail_address", length = 100, nullable = false)
     private String detailAddress;
@@ -58,14 +61,14 @@ public class Order extends TimeStamped {
 
     // 변경된 생성자
     public Order(Long userId, UUID restaurantId, String storeName, int totalPrice, OrderType orderType, OrderStatus status,
-                 UUID deliveryAddress,String detailAddress, String deliveryRequest, List<OrderItem> orderItems) {
+                 String roadNameCode, String detailAddress, String deliveryRequest, List<OrderItem> orderItems) {
         this.userId = userId;
         this.restaurantId = restaurantId;
         this.storeName = storeName;
         this.totalPrice = totalPrice;
         this.orderType = orderType;
         this.orderStatus = status;
-        this.deliveryAddress = deliveryAddress; // 변경된 부분
+        this.roadNameCode =roadNameCode;
         this.detailAddress = detailAddress;
         this.deliveryRequest = deliveryRequest;
         this.orderItems = (orderItems != null) ? orderItems : new ArrayList<>();
