@@ -115,4 +115,8 @@ public class UserService {
         return userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
     }
+
+    public boolean isOwner(Long ownerId) {
+        return userRepository.existsByIdAndRole(ownerId,"ROLE_OWNER");
+    }
 }
