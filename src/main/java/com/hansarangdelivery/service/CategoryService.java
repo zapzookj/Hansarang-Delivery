@@ -111,4 +111,10 @@ public class CategoryService {
     }
 
 
+    public Category getCategoryById(UUID categoryId) {
+        Category category = categoryRepository.findById(categoryId).orElseThrow(
+            () ->  new IllegalArgumentException("카테고리 없음")
+        );
+        return category;
+    }
 }
