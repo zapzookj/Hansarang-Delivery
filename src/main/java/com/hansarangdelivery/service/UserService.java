@@ -123,6 +123,6 @@ public class UserService {
     }
 
     public boolean isOwner(Long ownerId) {
-        return userRepository.existsByIdAndRole(ownerId,"ROLE_OWNER");
+        return userRepository.existsByIdAndRole(ownerId,UserRole.OWNER);
     }
 }

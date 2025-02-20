@@ -1,6 +1,7 @@
 package com.hansarangdelivery.repository;
 
 import com.hansarangdelivery.entity.User;
+import com.hansarangdelivery.entity.UserRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
@@ -12,5 +13,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByUsername(String username);
 
-    boolean existsByIdAndRole(Long id, String role);
+    boolean existsByIdAndRole(Long id, UserRole role);
 }
