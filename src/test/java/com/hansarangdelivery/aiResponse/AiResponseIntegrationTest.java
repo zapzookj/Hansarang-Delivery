@@ -179,4 +179,27 @@ public class AiResponseIntegrationTest {
                 .header(JwtUtil.AUTHORIZATION_HEADER, owner2Token))
             .andExpect(status().isForbidden());
     }
+
+    @Test
+    @DisplayName("AI 응답 전체 조회 테스트 (OWNER 권한)")
+    void testSearchAiResponses() throws Exception {
+        // Given
+        AiResponse aiResponse1 = new AiResponse(owner.getId(), "test request 1", "test response 1");
+        AiResponse aiResponse2 = new AiResponse(owner.getId(), "test request 2", "test response 2");
+        aiResponseRepository.save(aiResponse1);
+        aiResponseRepository.save(aiResponse2);
+
+        // When & Then
+        mockMvc.perform(get("/api/ai")
+                .header(JwtUtil.AUTHORIZATION_HEADER, ownerToken)
+                .param("page", "0")
+                .param("size", "10")
+                .param("isAsc", "true"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("조회 성공"))
+            .andExpect(jsonPath("$.data.content").isArray())
+            .andExpect(jsonPath("$.data.content.length()").value(greaterThanOrEqualTo(2)));
+    }
+
+
 }
