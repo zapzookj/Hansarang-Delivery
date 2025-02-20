@@ -5,11 +5,14 @@ import com.hansarangdelivery.dto.ReviewResponseDto;
 import com.hansarangdelivery.entity.Review;
 import com.hansarangdelivery.entity.User;
 import com.hansarangdelivery.entity.UserRole;
+import com.hansarangdelivery.exception.GlobalExceptionHandler;
+import com.hansarangdelivery.exception.ResourceNotFoundException;
 import com.hansarangdelivery.repository.ReviewRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -51,6 +54,10 @@ public class ReviewService {
     public Page<ReviewResponseDto> searchRestaurantReview(UUID restaurantId, Pageable pageable) {
 
         Page<Review> reviews = reviewRepository.searchByRestaurantId(restaurantId, pageable);
+
+        if(reviews.isEmpty()){
+            throw new ResourceNotFoundException("작성된 리뷰가 없습니다");
+        }
 
         return reviews.map(ReviewResponseDto::new);
     }
