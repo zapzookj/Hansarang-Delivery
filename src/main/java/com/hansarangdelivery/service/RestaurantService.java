@@ -32,6 +32,8 @@ public class RestaurantService {
         RestaurantRequestDto request = checkedRequest(requestDto);
         Restaurant restaurant = new Restaurant(request);
         return new RestaurantResponseDto(restaurantRepository.save(restaurant));
+
+   
     }
 
     public RestaurantResponseDto getRestaurantInfo(UUID restaurantId) {

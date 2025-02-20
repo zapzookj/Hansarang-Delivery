@@ -32,42 +32,177 @@ class RestaurantIntegrationTest {
     private RestaurantRepository restaurantRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
+
+    @Autowired
+    private LocationRepository locationRepository;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     @Autowired
     private EntityManager entityManager;
 
-    private String jwtToken;
+    @Autowired
+    JwtUtil jwtUtil;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         restaurantRepository.deleteAll();
-//        TODO :매번 로그인해서 jwtToken에 토큰 값 넣어서 아래 테스트 에서 사용해야하나 확인
-//          MOckUser로 안됨 -> jwtToken용 간단하게 테스트에서 사용할 어노테이션 있나 확인
+        userRepository.deleteAll();
+        categoryRepository.deleteAll();
+        locationRepository.deleteAll();
+    }
+
+    private String url = "/api/restaurants";
+
+
+    @Test
+    @DisplayName("가게 등록 API 테스트")
+    void registerRestaurant() throws Exception {
+        // Given
+        RestaurantRequestDto requestDto = new RestaurantRequestDto();
+        requestDto.setName("통합 테스트 음식점");
+        requestDto.setCategory_id(createTestCategory());
+        requestDto.setOwner_id(getUserUUID());
+        requestDto.setLocation_id(createTestLocation());
+        requestDto.setOpen(true);
+
+        String jwtToken = getJwtTokenByManager();
+
+        // When & Then
+        mockMvc.perform(post(url)
+                .header("Authorization", jwtToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("가게 등록 성공"));
+//            .andExpect(jsonPath("$.data.name").value("통합 테스트 음식점"));
+    }
+
+    @Test
+    @DisplayName("가게 조회 API 테스트")
+    void getRestaurantInfo() throws Exception {
+        // Given: 사전 데이터 삽입
+        UUID restaurantId = createTestRestaurant();
+        String jwtToken = getJwtTokenByManager();
+        // When & Then
+        mockMvc.perform(get(url + "/"+restaurantId)
+                .header("Authorization", jwtToken)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.name").value("테스트 음식점"));
+    }
+
+    @Test
+    @DisplayName("가게 수정 API 테스트")
+    void updateRestaurant() throws Exception {
+        // Given
+        UUID restaurantId = createTestRestaurant();
+        String jwtToken = getJwtTokenByManager();
+
+        RestaurantRequestDto updateDto = new RestaurantRequestDto();
+        updateDto.setName("닫은 음식점");
+        updateDto.setOpen(false);
+
+        // When & Then
+        mockMvc.perform(put(url + "/"+restaurantId)
+                .header("Authorization", jwtToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDto)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("가게 수정 성공"));
+    }
+
+    @Test
+    @DisplayName("restaurant delete API test")
+    void deactivateRestaurant() throws Exception {
+        // Given
+        UUID restaurantId = createTestRestaurant();
+        String jwtToken = getJwtTokenByManager();
+        // When & Then
+        mockMvc.perform(delete(url + "/"+restaurantId)
+                .header("Authorization", jwtToken)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("가게 삭제 성공"));
     }
 
     @Test
     @DisplayName("restaurant search API test")
-//    로그인한 유저의 jwt사용 부분
+
     void searchRestaurants() throws Exception {
         // Given
         createTestRestaurant();
+        String jwtToken = getJwtTokenByCustomer();
 
         // When & Then
-        mockMvc.perform(get("/api/restaurants/search")
-                .header("Authorization",
-                    "Bearer {이부분에 들어갈 내용 포스트맨으로 직접 로그인해보고 토큰 값 하드코딩했음}")
+        mockMvc.perform(get(url+"/search")
+                .header("Authorization",jwtToken)
             )
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.data.content[0].name").value("테스트 음식점"));
     }
 
     private UUID createTestRestaurant() {
-        var restaurant = new com.hansarangdelivery.entity.Restaurant(
-            "테스트 음식점", UUID.randomUUID(), 1L, UUID.randomUUID());
+
+        Restaurant restaurant = new com.hansarangdelivery.entity.Restaurant(
+            "테스트 음식점", UUID.randomUUID(), 10480L, UUID.randomUUID());
         restaurantRepository.save(restaurant);
         entityManager.flush();
         entityManager.clear();
         return restaurant.getId();
+    }
+
+    private UUID createTestCategory() {
+        Category category = new Category("테스트 카테고리");
+        categoryRepository.save(category);
+        entityManager.flush();
+        entityManager.clear();
+        return category.getId();
+    }
+
+    private UUID createTestLocation() {
+        Location location = new Location("1111010100","서울특별시","종로구","청운동","123456" );
+
+        System.out.println(location.getLawCode());
+        System.out.println(location.getCity());
+        System.out.println(location.getDistrict());
+
+        locationRepository.save(location);
+        entityManager.flush();
+        entityManager.clear();
+        return location.getId();
+    }
+
+    private String getJwtTokenByCustomer(){
+        String jwtToken;
+        User user = new User("customer1","1111","customer1@mail.com",UserRole.CUSTOMER);
+        userRepository.save(user);
+        entityManager.flush();
+        entityManager.clear();
+        jwtToken = jwtUtil.createToken("customer1",UserRole.CUSTOMER);
+        return jwtToken;
+    }
+
+    private Long getUserUUID(){
+        User user = new User("customer1","1111","customer1@mail.com",UserRole.CUSTOMER);
+        userRepository.save(user);
+        entityManager.flush();
+        entityManager.clear();
+        return user.getId();
+    }
+
+    private String getJwtTokenByManager(){
+        String jwtToken;
+        User user = new User("manager1","1111","manager1@mail.com",UserRole.MANAGER);
+        userRepository.save(user);
+        entityManager.flush();
+        entityManager.clear();
+        jwtToken = jwtUtil.createToken("manager1",UserRole.MANAGER);
+        return jwtToken;
     }
 }
