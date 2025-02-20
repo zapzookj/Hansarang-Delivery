@@ -64,8 +64,10 @@ public class AiResponseIntegrationTest {
     private RestTemplate restTemplate;
 
     protected User owner;
+    protected User owner2;
     protected User manager;
     protected String ownerToken;
+    protected String owner2Token;
     protected String managerToken;
 
     @BeforeEach
@@ -73,9 +75,13 @@ public class AiResponseIntegrationTest {
         aiResponseRepository.deleteAll();
         userRepository.deleteAll();
 
-        owner = new User("owner", passwordEncoder.encode("Password1!"), "owner@example.com", UserRole.OWNER);
+        owner = new User("owner1", passwordEncoder.encode("Password1!"), "owner1@example.com", UserRole.OWNER);
         userRepository.save(owner);
         ownerToken = jwtUtil.createToken(owner.getUsername(), owner.getRole());
+
+        owner2 = new User("owner2", passwordEncoder.encode("Password1!"), "owner2@example.com", UserRole.OWNER);
+        userRepository.save(owner2);
+        owner2Token = jwtUtil.createToken(owner2.getUsername(), owner2.getRole());
 
         manager = new User("manager", passwordEncoder.encode("Password1!"), "manager@example.com", UserRole.MANAGER);
         userRepository.save(manager);
@@ -129,5 +135,48 @@ public class AiResponseIntegrationTest {
         assertEquals(mockResponseText, response.getResponse());
     }
 
+    @Test
+    @DisplayName("자신이 생성한 AI 응답 단건 조회 테스트")
+    void testReadAiResponse_Success() throws Exception {
+        // Given
+        AiResponse aiResponse = new AiResponse(owner.getId(), "test request", "test response");
+        aiResponseRepository.save(aiResponse);
 
+        // When & Then
+        mockMvc.perform(get("/api/ai/" + aiResponse.getId())
+                .header(JwtUtil.AUTHORIZATION_HEADER, ownerToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("조회 성공"))
+            .andExpect(jsonPath("$.data.request").value("test request"))
+            .andExpect(jsonPath("$.data.response").value("test response"));
+    }
+
+    @Test
+    @DisplayName("다른 유저가 생성한 AI 응답 단건 조회 테스트 (MANAGER 권한)")
+    void testReadAiResponse_AsManager_Success() throws Exception {
+        // Given
+        AiResponse aiResponse = new AiResponse(owner.getId(), "test request", "test response");
+        aiResponseRepository.save(aiResponse);
+
+        // When & Then
+        mockMvc.perform(get("/api/ai/" + aiResponse.getId())
+                .header(JwtUtil.AUTHORIZATION_HEADER, managerToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("조회 성공"))
+            .andExpect(jsonPath("$.data.request").value("test request"))
+            .andExpect(jsonPath("$.data.response").value("test response"));
+    }
+
+    @Test
+    @DisplayName("다른 유저가 생성한 AI 응답 단건 조회 테스트 (OWNER 권한)")
+    void testReadAiResponse_Fail() throws Exception {
+        // Given
+        AiResponse aiResponse = new AiResponse(owner.getId(), "test request", "test response");
+        aiResponseRepository.save(aiResponse);
+
+        // When & Then
+        mockMvc.perform(get("/api/ai/" + aiResponse.getId())
+                .header(JwtUtil.AUTHORIZATION_HEADER, owner2Token))
+            .andExpect(status().isForbidden());
+    }
 }
