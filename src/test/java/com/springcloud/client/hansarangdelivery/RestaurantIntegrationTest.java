@@ -64,7 +64,7 @@ class RestaurantIntegrationTest {
 
     private UUID createTestRestaurant() {
         var restaurant = new com.hansarangdelivery.entity.Restaurant(
-            "테스트 음식점", UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID());
+            "테스트 음식점", UUID.randomUUID(), 1L, UUID.randomUUID());
         restaurantRepository.save(restaurant);
         entityManager.flush();
         entityManager.clear();
