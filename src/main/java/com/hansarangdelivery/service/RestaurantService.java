@@ -30,12 +30,14 @@ public class RestaurantService {
     private final LocationService locationService;
     private final UserService userService;
     private final MenuItemService menuItemService;
+    private final ReviewService reviewService;
 
     public RestaurantResponseDto register(RestaurantRequestDto requestDto) {
 //      가게 등록하기
         RestaurantRequestDto request = checkedRequest(requestDto);
         Restaurant restaurant = new Restaurant(request);
-        return new RestaurantResponseDto(restaurantRepository.save(restaurant));
+        double point = reviewService.countAverageRating(restaurant.getId());
+        return new RestaurantResponseDto(restaurantRepository.save(restaurant),point);
     }
 
     public RestaurantResponseDto getRestaurantInfo(UUID restaurantId) {
@@ -44,7 +46,8 @@ public class RestaurantService {
         LocationResponseDto location = locationService.readLocation(restaurant.getLocation());
         String location_str = location.getCity() + " " + location.getDistrict() + " " + location.getSubDistrict();
         String category = categoryService.getCategoryById(restaurant.getCategory()).getName();
-        return new RestaurantResponseDto(restaurant.getId(), restaurant.getName(), location_str, restaurant.getStatus(), category);
+        double point = reviewService.countAverageRating(restaurant.getId());
+        return new RestaurantResponseDto(restaurant.getId(), restaurant.getName(), location_str, restaurant.getStatus(), category,point);
 
     }
 
@@ -61,7 +64,8 @@ public class RestaurantService {
         LocationResponseDto location = locationService.readLocation(restaurant.getLocation());
         String location_str = location.getCity() + " " + location.getDistrict() + " " + location.getSubDistrict();
         String category = categoryService.getCategoryById(restaurant.getCategory()).getName();
-        return new RestaurantResponseDto(restaurant.getId(), restaurant.getName(), location_str, restaurant.getStatus(), category);
+        double point = reviewService.countAverageRating(restaurant.getId());
+        return new RestaurantResponseDto(restaurant.getId(), restaurant.getName(), location_str, restaurant.getStatus(), category,point);
     }
 
     @Transactional
@@ -71,15 +75,20 @@ public class RestaurantService {
 
         restaurant.delete(LocalDateTime.now(),deletedBy);// 삭제 처리(삭제자와 삭제날짜)
         menuItemService.deleteMenuItemByRestaurantId(restaurantId,user); // 메뉴도 같이 
-
-        return new RestaurantResponseDto(restaurantRepository.save(restaurant));
+        double point = reviewService.countAverageRating(restaurant.getId());
+        return new RestaurantResponseDto(restaurantRepository.save(restaurant),point);
     }
 
     public Page<RestaurantResponseDto> searchRestaurants(Pageable pageable, String search) {
         //  검색 조건에 맞는 음식점 리스트를 정렬해서 전달
         return restaurantRepositoryQuery.
             searchRestaurant(pageable, search)
-            .map(RestaurantResponseDto::new);
+            .map((restaurant)->{
+                double point = reviewService.countAverageRating(restaurant.getId());
+                return new RestaurantResponseDto(restaurant,point);
+                }
+
+            );
     }
 
     private Restaurant checkedRestaurant(UUID restaurantId) {
