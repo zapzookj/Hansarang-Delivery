@@ -33,7 +33,7 @@ public class CategoryService {
         }
         Category category = new Category(name);
         categoryRepository.save(category);
-        return new CategoryResponseDto(category.getName());
+        return new CategoryResponseDto(category.getId(),category.getName());
     }
 
     @Transactional
@@ -43,7 +43,7 @@ public class CategoryService {
             () -> new ResourceNotFoundException("수정하려는 카테고리는 존재하지 않습니다."));
         category.update(categoryRequestDto);
         categoryRepository.save(category);
-        return new CategoryResponseDto(category.getName());
+        return new CategoryResponseDto(category.getId(),category.getName());
     }
 
     public boolean existsById(UUID categoryId) {
@@ -56,12 +56,12 @@ public class CategoryService {
             () -> new ResourceNotFoundException("삭제하려는 카테고리가 존재하지 않습니다."));
         String deletedBy = user.getUsername();// 인증된 사용자의 username을 deletedBy로 사용
         category.delete(LocalDateTime.now(), deletedBy);
-        return new CategoryResponseDto(category.getName());
+        return new CategoryResponseDto(category.getId(),category.getName());
     }
 
     public Page<CategoryResponseDto> getAllCategory(Pageable pageable) {
         Page<Category> categoryPage = categoryRepository.findAll(pageable);
-        return categoryPage.map(category -> new CategoryResponseDto(
+        return categoryPage.map(category -> new CategoryResponseDto(category.getId(),
             category.getName()
         ));
     }
