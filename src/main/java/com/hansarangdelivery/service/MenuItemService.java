@@ -11,6 +11,7 @@ import com.hansarangdelivery.exception.ResourceNotFoundException;
 import com.hansarangdelivery.repository.MenuItemRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -40,6 +41,10 @@ public class MenuItemService {
         return new MenuItemResponseDto(menuItem);
     }
 
+    @Cacheable(
+        value = "menuItems",
+        key = "#restaurantId + ':' + #pageable.pageNumber + ':' + #pageable.pageSize + ':' + #pageable.sort.toString()"
+    )
     public PageResponseDto<MenuItemResponseDto> searchAllMenuItem(UUID restaurantId, Pageable pageable) {
 
         Page<MenuItem> menuItems = menuItemRepository.searchMenuItemByRestaurantId(restaurantId, pageable);
@@ -69,6 +74,7 @@ public class MenuItemService {
     }
 
     @Transactional
+    @CacheEvict(value = "menuItems", allEntries = true)
     public MenuItemResponseDto updateAvailableMenuItem(UUID menuItemId, Boolean isAvailable) {
         MenuItem menuItem = menuItemRepository.findById(menuItemId)
             .orElseThrow(() -> new ResourceNotFoundException("찾는 메뉴가 없습니다."));

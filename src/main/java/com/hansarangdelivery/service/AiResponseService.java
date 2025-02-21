@@ -83,7 +83,7 @@ public class AiResponseService {
     @Transactional(readOnly = true)
     @Cacheable(
         value = "aiResponses",
-        key = "#user.id + ':' + #pageable.pageNumber + ':' + #pageable.pageSize + ':' + #pageable.sort.toString()"
+        key = "#user.getId() + ':' + #pageable.pageNumber + ':' + #pageable.pageSize + ':' + #pageable.sort.toString()"
     )
     public PageResponseDto<AiResponseDto> searchAiResponses(User user, Pageable pageable) {
 
