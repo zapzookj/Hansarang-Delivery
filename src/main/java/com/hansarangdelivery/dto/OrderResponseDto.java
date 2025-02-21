@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 public class OrderResponseDto {
+    private UUID id;
     private UUID restaurantId;
     private String storeName;
     private int totalPrice;
@@ -20,6 +21,7 @@ public class OrderResponseDto {
     private List<OrderItemDto> orderItems;
 
     public OrderResponseDto(Order order) {
+        this.id = order.getId();
         this.restaurantId = order.getRestaurantId();
         this.storeName = order.getStoreName();
         this.totalPrice = order.getTotalPrice();
