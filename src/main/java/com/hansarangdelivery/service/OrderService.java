@@ -41,8 +41,11 @@ public class OrderService {
     public OrderResponseDto createOrder(OrderRequestDto requestDto, User user) {
         Restaurant restaurant = restaurantService.getRestaurantById(requestDto.getRestaurantId());
         String storeName = restaurant.getName();
+
         UUID deliveryAddressId = deliveryAddress.readDeliveryAddress(user.getId()).getDeliveryAddressId();
         String roadNameCode = locationService.readRoadName(deliveryAddressId).getRoadNameCode();
+
+
         List<OrderItem> orderItems = requestDto.getMenu().stream()
             .map(orderItemDto -> {
                 MenuItem menuItem = menuItemService.getMenuById(orderItemDto.getMenuId());
