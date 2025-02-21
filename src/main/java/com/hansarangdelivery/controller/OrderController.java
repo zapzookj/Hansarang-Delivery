@@ -30,8 +30,8 @@ public class OrderController {
 
     @PostMapping //주문 생성
     public ResultResponseDto<OrderResponseDto> createOrder(@Valid @RequestBody OrderRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        OrderResponseDto order = orderService.createOrder(requestDto, userDetails.getUser());// 주문 생성 로직 실행
-        return new ResultResponseDto<>("주문 생성 성공", 200, order);
+        OrderResponseDto responseDto = orderService.createOrder(requestDto, userDetails.getUser());// 주문 생성 로직 실행
+        return new ResultResponseDto<>("주문 생성 성공", 200,responseDto);
     }
 
 
