@@ -1,5 +1,6 @@
 package com.hansarangdelivery.controller;
 
+import com.hansarangdelivery.config.PageableConfig;
 import com.hansarangdelivery.dto.MenuItemRequestDto;
 import com.hansarangdelivery.dto.MenuItemResponseDto;
 import com.hansarangdelivery.dto.ResultResponseDto;
@@ -12,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -24,18 +26,17 @@ public class MenuItemController {
     // 메뉴 추가
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_OWNER') or hasRole('ROLE_MANAGER')")
-    public ResultResponseDto<Void> addMenuItem(@RequestBody MenuItemRequestDto requestDto) {
+    public ResultResponseDto<MenuItemResponseDto> createMenuItem(@RequestBody MenuItemRequestDto requestDto) {
 
-        menuItemService.addMenuItem(requestDto);
+        MenuItemResponseDto responseDto = menuItemService.createMenuItem(requestDto);
 
-        return new ResultResponseDto<>("메뉴 저장 성공", 200);
+        return new ResultResponseDto<>("메뉴 저장 성공", 200, responseDto);
     }
 
     @GetMapping("/restaurant")
     public ResultResponseDto<Page<MenuItemResponseDto>> searchAllMenuItem(@RequestParam UUID restaurantId, Pageable pageable) {
 
-        // PageSize 검증
-        // PageableConfig.validatePageSize(pageable);
+        PageableConfig.validatePageSize(pageable);
 
         Page<MenuItemResponseDto> responseDtoList = menuItemService.searchAllMenuItem(restaurantId, pageable);
 
@@ -54,30 +55,29 @@ public class MenuItemController {
     // 메뉴 ID로 메뉴 수정
     @PutMapping("/{menuItemId}")
     @PreAuthorize("hasRole('ROLE_OWNER') or hasRole('ROLE_MANAGER')")
-    public ResultResponseDto<Void> updateMenuItem(@PathVariable UUID menuItemId, @RequestBody MenuItemRequestDto requestDto) {
+    public ResultResponseDto<MenuItemResponseDto> updateMenuItem(@PathVariable UUID menuItemId, @RequestBody MenuItemRequestDto requestDto) {
 
-        menuItemService.updateMenuItem(menuItemId, requestDto);
+        MenuItemResponseDto responseDto = menuItemService.updateMenuItem(menuItemId, requestDto);
 
-        return new ResultResponseDto<>("메뉴 수정 성공", 200);
+        return new ResultResponseDto<>("메뉴 수정 성공", 200, responseDto);
     }
 
     // 메뉴 ID로 메뉴 삭제
     @DeleteMapping("/{menuItemId}")
     @PreAuthorize("hasRole('ROLE_OWNER') or hasRole('ROLE_MANAGER')")
-    public ResultResponseDto<Void> deleteMenuItem(@PathVariable UUID menuItemId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResultResponseDto<MenuItemResponseDto> deleteMenuItem(@PathVariable UUID menuItemId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        menuItemService.deleteMenuItem(menuItemId, userDetails.getUser());
+        MenuItemResponseDto responseDto = menuItemService.deleteMenuItem(menuItemId, userDetails.getUser());
 
-        return new ResultResponseDto<>("메뉴 삭제 성공", 200);
+        return new ResultResponseDto<>("메뉴 삭제 성공", 200, responseDto);
     }
 
     @DeleteMapping("/all/{restaurantId}")
     @PreAuthorize("hasRole('ROLE_OWNER') or hasRole('ROLE_MANAGER')")
-    public ResultResponseDto<Void> deleteAllMenuItem(@PathVariable UUID restaurantId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResultResponseDto<List<MenuItemResponseDto>> deleteAllMenuItem(@PathVariable UUID restaurantId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        menuItemService.deleteMenuItemByRestaurantId(restaurantId, userDetails.getUser());
+        List<MenuItemResponseDto> reponseList = menuItemService.deleteMenuItemByRestaurantId(restaurantId, userDetails.getUser());
 
-        return new ResultResponseDto<>("메뉴 전체 삭제 성공", 200);
+        return new ResultResponseDto<>("메뉴 전체 삭제 성공", 200, reponseList);
     }
-
 }
