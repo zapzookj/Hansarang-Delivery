@@ -9,12 +9,14 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.util.UUID;
+import org.hibernate.annotations.Where;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "p_category")
+@Where(clause = "deleted_at IS NULL")
 public class Category extends TimeStamped{
     @Id
     @UuidGenerator

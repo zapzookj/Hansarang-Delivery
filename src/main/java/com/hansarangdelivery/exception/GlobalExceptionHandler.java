@@ -32,6 +32,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(responseDto, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ExceptionResponseDto> handleIllegalArgumentException(IllegalArgumentException ex) {
+        ExceptionResponseDto responseDto = new ExceptionResponseDto(ex.getMessage(), HttpStatus.NOT_FOUND.value());
+        return new ResponseEntity<>(responseDto, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(BindException.class)
     public ResponseEntity<List<String>> handleBindException(BindException ex) { // Validation 예외
         List<FieldError> fieldErrors = ex.getFieldErrors();

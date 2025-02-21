@@ -2,71 +2,57 @@ package com.hansarangdelivery.repository;
 
 import com.hansarangdelivery.entity.Order;
 import com.hansarangdelivery.entity.QOrder;
+import com.hansarangdelivery.entity.Review;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
 public class OrderRepositoryQueryImpl implements OrderRepositoryQuery {
     private final JPAQueryFactory queryFactory;
 
+
     @Override
-    public Page<Order> searchOrders(Pageable pageable, String search) {
+    public Page<Order> searchByOrderId(UUID orderId, Pageable pageable) {
+
+        Sort sort = pageable.getSort();
+
         QOrder order = QOrder.order;
-        BooleanBuilder builder = new BooleanBuilder();
 
-       // 가게이름, 메뉴 이름
-        if (search != null && !search.isBlank()) {
-            builder.and(order.storeName.containsIgnoreCase(search)
-                .or(order.orderItems.any().menuName.containsIgnoreCase(search)));
+        JPAQuery<Order> query = queryFactory
+            .selectFrom(order)
+            .where(order.id.eq(orderId)) // 주문 ID로 필터링
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize());
 
+        // 정렬 처리
+        if (sort.iterator().hasNext() && sort.iterator().next().isAscending()) {
+            query.orderBy(order.createdAt.asc(), order.updatedAt.asc());
+        } else {
+            query.orderBy(order.createdAt.desc(), order.updatedAt.desc());
         }
 
-        List<Order> results = queryFactory
-            .selectFrom(order)
-            .where(builder)
-            .orderBy(order.createdAt.desc(), order.updatedAt.desc()) // 생성일 최신순 → 수정일 최신순
-            .offset(pageable.getOffset())
-            .limit(pageable.getPageSize())
-            .fetch();
+        List<Order> orderList = query.fetch();
 
-        //전체 개수 조회
+        // 전체 개수 계산
         long total = queryFactory
-            .select(order.count())
-            .from(order)
-            .where(builder)
-            .fetchOne();
+            .selectFrom(order)
+            .where(order.id.eq(orderId))
+            .fetch().size();
 
-        return new PageImpl<>(results, pageable, total);
+        return new PageImpl<>(orderList, pageable, total);
     }
 
-
-
-    @Override
-    public Page<Order> getAllOrders(Pageable pageable) {
-        QOrder order = QOrder.order;
-
-        List<Order> results = queryFactory
-            .selectFrom(order)
-            .orderBy(order.createdAt.desc(), order.updatedAt.desc())
-            .offset(pageable.getOffset())
-            .limit(pageable.getPageSize())
-            .fetch();
-
-        long total = queryFactory
-            .select(order.count())
-            .from(order)
-            .fetchOne();
-
-        return new PageImpl<>(results, pageable, total);
-    }
 
 
 }

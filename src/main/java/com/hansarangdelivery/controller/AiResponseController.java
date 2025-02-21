@@ -1,5 +1,6 @@
 package com.hansarangdelivery.controller;
 
+import com.hansarangdelivery.config.PageableConfig;
 import com.hansarangdelivery.dto.AiRequestDto;
 import com.hansarangdelivery.dto.AiResponseDto;
 import com.hansarangdelivery.dto.ResultResponseDto;
@@ -7,6 +8,7 @@ import com.hansarangdelivery.security.UserDetailsImpl;
 import com.hansarangdelivery.service.AiResponseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -31,19 +33,18 @@ public class AiResponseController {
 
     // AI 응답 단건 조회 API (Permission : 본인이 생성한 응답이거나 권한이 MANAGER 인 경우)
     @GetMapping("/{aiResponseId}")
-    public ResultResponseDto<AiResponseDto> getAiResponse(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                          @PathVariable("aiResponseId") UUID aiResponseId) {
-        AiResponseDto aiResponseDto = aiResponseService.getAiResponse(userDetails.getUser(), aiResponseId);
+    public ResultResponseDto<AiResponseDto> readAiResponse(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                           @PathVariable("aiResponseId") UUID aiResponseId) {
+        AiResponseDto aiResponseDto = aiResponseService.readAiResponse(userDetails.getUser(), aiResponseId);
         return new ResultResponseDto<>("조회 성공", 200, aiResponseDto);
     }
 
     // 본인이 생성한 AI 응답 전체 조회 API
     @GetMapping()
     public ResultResponseDto<Page<AiResponseDto>> searchAiResponses(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                                    @RequestParam("page") int page,
-                                                                    @RequestParam("size") int size,
-                                                                    @RequestParam("isAsc") boolean isAsc) {
-        Page<AiResponseDto> aiResponseDtos = aiResponseService.searchAiResponses(userDetails.getUser(), page-1, size, isAsc);
+                                                                    Pageable pageable) {
+        PageableConfig.validatePageSize(pageable);
+        Page<AiResponseDto> aiResponseDtos = aiResponseService.searchAiResponses(userDetails.getUser(), pageable);
         return new ResultResponseDto<>("조회 성공", 200, aiResponseDtos);
     }
 

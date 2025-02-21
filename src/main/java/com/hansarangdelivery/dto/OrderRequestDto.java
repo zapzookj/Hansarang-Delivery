@@ -10,7 +10,8 @@ import java.util.UUID;
 public class OrderRequestDto {
     private Long userId;
     private UUID restaurantId;
-    private String deliveryAddress;
+    private String roadName;
+    private String detailAddress;
     private String deliveryRequest;
     private String orderType;
     private String orderStatus;

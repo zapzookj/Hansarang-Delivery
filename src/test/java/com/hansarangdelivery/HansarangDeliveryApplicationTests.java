@@ -1,4 +1,4 @@
-package com.springcloud.client.hansarangdelivery;
+package com.hansarangdelivery;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

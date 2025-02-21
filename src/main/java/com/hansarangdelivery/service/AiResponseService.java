@@ -6,6 +6,8 @@ import com.hansarangdelivery.dto.AiResponseDto;
 import com.hansarangdelivery.entity.AiResponse;
 import com.hansarangdelivery.entity.User;
 import com.hansarangdelivery.entity.UserRole;
+import com.hansarangdelivery.exception.ForbiddenActionException;
+import com.hansarangdelivery.exception.ResourceNotFoundException;
 import com.hansarangdelivery.repository.AiResponseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -68,7 +70,7 @@ public class AiResponseService {
     }
 
     @Transactional(readOnly = true)
-    public AiResponseDto getAiResponse(User user, UUID aiResponseId) {
+    public AiResponseDto readAiResponse(User user, UUID aiResponseId) {
         AiResponse aiResponse = findAiResponse(aiResponseId);
 
         checkPermissions(aiResponse, user);
@@ -77,13 +79,12 @@ public class AiResponseService {
     }
 
     @Transactional(readOnly = true)
-    public Page<AiResponseDto> searchAiResponses(User user, int page, int size, boolean isAsc) {
+    public Page<AiResponseDto> searchAiResponses(User user, Pageable pageable) {
 
-        Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
-        Sort sort = Sort.by(direction, "createdAt");
-        Pageable pageable = PageRequest.of(page, size, sort);
+        Sort sort = pageable.getSort().isSorted() ? pageable.getSort() : Sort.by(Sort.Direction.DESC, "createdAt");
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
 
-        return aiResponseRepository.findByUserId(user.getId(), pageable).map(AiResponseDto::new);
+        return aiResponseRepository.findByUserId(user.getId(), sortedPageable).map(AiResponseDto::new);
     }
 
     @Transactional
@@ -117,12 +118,12 @@ public class AiResponseService {
 
     private AiResponse findAiResponse(UUID aiResponseId) {
         return aiResponseRepository.findById(aiResponseId)
-            .orElseThrow(() -> new IllegalArgumentException("해당 Id를 가진 Ai 응답을 찾을 수 없습니다."));
+            .orElseThrow(() -> new ResourceNotFoundException("해당 Id를 가진 Ai 응답을 찾을 수 없습니다."));
     }
 
     private void checkPermissions(AiResponse aiResponse, User user) {
-        if (!aiResponse.getUserId().equals(user.getId()) || !user.getRole().equals(UserRole.MANAGER)) {
-            throw new IllegalArgumentException("권한이 없습니다.");
+        if (!aiResponse.getUserId().equals(user.getId()) && !user.getRole().equals(UserRole.MANAGER)) {
+            throw new ForbiddenActionException("권한이 없습니다.");
         }
     }
 }

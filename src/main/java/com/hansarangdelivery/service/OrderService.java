@@ -1,11 +1,12 @@
 package com.hansarangdelivery.service;
 
-import com.hansarangdelivery.dto.OrderItemRequestDto;
 import com.hansarangdelivery.dto.OrderRequestDto;
 import com.hansarangdelivery.dto.OrderResponseDto;
+import com.hansarangdelivery.dto.ReviewResponseDto;
+import com.hansarangdelivery.dto.RoadNameResponseDto;
 import com.hansarangdelivery.entity.*;
-import com.hansarangdelivery.entity.MenuItem;
 import com.hansarangdelivery.exception.ForbiddenActionException;
+import com.hansarangdelivery.exception.ResourceNotFoundException;
 import com.hansarangdelivery.repository.OrderRepository;
 import com.hansarangdelivery.repository.OrderRepositoryQueryImpl;
 import lombok.RequiredArgsConstructor;
@@ -16,12 +17,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -32,26 +32,33 @@ public class OrderService {
     private final RestaurantService restaurantService; //  가게 정보 조회
     private final OrderRepositoryQueryImpl orderRepositoryQuery;
     private final PaymentService paymentService;
+    private final DeliveryAddressService deliveryAddress;
+    private final LocationService locationService;
+    
+
 
     @Transactional
-    public void createOrder(OrderRequestDto requestDto, User user) {
-
+    public OrderResponseDto createOrder(OrderRequestDto requestDto, User user) {
         Restaurant restaurant = restaurantService.getRestaurantById(requestDto.getRestaurantId());
-
         String storeName = restaurant.getName();
 
-        List<OrderItem> orderItems = requestDto.getMenu().stream().map(orderItemDto -> {
+        UUID deliveryAddressId = deliveryAddress.readDeliveryAddress(user.getId()).getDeliveryAddressId();
+        String roadNameCode = locationService.readRoadName(deliveryAddressId).getRoadNameCode();
 
-            MenuItem menuItem = menuItemService.getMenuById(orderItemDto.getMenuId());
 
-            return new OrderItem(
-                menuItem.getId(),
-                menuItem.getName(),
-                menuItem.getPrice(),
-                orderItemDto.getQuantity(),
-                null
-            );
-        }).collect(Collectors.toList());
+        List<OrderItem> orderItems = requestDto.getMenu().stream()
+            .map(orderItemDto -> {
+                MenuItem menuItem = menuItemService.getMenuById(orderItemDto.getMenuId());
+                return new OrderItem(
+                    menuItem.getId(),
+                    menuItem.getName(),
+                    menuItem.getPrice(),
+                    orderItemDto.getQuantity(),
+                    null
+                );
+            })
+            .collect(Collectors.toList());
+
 
         // 주문 총 가격 계산
         int totalPrice = orderItems.stream()
@@ -62,31 +69,33 @@ public class OrderService {
         Order order = new Order(
             user.getId(),
             requestDto.getRestaurantId(),
-            storeName, //RestaurantRepository 에서 가져온 storeName 사용
+            storeName,
             totalPrice,
             OrderType.valueOf(requestDto.getOrderType()),
-            OrderStatus.PENDING, // 주문 생성 되었으나 결제 전
-            requestDto.getDeliveryAddress(),
+            OrderStatus.PENDING,
+            roadNameCode,
+            requestDto.getDetailAddress(),
             requestDto.getDeliveryRequest(),
             orderItems
         );
+
         orderItems.forEach(item -> item.setOrder(order));
 
         orderRepository.save(order);
 
-        new OrderResponseDto(order);
+        return new OrderResponseDto(order);
     }
 
 
     public OrderResponseDto readOrder(UUID orderId) {
         Order order = orderRepository.findById(orderId).orElseThrow(
-            () -> new IllegalArgumentException("존재하지 않는 주문입니다."));
+            () -> new ResourceNotFoundException("존재하지 않는 주문입니다."));
         return new OrderResponseDto(order);
     }
 
 
     @Transactional
-    public void updateOrder(UUID orderId, OrderRequestDto requestDto) {
+    public OrderResponseDto updateOrder(UUID orderId, OrderRequestDto requestDto) {
         // 1. 기존 주문 찾기
         Order order = findOrder(orderId);
 
@@ -97,11 +106,13 @@ public class OrderService {
         }
 
         // 2. 기본 정보 업데이트
-        order.setDeliveryAddress(requestDto.getDeliveryAddress());
+      
+        order.setRoadNameCode(requestDto.getRoadName());
+        order.setDetailAddress(requestDto.getDetailAddress());
         order.setDeliveryRequest(requestDto.getDeliveryRequest());
         order.setOrderType(OrderType.valueOf(requestDto.getOrderType()));
         order.setOrderStatus(OrderStatus.valueOf(requestDto.getOrderStatus()));
-        
+
 
         // 3. 새로운 OrderItem 추가
         List<OrderItem> newOrderItems = getOrderItems(requestDto, order);
@@ -112,29 +123,14 @@ public class OrderService {
         int totalPrice = newOrderItems.stream().mapToInt(OrderItem::getMenuPrice).sum();
         order.setTotalPrice(totalPrice);
 
-        orderRepository.save(order);
-    }
 
-    private List<OrderItem> getOrderItems(OrderRequestDto requestDto, Order order) {
-        List<OrderItem> newOrderItems = new ArrayList<>();
-        for (OrderItemRequestDto itemDto : requestDto.getMenu()) {
-            MenuItem menu = menuItemService.getMenuById(itemDto.getMenuId()); //스트림으로 바꾸기
+        return new OrderResponseDto(order);
 
-            OrderItem newItem = new OrderItem(
-                menu.getId(),
-                menu.getName(),
-                menu.getPrice(),
-                itemDto.getQuantity(),
-                order
-            );
-            newOrderItems.add(newItem);
-        }
-        return newOrderItems;
     }
 
 
     @Transactional
-    public void deleteOrder(UUID orderId, User user) {
+    public OrderResponseDto deleteOrder(UUID orderId, User user) {
         Order order = findOrder(orderId);
 
         // 주문이 생성된 시각
@@ -145,7 +141,7 @@ public class OrderService {
 
         // 주문이 5분이 초과되었는지 검사
         if (createdAt.plusMinutes(5).isBefore(now)) {
-            throw new IllegalArgumentException();
+            throw new ForbiddenActionException("주문 등록 후 5분이 초과되어 주문 삭제 실패");
         }
 
         // 주문 취소 처리
@@ -156,54 +152,45 @@ public class OrderService {
 
 
         // 변경 사항 저장
-        orderRepository.save(order);
+        Order newOrder = orderRepository.save(order);
+        return new OrderResponseDto(newOrder);
     }
 
 
-    public Page<OrderResponseDto> searchOrders(int page, int size, String direction, String search) {
-        page = Math.max(page - 1, 0); // 페이지 최소값 0부터 시작
+    public Page<OrderResponseDto> searchOrders(UUID orderId, Pageable pageable) {
 
+        Page<Order> orders = orderRepositoryQuery.searchByOrderId(orderId, pageable);
 
-        List<Integer> validSizes = List.of(10, 30, 50);
-        if (!validSizes.contains(size)) {
-            size = 10;
+        if (orders.isEmpty()) {
+            throw new ResourceNotFoundException("주문한 내역이 없습니다.");
         }
+        return orders.map(OrderResponseDto::new);
 
-        Sort.Direction sortDirection = "asc".equalsIgnoreCase(direction) ? Sort.Direction.ASC : Sort.Direction.DESC;
-
-
-        List<Sort.Order> orders = List.of(
-            new Sort.Order(sortDirection, "createdAt"), // 1순위 정렬 (생성일)
-            new Sort.Order(sortDirection, "updatedAt")  // 2순위 정렬 (수정일)
-        );
-
-
-        Pageable pageable = PageRequest.of(page, size, Sort.by(orders));
-
-
-        return orderRepositoryQuery.searchOrders(pageable, search)
-            .map(OrderResponseDto::new);
     }
 
 
     private Order findOrder(UUID orderId) {
         return orderRepository.findById(orderId)
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주문입니다."));
+            .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 주문입니다."));
     }
 
 
-    public Page<OrderResponseDto> getAllOrders(int page, int size, String direction) {
+    private List<OrderItem> getOrderItems(OrderRequestDto requestDto, Order order) {
+        return requestDto.getMenu().stream() //requestDto.getMenu()에서 OrderItemRequestDto 리스트를 가져옴.
+            .map(itemDto -> {
+                MenuItem menu = menuItemService.getMenuById(itemDto.getMenuId());
+                return new OrderItem(
+                    menu.getId(),
+                    menu.getName(),
+                    menu.getPrice(),
+                    itemDto.getQuantity(),
+                    order
+                );
+            })
+            .collect(Collectors.toList());
 
-        page = Math.max(page - 1, 0); // 페이지 최소값 0부터 시작
-
-        Sort.Direction sortDirection = "asc".equalsIgnoreCase(direction) ? Sort.Direction.ASC : Sort.Direction.DESC;
-        Pageable pageable = PageRequest.of(page, size, Sort.by(
-            new Sort.Order(sortDirection, "createdAt"),
-            new Sort.Order(sortDirection, "updatedAt")
-        ));
-
-        return orderRepositoryQuery.getAllOrders(pageable).map(OrderResponseDto::new);
     }
+
 
 }
 
