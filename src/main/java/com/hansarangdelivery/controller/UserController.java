@@ -1,5 +1,6 @@
 package com.hansarangdelivery.controller;
 
+import com.hansarangdelivery.config.PageableConfig;
 import com.hansarangdelivery.dto.*;
 import com.hansarangdelivery.security.UserDetailsImpl;
 import com.hansarangdelivery.service.DeliveryAddressService;
@@ -43,6 +44,7 @@ public class UserController {
     @GetMapping()
     @PreAuthorize("hasRole('ROLE_MANAGER')")
     public ResultResponseDto<Page<UserResponseDto>> searchProfiles(Pageable pageable) {
+        PageableConfig.validatePageSize(pageable);
         Page<UserResponseDto> responseDtoPage = userService.searchProfiles(pageable);
         return new ResultResponseDto<>("조회 성공",200, responseDtoPage);
     }
