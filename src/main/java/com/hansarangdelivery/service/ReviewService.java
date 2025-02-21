@@ -1,5 +1,6 @@
 package com.hansarangdelivery.service;
 
+import com.hansarangdelivery.dto.PageResponseDto;
 import com.hansarangdelivery.dto.ReviewRequestDto;
 import com.hansarangdelivery.dto.ReviewResponseDto;
 import com.hansarangdelivery.entity.Review;
@@ -58,7 +59,7 @@ public class ReviewService {
         return new ReviewResponseDto(review);
     }
 
-    public Page<ReviewResponseDto> searchRestaurantReview(UUID restaurantId, Pageable pageable) {
+    public PageResponseDto<ReviewResponseDto> searchRestaurantReview(UUID restaurantId, Pageable pageable) {
 
         Page<Review> reviews = reviewRepository.searchByRestaurantId(restaurantId, pageable);
 
@@ -66,7 +67,7 @@ public class ReviewService {
             throw new ResourceNotFoundException("작성된 리뷰가 없습니다");
         }
 
-        return reviews.map(ReviewResponseDto::new);
+        return new PageResponseDto<>(reviews.map(ReviewResponseDto::new));
     }
 
     public Page<ReviewResponseDto> searchMyReview(Long userId, Pageable pageable) {

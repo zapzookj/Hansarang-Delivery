@@ -1,5 +1,6 @@
 package com.hansarangdelivery.service;
 
+import com.hansarangdelivery.dto.PageResponseDto;
 import com.hansarangdelivery.dto.SignupRequestDto;
 import com.hansarangdelivery.dto.UserResponseDto;
 import com.hansarangdelivery.dto.UserUpdateDto;
@@ -64,12 +65,13 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Page<UserResponseDto> searchProfiles(Pageable pageable) {
+    public PageResponseDto<UserResponseDto> searchProfiles(Pageable pageable) {
 
         Sort sort = pageable.getSort().isSorted() ? pageable.getSort() : Sort.by(Sort.Direction.DESC, "createdAt", "updatedAt");
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
 
-        return userRepositoryQuery.searchUsers(sortedPageable).map(UserResponseDto::new);
+        Page<UserResponseDto> mappedPage = userRepositoryQuery.searchUsers(sortedPageable).map(UserResponseDto::new);
+        return new PageResponseDto<>(mappedPage);
     }
 
     @Transactional

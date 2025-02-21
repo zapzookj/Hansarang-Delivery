@@ -3,6 +3,7 @@ package com.hansarangdelivery.controller;
 import com.hansarangdelivery.config.PageableConfig;
 import com.hansarangdelivery.dto.MenuItemRequestDto;
 import com.hansarangdelivery.dto.MenuItemResponseDto;
+import com.hansarangdelivery.dto.PageResponseDto;
 import com.hansarangdelivery.dto.ResultResponseDto;
 import com.hansarangdelivery.security.UserDetailsImpl;
 import com.hansarangdelivery.service.MenuItemService;
@@ -34,11 +35,11 @@ public class MenuItemController {
     }
 
     @GetMapping("/restaurant")
-    public ResultResponseDto<Page<MenuItemResponseDto>> searchAllMenuItem(@RequestParam UUID restaurantId, Pageable pageable) {
+    public ResultResponseDto<PageResponseDto<MenuItemResponseDto>> searchAllMenuItem(@RequestParam UUID restaurantId, Pageable pageable) {
 
         PageableConfig.validatePageSize(pageable);
 
-        Page<MenuItemResponseDto> responseDtoList = menuItemService.searchAllMenuItem(restaurantId, pageable);
+        PageResponseDto<MenuItemResponseDto> responseDtoList = menuItemService.searchAllMenuItem(restaurantId, pageable);
 
         return new ResultResponseDto<>("메뉴 조회 성공", 200, responseDtoList);
     }

@@ -2,6 +2,7 @@ package com.hansarangdelivery.controller;
 
 import com.hansarangdelivery.dto.CategoryRequestDto;
 import com.hansarangdelivery.dto.CategoryResponseDto;
+import com.hansarangdelivery.dto.PageResponseDto;
 import com.hansarangdelivery.dto.ResultResponseDto;
 import com.hansarangdelivery.security.UserDetailsImpl;
 import com.hansarangdelivery.service.CategoryService;
@@ -44,11 +45,11 @@ public class CategoryController {
         return new ResultResponseDto<>("카테고리 삭제 성공",200, result);
     }
 
-    @GetMapping("/")
-    public ResultResponseDto<Page<CategoryResponseDto>> searchCategories(
+    @GetMapping("/search")
+    public ResultResponseDto<PageResponseDto<CategoryResponseDto>> searchCategories(
         Pageable pageable
         ) {
-        Page<CategoryResponseDto> result = categoryService.getAllCategory(pageable); // 전체 카테고리 이름 조회
+        PageResponseDto<CategoryResponseDto> result = categoryService.getAllCategory(pageable); // 전체 카테고리 이름 조회
         return new ResultResponseDto<>("카테고리 검색 성공",200,result);
     }
 

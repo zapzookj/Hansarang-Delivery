@@ -1,8 +1,9 @@
 package com.hansarangdelivery.service;
 
-import com.hansarangdelivery.dto.AiRequestDto;
 import com.hansarangdelivery.dto.AiApiResponseDto;
+import com.hansarangdelivery.dto.AiRequestDto;
 import com.hansarangdelivery.dto.AiResponseDto;
+import com.hansarangdelivery.dto.PageResponseDto;
 import com.hansarangdelivery.entity.AiResponse;
 import com.hansarangdelivery.entity.User;
 import com.hansarangdelivery.entity.UserRole;
@@ -79,12 +80,13 @@ public class AiResponseService {
     }
 
     @Transactional(readOnly = true)
-    public Page<AiResponseDto> searchAiResponses(User user, Pageable pageable) {
+    public PageResponseDto<AiResponseDto> searchAiResponses(User user, Pageable pageable) {
 
         Sort sort = pageable.getSort().isSorted() ? pageable.getSort() : Sort.by(Sort.Direction.DESC, "createdAt");
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
 
-        return aiResponseRepository.findByUserId(user.getId(), sortedPageable).map(AiResponseDto::new);
+        Page<AiResponseDto> mappedPage = aiResponseRepository.findByUserId(user.getId(), sortedPageable).map(AiResponseDto::new);
+        return new PageResponseDto<>(mappedPage);
     }
 
     @Transactional

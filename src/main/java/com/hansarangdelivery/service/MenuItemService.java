@@ -2,6 +2,7 @@ package com.hansarangdelivery.service;
 
 import com.hansarangdelivery.dto.MenuItemRequestDto;
 import com.hansarangdelivery.dto.MenuItemResponseDto;
+import com.hansarangdelivery.dto.PageResponseDto;
 import com.hansarangdelivery.entity.MenuItem;
 import com.hansarangdelivery.entity.User;
 import com.hansarangdelivery.exception.DuplicateResourceException;
@@ -37,7 +38,7 @@ public class MenuItemService {
         return new MenuItemResponseDto(menuItem);
     }
 
-    public Page<MenuItemResponseDto> searchAllMenuItem(UUID restaurantId, Pageable pageable) {
+    public PageResponseDto<MenuItemResponseDto> searchAllMenuItem(UUID restaurantId, Pageable pageable) {
 
         Page<MenuItem> menuItems = menuItemRepository.searchMenuItemByRestaurantId(restaurantId, pageable);
 
@@ -45,7 +46,7 @@ public class MenuItemService {
             throw new ResourceNotFoundException("조회된 메뉴가 없습니다.");
         }
 
-        return menuItems.map(MenuItemResponseDto::new);
+        return new PageResponseDto<>(menuItems.map(MenuItemResponseDto::new));
     }
 
     public MenuItemResponseDto readMenuItem(UUID menuItemId) {
