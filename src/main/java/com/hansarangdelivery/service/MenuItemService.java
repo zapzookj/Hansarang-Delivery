@@ -106,4 +106,8 @@ public class MenuItemService {
 
         return menuItemRepository.existsByRestaurantIdAndName(menuItem.getRestaurantId(), menuItem.getName());
     }
+
+    public boolean isExist(UUID restaurantId) {
+        return menuItemRepository.existsByRestaurantId(restaurantId);
+    }
 }

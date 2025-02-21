@@ -35,19 +35,14 @@ public class RestaurantService {
 //      가게 등록하기
         RestaurantRequestDto request = checkedRequest(requestDto);
         Restaurant restaurant = new Restaurant(request);
-        double point = reviewService.countAverageRating(restaurant.getId());
+        double point = 0;
         return new RestaurantResponseDto(restaurantRepository.save(restaurant),point);
     }
 
     public RestaurantResponseDto getRestaurantInfo(UUID restaurantId) {
-//      가게 정보 조회하기
+//      가게 정보 조회하기 - 자세하게 보여줌
         Restaurant restaurant = checkedRestaurant(restaurantId);
-        LocationResponseDto location = locationService.readLocation(restaurant.getLocation());
-        String location_str = location.getCity() + " " + location.getDistrict() + " " + location.getSubDistrict();
-        String category = categoryService.getCategoryById(restaurant.getCategory()).getName();
-        double point = reviewService.countAverageRating(restaurant.getId());
-        return new RestaurantResponseDto(restaurant.getId(), restaurant.getName(), location_str, restaurant.getStatus(), category,point);
-
+        return getRestaurantResponseDto(restaurant);
     }
 
     @Transactional
@@ -60,6 +55,10 @@ public class RestaurantService {
             restaurant.close();
         }
         restaurantRepository.save(restaurant); // 수정된 음식점 정보 저장
+        return getRestaurantResponseDto(restaurant);
+    }
+
+    private RestaurantResponseDto getRestaurantResponseDto(Restaurant restaurant) {
         LocationResponseDto location = locationService.readLocation(restaurant.getLocation());
         String location_str = location.getCity() + " " + location.getDistrict() + " " + location.getSubDistrict();
         String category = categoryService.getCategoryById(restaurant.getCategory()).getName();
@@ -73,15 +72,22 @@ public class RestaurantService {
         String deletedBy = user.getId().toString(); // 인증된 사용자의 username을 deletedBy로 사용
 
         restaurant.delete(LocalDateTime.now(),deletedBy);// 삭제 처리(삭제자와 삭제날짜)
-        menuItemService.deleteMenuItemByRestaurantId(restaurantId,user); // 메뉴도 같이 
+        if(menuItemService.isExist(restaurantId)){
+            menuItemService.deleteMenuItemByRestaurantId(restaurantId,user); // 메뉴도 같이
+        }
         double point = reviewService.countAverageRating(restaurant.getId());
         return new RestaurantResponseDto(restaurantRepository.save(restaurant),point);
     }
 
-    public Page<RestaurantResponseDto> searchRestaurants(Pageable pageable, String search) {
+    public Page<RestaurantResponseDto> searchRestaurants(Pageable pageable, String search, String category) {
         //  검색 조건에 맞는 음식점 리스트를 정렬해서 전달
+        UUID categoryId=null;
+        if(category!=null){
+            categoryId=categoryService.getByName(category).getId();
+        }
+
         return restaurantRepositoryQuery.
-            searchRestaurant(pageable, search)
+            searchRestaurant(pageable, search,categoryId)
             .map((restaurant)->{
                 double point = reviewService.countAverageRating(restaurant.getId());
                 return new RestaurantResponseDto(restaurant,point);
