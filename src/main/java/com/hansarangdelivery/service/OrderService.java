@@ -2,8 +2,11 @@ package com.hansarangdelivery.service;
 
 import com.hansarangdelivery.dto.OrderRequestDto;
 import com.hansarangdelivery.dto.OrderResponseDto;
+import com.hansarangdelivery.dto.ReviewResponseDto;
+import com.hansarangdelivery.dto.RoadNameResponseDto;
 import com.hansarangdelivery.entity.*;
 import com.hansarangdelivery.exception.ForbiddenActionException;
+import com.hansarangdelivery.exception.ResourceNotFoundException;
 import com.hansarangdelivery.repository.OrderRepository;
 import com.hansarangdelivery.repository.OrderRepositoryQueryImpl;
 import lombok.RequiredArgsConstructor;
@@ -29,14 +32,17 @@ public class OrderService {
     private final RestaurantService restaurantService; //  가게 정보 조회
     private final OrderRepositoryQueryImpl orderRepositoryQuery;
     private final PaymentService paymentService;
+    private final DeliveryAddressService deliveryAddress;
     private final LocationService locationService;
-    // private final DeliveryAddressService deliveryAddressService;
+    
+
 
     @Transactional
     public OrderResponseDto createOrder(OrderRequestDto requestDto, User user) {
         Restaurant restaurant = restaurantService.getRestaurantById(requestDto.getRestaurantId());
         String storeName = restaurant.getName();
-
+        UUID deliveryAddressId = deliveryAddress.readDeliveryAddress(user.getId()).getDeliveryAddressId();
+        String roadNameCode = locationService.readRoadName(deliveryAddressId).getRoadNameCode();
         List<OrderItem> orderItems = requestDto.getMenu().stream()
             .map(orderItemDto -> {
                 MenuItem menuItem = menuItemService.getMenuById(orderItemDto.getMenuId());
@@ -64,7 +70,7 @@ public class OrderService {
             totalPrice,
             OrderType.valueOf(requestDto.getOrderType()),
             OrderStatus.PENDING,
-            requestDto.getDeliveryAddress(),
+            roadNameCode,
             requestDto.getDetailAddress(),
             requestDto.getDeliveryRequest(),
             orderItems
@@ -74,13 +80,13 @@ public class OrderService {
 
         orderRepository.save(order);
 
-       return new OrderResponseDto(order);
+        return new OrderResponseDto(order);
     }
 
 
     public OrderResponseDto readOrder(UUID orderId) {
         Order order = orderRepository.findById(orderId).orElseThrow(
-            () -> new IllegalArgumentException("존재하지 않는 주문입니다."));
+            () -> new ResourceNotFoundException("존재하지 않는 주문입니다."));
         return new OrderResponseDto(order);
     }
 
@@ -97,7 +103,8 @@ public class OrderService {
         }
 
         // 2. 기본 정보 업데이트
-        order.setDeliveryAddress(requestDto.getDeliveryAddress());
+      
+        order.setRoadNameCode(requestDto.getRoadName());
         order.setDetailAddress(requestDto.getDetailAddress());
         order.setDeliveryRequest(requestDto.getDeliveryRequest());
         order.setOrderType(OrderType.valueOf(requestDto.getOrderType()));
@@ -147,49 +154,21 @@ public class OrderService {
     }
 
 
-    public Page<OrderResponseDto> searchOrders(int page, int size, String direction, String search) {
-        page = Math.max(page - 1, 0); // 페이지 최소값 0부터 시작
+    public Page<OrderResponseDto> searchOrders(UUID orderId, Pageable pageable) {
 
+        Page<Order> orders = orderRepositoryQuery.searchByOrderId(orderId, pageable);
 
-        List<Integer> validSizes = List.of(10, 30, 50);
-        if (!validSizes.contains(size)) {
-            size = 10;
+        if (orders.isEmpty()) {
+            throw new ResourceNotFoundException("주문한 내역이 없습니다.");
         }
+        return orders.map(OrderResponseDto::new);
 
-        Sort.Direction sortDirection = "asc".equalsIgnoreCase(direction) ? Sort.Direction.ASC : Sort.Direction.DESC;
-
-
-        List<Sort.Order> orders = List.of(
-            new Sort.Order(sortDirection, "createdAt"), // 1순위 정렬 (생성일)
-            new Sort.Order(sortDirection, "updatedAt")  // 2순위 정렬 (수정일)
-        );
-
-
-        Pageable pageable = PageRequest.of(page, size, Sort.by(orders));
-
-
-        return orderRepositoryQuery.searchOrders(pageable, search)
-            .map(OrderResponseDto::new);
-    }
-
-
-    public Page<OrderResponseDto> getAllOrders(int page, int size, String direction) {
-
-        page = Math.max(page - 1, 0); // 페이지 최소값 0부터 시작
-
-        Sort.Direction sortDirection = "asc".equalsIgnoreCase(direction) ? Sort.Direction.ASC : Sort.Direction.DESC;
-        Pageable pageable = PageRequest.of(page, size, Sort.by(
-            new Sort.Order(sortDirection, "createdAt"),
-            new Sort.Order(sortDirection, "updatedAt")
-        ));
-
-        return orderRepositoryQuery.getAllOrders(pageable).map(OrderResponseDto::new);
     }
 
 
     private Order findOrder(UUID orderId) {
         return orderRepository.findById(orderId)
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주문입니다."));
+            .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 주문입니다."));
     }
 
 
@@ -208,8 +187,6 @@ public class OrderService {
             .collect(Collectors.toList());
 
     }
-
-
 
 
 }
