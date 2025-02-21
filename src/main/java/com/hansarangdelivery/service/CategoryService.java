@@ -10,6 +10,7 @@ import com.hansarangdelivery.exception.ResourceNotFoundException;
 import com.hansarangdelivery.repository.CategoryRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -58,6 +59,10 @@ public class CategoryService {
         return new CategoryResponseDto(category.getId(), category.getName());
     }
 
+    @Cacheable(
+        value = "category",
+        key = "#pageable.pageNumber + ':' + #pageable.pageSize + ':' + #pageable.sort.toString()"
+    )
     public PageResponseDto<CategoryResponseDto> getAllCategory(Pageable pageable) {
         Page<Category> categoryPage = categoryRepository.findAll(pageable);
         Page<CategoryResponseDto> mappedPage = categoryPage.map(category -> new CategoryResponseDto(
