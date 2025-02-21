@@ -11,6 +11,7 @@ import java.util.UUID;
 @Setter
 @RequiredArgsConstructor
 public class DeliveryAddressResponseDto {
+    private UUID id;
     private UUID deliveryAddressId;
     private UUID locationId;
     private String requestMessage;

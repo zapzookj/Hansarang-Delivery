@@ -1,5 +1,6 @@
 package com.hansarangdelivery.controller;
 
+import com.hansarangdelivery.config.PageableConfig;
 import com.hansarangdelivery.dto.AiRequestDto;
 import com.hansarangdelivery.dto.AiResponseDto;
 import com.hansarangdelivery.dto.ResultResponseDto;
@@ -42,6 +43,7 @@ public class AiResponseController {
     @GetMapping()
     public ResultResponseDto<Page<AiResponseDto>> searchAiResponses(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                                     Pageable pageable) {
+        PageableConfig.validatePageSize(pageable);
         Page<AiResponseDto> aiResponseDtos = aiResponseService.searchAiResponses(userDetails.getUser(), pageable);
         return new ResultResponseDto<>("조회 성공", 200, aiResponseDtos);
     }

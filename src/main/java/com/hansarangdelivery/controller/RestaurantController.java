@@ -1,5 +1,6 @@
 package com.hansarangdelivery.controller;
 
+import com.hansarangdelivery.config.PageableConfig;
 import com.hansarangdelivery.dto.RestaurantRequestDto;
 import com.hansarangdelivery.dto.RestaurantResponseDto;
 import com.hansarangdelivery.dto.ResultResponseDto;
@@ -69,6 +70,7 @@ public class RestaurantController {
     // 레스토랑 리스트 검색, search가 포함된 음식점을 찾는데 사용될 예정
         Pageable pageable,
         @RequestParam(required = false) String search) {
+        PageableConfig.validatePageSize(pageable);
         Page<RestaurantResponseDto> restaurants = restaurantService.searchRestaurants(pageable,search);
         return new ResultResponseDto<>("가게 검색 성공", 200, restaurants);
     }
