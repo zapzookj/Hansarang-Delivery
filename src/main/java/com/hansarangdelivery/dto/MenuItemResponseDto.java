@@ -28,6 +28,6 @@ public class MenuItemResponseDto {
         this.id = menuItem.getId();
         this.name = menuItem.getName();
         this.price = menuItem.getPrice();
-        this.isAvailable = menuItem.isAvailable();
+        this.isAvailable = menuItem.getIsAvailable();
     }
 }
