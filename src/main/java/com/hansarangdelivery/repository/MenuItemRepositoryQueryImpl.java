@@ -27,7 +27,7 @@ public class MenuItemRepositoryQueryImpl implements MenuItemRepositoryQuery {
 
         JPAQuery<MenuItem> query = queryFactory
             .selectFrom(menuItem)
-            .where(menuItem.restaurantId.eq(restaurantId))
+            .where(menuItem.restaurantId.eq(restaurantId), menuItem.isAvailable.isTrue())
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize());
 

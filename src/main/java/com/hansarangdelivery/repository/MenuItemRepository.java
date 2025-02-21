@@ -9,4 +9,6 @@ import java.util.UUID;
 public interface MenuItemRepository extends JpaRepository<MenuItem, UUID>, MenuItemRepositoryQuery {
 
     List<MenuItem> findAllByRestaurantId(UUID restaurantId);
+
+    boolean existsByRestaurantIdAndName(UUID restaurantId, String name);
 }
