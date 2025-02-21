@@ -2,6 +2,7 @@ package com.hansarangdelivery.service;
 
 import com.hansarangdelivery.dto.MenuItemRequestDto;
 import com.hansarangdelivery.dto.MenuItemResponseDto;
+import com.hansarangdelivery.dto.MenuItemUpdateDto;
 import com.hansarangdelivery.dto.PageResponseDto;
 import com.hansarangdelivery.entity.MenuItem;
 import com.hansarangdelivery.entity.User;
@@ -10,6 +11,7 @@ import com.hansarangdelivery.exception.ResourceNotFoundException;
 import com.hansarangdelivery.repository.MenuItemRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -57,15 +59,22 @@ public class MenuItemService {
     }
 
     @Transactional
-    public MenuItemResponseDto updateMenuItem(UUID menuItemId, MenuItemRequestDto requestDto) {
+    public MenuItemResponseDto updateMenuItem(UUID menuItemId, MenuItemUpdateDto requestDto) {
         MenuItem menuItem = menuItemRepository.findById(menuItemId)
             .orElseThrow(() -> new ResourceNotFoundException("찾는 메뉴가 없습니다."));
 
-        if (isDuplicate(menuItem)) {
-            throw new DuplicateResourceException("이미 존재하는 메뉴입니다.");
-        }
-
         menuItem.update(requestDto);
+
+        return new MenuItemResponseDto(menuItem);
+    }
+
+    @Transactional
+    public MenuItemResponseDto updateAvailableMenuItem(UUID menuItemId, Boolean isAvailable) {
+        MenuItem menuItem = menuItemRepository.findById(menuItemId)
+            .orElseThrow(() -> new ResourceNotFoundException("찾는 메뉴가 없습니다."));
+
+        menuItem.setAvailable(isAvailable);
+
         return new MenuItemResponseDto(menuItem);
     }
 
