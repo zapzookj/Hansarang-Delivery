@@ -16,6 +16,7 @@ public class MenuItemResponseDto {
 
     // 메뉴를 조회할 때 Restaurant 페이지에서 조회하는 것을 고려하여
     // Restaurant 관련 정보는 응답 X
+    private UUID id;
 
     private String name;
 
@@ -24,6 +25,7 @@ public class MenuItemResponseDto {
     private boolean isAvailable;
 
     public MenuItemResponseDto(MenuItem menuItem) {
+        this.id = menuItem.getId();
         this.name = menuItem.getName();
         this.price = menuItem.getPrice();
         this.isAvailable = menuItem.getIsAvailable();
