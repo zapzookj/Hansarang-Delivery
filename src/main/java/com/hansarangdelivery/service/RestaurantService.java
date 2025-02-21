@@ -27,6 +27,7 @@ public class RestaurantService {
     private final CategoryService categoryService;
     private final LocationService locationService;
     private final UserService userService;
+    private final MenuItemService menuItemService;
 
     public RestaurantResponseDto register(RestaurantRequestDto requestDto) {
 //      가게 등록하기
@@ -66,6 +67,7 @@ public class RestaurantService {
         Restaurant restaurant = checkedRestaurant(restaurantId);
         String deletedBy = user.getId().toString(); // 인증된 사용자의 username을 deletedBy로 사용
         restaurant.delete(LocalDateTime.now(),deletedBy);// 삭제 처리(삭제자와 삭제날짜)
+        menuItemService.deleteMenuItemByRestaurantId(restaurantId,user);
         return new RestaurantResponseDto(restaurantRepository.save(restaurant));
     }
 
