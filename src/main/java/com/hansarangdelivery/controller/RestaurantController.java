@@ -69,9 +69,10 @@ public class RestaurantController {
     public ResultResponseDto<Page<RestaurantResponseDto>> searchRestaurants(
     // 레스토랑 리스트 검색, search가 포함된 음식점을 찾는데 사용될 예정
         Pageable pageable,
-        @RequestParam(required = false) String search) {
+        @RequestParam(required = false) String search,
+        @RequestParam(required = false) String category) {
         PageableConfig.validatePageSize(pageable);
-        Page<RestaurantResponseDto> restaurants = restaurantService.searchRestaurants(pageable,search);
+        Page<RestaurantResponseDto> restaurants = restaurantService.searchRestaurants(pageable,search,category);
         return new ResultResponseDto<>("가게 검색 성공", 200, restaurants);
     }
 }

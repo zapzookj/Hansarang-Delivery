@@ -3,7 +3,6 @@ package com.hansarangdelivery.service;
 import com.hansarangdelivery.dto.LocationResponseDto;
 import com.hansarangdelivery.dto.RestaurantRequestDto;
 import com.hansarangdelivery.dto.RestaurantResponseDto;
-import com.hansarangdelivery.entity.Location;
 import com.hansarangdelivery.entity.Restaurant;
 import com.hansarangdelivery.entity.User;
 import com.hansarangdelivery.exception.DuplicateResourceException;
