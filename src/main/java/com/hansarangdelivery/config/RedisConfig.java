@@ -57,7 +57,7 @@ public class RedisConfig {
         RedisCacheConfiguration configuration = RedisCacheConfiguration.defaultCacheConfig()
             .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())) // Value Serializer 변경
             .disableCachingNullValues()
-            .entryTtl(Duration.ofMinutes(10L));
+            .entryTtl(Duration.ofMinutes(1L)); // TTL은 기본 1분으로 설정
 
         builder.cacheDefaults(configuration);
 
