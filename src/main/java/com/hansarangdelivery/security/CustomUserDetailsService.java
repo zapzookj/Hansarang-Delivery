@@ -15,9 +15,8 @@ public class CustomUserDetailsService {
     private final UserRepository userRepository;
 
     @Cacheable(value = "user", key = "#username")
-    public UserDetails loadUserByUsernameForRegular(String username) {
-        User user = userRepository.findByUsername(username)
+    public User loadUserByUsernameForRegular(String username) {
+        return userRepository.findByUsername(username)
             .orElseThrow(() -> new UsernameNotFoundException("Not Found " + username));
-        return new UserDetailsImpl(user);
     }
 }

@@ -73,7 +73,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         if (userRole.equals(UserRole.MANAGER) || userRole.equals(UserRole.MASTER)) {
             userDetails = userDetailsService.loadUserByUsername(username);
         } else {
-            userDetails = customUserDetailsService.loadUserByUsernameForRegular(username);
+            User user = customUserDetailsService.loadUserByUsernameForRegular(username);
+            userDetails = new UserDetailsImpl(user);
         }
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
