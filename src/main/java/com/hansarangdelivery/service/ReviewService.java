@@ -5,35 +5,40 @@ import com.hansarangdelivery.dto.ReviewResponseDto;
 import com.hansarangdelivery.entity.Review;
 import com.hansarangdelivery.entity.User;
 import com.hansarangdelivery.entity.UserRole;
-import com.hansarangdelivery.exception.GlobalExceptionHandler;
+import com.hansarangdelivery.exception.DuplicateResourceException;
+import com.hansarangdelivery.exception.ForbiddenActionException;
 import com.hansarangdelivery.exception.ResourceNotFoundException;
 import com.hansarangdelivery.repository.ReviewRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @RequiredArgsConstructor
+@Slf4j
 @Service
 public class ReviewService {
     private final ReviewRepository reviewRepository;
-
+    private final OrderStatusService orderStatusService;
 
     public Double countAverageRating(UUID restaurantId) {
 
         return reviewRepository.getAverageRating(restaurantId);
     }
 
-    public void createReview(ReviewRequestDto requestDto) {
+    public ReviewResponseDto createReview(ReviewRequestDto requestDto) {
 
         // orderId는 Unique 제약 조건으로 한 주문은 한 개의 리뷰만 작성 가능
         if (reviewRepository.existsByOrderId(requestDto.getOrderId())) {
-            throw new IllegalArgumentException("이미 리뷰가 작성된 주문입니다.");
+            throw new DuplicateResourceException("이미 리뷰가 작성된 주문입니다.");
+        }
+        if (!orderStatusService.isCompleted(requestDto.getOrderId())) {
+            throw new ForbiddenActionException("리뷰 작성 권한이 없습니다.[Error: 완료되지 않은 주문]");
         }
 
         Review review = new Review(
@@ -41,6 +46,8 @@ public class ReviewService {
         );
 
         reviewRepository.save(review);
+
+        return new ReviewResponseDto(review);
     }
 
     public ReviewResponseDto readReview(UUID reviewId) {
@@ -55,7 +62,7 @@ public class ReviewService {
 
         Page<Review> reviews = reviewRepository.searchByRestaurantId(restaurantId, pageable);
 
-        if(reviews.isEmpty()){
+        if (reviews.isEmpty()) {
             throw new ResourceNotFoundException("작성된 리뷰가 없습니다");
         }
 
@@ -71,7 +78,7 @@ public class ReviewService {
         return reviews.map(ReviewResponseDto::new);
     }
 
-    public void updateReview(UUID reviewId, ReviewRequestDto requestDto, User user) {
+    public ReviewResponseDto updateReview(UUID reviewId, ReviewRequestDto requestDto, User user) {
 
         String userId = String.valueOf(user.getId());
 
@@ -85,10 +92,12 @@ public class ReviewService {
         }
 
         review.update(requestDto.getContent(), requestDto.getRating());
+
+        return new ReviewResponseDto(review);
     }
 
     @Transactional
-    public void deleteReview(UUID reviewId, User user) {
+    public ReviewResponseDto deleteReview(UUID reviewId, User user) {
 
         String userId = String.valueOf(user.getId());
 
@@ -101,5 +110,7 @@ public class ReviewService {
         }
 
         review.delete(LocalDateTime.now(), user.getId().toString());
+
+        return new ReviewResponseDto(review);
     }
 }

@@ -7,6 +7,7 @@ import com.hansarangdelivery.dto.ReviewResponseDto;
 import com.hansarangdelivery.security.UserDetailsImpl;
 import com.hansarangdelivery.service.ReviewService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,17 +19,18 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/reviews")
+@Slf4j
 public class ReviewController {
 
     private final ReviewService reviewService;
 
-    @PostMapping("/")
+    @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CUSTOMER')")
-    public ResultResponseDto<Void> createReview(@RequestBody ReviewRequestDto requestDto) {
+    public ResultResponseDto<ReviewResponseDto> createReview(@RequestBody ReviewRequestDto requestDto) {
 
-        reviewService.createReview(requestDto);
+        ReviewResponseDto responseDto = reviewService.createReview(requestDto);
 
-        return new ResultResponseDto<>("리뷰 작성 완료", 200);
+        return new ResultResponseDto<>("리뷰 작성 완료", 200, responseDto);
     }
 
     @GetMapping("/{reviewId}")
@@ -39,7 +41,7 @@ public class ReviewController {
         return new ResultResponseDto<>("리뷰 조회 완료", 200, responseDto);
     }
 
-    @GetMapping("/")
+    @GetMapping("")
     public ResultResponseDto<Page<ReviewResponseDto>> searchRestaurantReview(@RequestParam UUID restaurantId, Pageable pageable) {
 
         PageableConfig.validatePageSize(pageable);
@@ -60,21 +62,21 @@ public class ReviewController {
     }
 
     @PutMapping("/{reviewId}")
-    public ResultResponseDto<Void> updateReview(@PathVariable UUID reviewId,
-                                                @RequestBody ReviewRequestDto requestDto,
-                                                @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResultResponseDto<ReviewResponseDto> updateReview(@PathVariable UUID reviewId,
+                                                             @RequestBody ReviewRequestDto requestDto,
+                                                             @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        reviewService.updateReview(reviewId, requestDto, userDetails.getUser());
+        ReviewResponseDto responseDto = reviewService.updateReview(reviewId, requestDto, userDetails.getUser());
 
-        return new ResultResponseDto<>("리뷰 수정 완료", 200);
+        return new ResultResponseDto<>("리뷰 수정 완료", 200, responseDto);
     }
 
     @DeleteMapping("/{reviewId}")
-    public ResultResponseDto<Void> deleteReview(@PathVariable UUID reviewId,
-                                                @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResultResponseDto<ReviewResponseDto> deleteReview(@PathVariable UUID reviewId,
+                                                             @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        reviewService.deleteReview(reviewId, userDetails.getUser());
+        ReviewResponseDto responseDto = reviewService.deleteReview(reviewId, userDetails.getUser());
 
-        return new ResultResponseDto<>("리뷰 삭제 완료", 200);
+        return new ResultResponseDto<>("리뷰 삭제 완료", 200, responseDto);
     }
 }

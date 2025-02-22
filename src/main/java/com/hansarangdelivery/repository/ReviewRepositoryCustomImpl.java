@@ -5,12 +5,10 @@ import com.hansarangdelivery.entity.Review;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.type.ListType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.parameters.P;
 
 import java.util.List;
 import java.util.UUID;
@@ -43,7 +41,7 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize());
 
-        if(sort.iterator().next().isAscending()){
+        if (sort.iterator().next().isAscending()) {
             query.orderBy(review.createdAt.asc(), review.updatedAt.asc());
         } else {
             query.orderBy(review.createdAt.desc(), review.updatedAt.desc());
@@ -72,7 +70,7 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize());
 
-        if(sort.iterator().next().isAscending()){
+        if (sort.iterator().next().isAscending()) {
             query.orderBy(review.createdAt.asc(), review.updatedAt.asc());
         } else {
             query.orderBy(review.createdAt.desc(), review.updatedAt.desc());
@@ -87,6 +85,4 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
 
         return new PageImpl<>(reviewList, pageable, total);
     }
-
-
 }
