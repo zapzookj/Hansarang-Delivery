@@ -1,6 +1,7 @@
 package com.hansarangdelivery.config;
 
 import com.hansarangdelivery.jwt.JwtUtil;
+import com.hansarangdelivery.security.CustomUserDetailsService;
 import com.hansarangdelivery.security.JwtAuthenticationFilter;
 import com.hansarangdelivery.security.JwtAuthorizationFilter;
 import com.hansarangdelivery.security.UserDetailsServiceImpl;
@@ -27,6 +28,7 @@ public class WebSecurityConfig {
 
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
     private final AuthenticationConfiguration authenticationConfiguration;
 
     @Bean
@@ -48,7 +50,7 @@ public class WebSecurityConfig {
 
     @Bean
     public JwtAuthorizationFilter jwtAuthorizationFilter() {
-        return new JwtAuthorizationFilter(jwtUtil, userDetailsService);
+        return new JwtAuthorizationFilter(jwtUtil, userDetailsService, customUserDetailsService);
     }
 
     @Bean
