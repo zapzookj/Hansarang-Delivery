@@ -9,6 +9,8 @@ import com.hansarangdelivery.repository.DeliveryAddressRepository;
 import com.hansarangdelivery.repository.DeliveryAddressRepositoryQueryImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +27,7 @@ public class DeliveryAddressService {
     private final DeliveryAddressRepositoryQueryImpl deliveryAddressRepositoryQuery;
 
     @Transactional
+    @CacheEvict(value = "deliveryAddress", key = "user.id")
     public DeliveryAddressResponseDto createDeliveryAddress(User user, DeliveryAddressRequestDto requestDto) {
         if (!locationService.existsById(requestDto.getLocationId())) {
             throw new ResourceNotFoundException("해당 위치 정보를 찾을 수 없습니다.");
@@ -57,6 +60,7 @@ public class DeliveryAddressService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "deliveryAddress", key = "userId")
     public List<DeliveryAddressResponseDto> searchDeliveryAddresses(Long userId) {
         List<DeliveryAddress> deliveryAddressList = deliveryAddressRepositoryQuery.findAllByUserId(userId);
 
@@ -68,6 +72,7 @@ public class DeliveryAddressService {
     }
 
     @Transactional
+    @CacheEvict(value = "deliveryAddress", key = "userId")
     public DeliveryAddressResponseDto updateDeliveryAddress(Long userId, UUID addressId, DeliveryAddressRequestDto requestDto) {
         DeliveryAddress deliveryAddress = deliveryAddressRepositoryQuery.findByIdAndUserId(addressId, userId).orElseThrow(
             () -> new ResourceNotFoundException("해당 Id를 가진 배송지 정보를 찾을 수 없습니다. 또는 권한이 없습니다.")
@@ -81,6 +86,7 @@ public class DeliveryAddressService {
     }
 
     @Transactional
+    @CacheEvict(value = "deliveryAddress", key = "userId")
     public void deleteDeliveryAddress(Long userId, UUID addressId) {
         if (deliveryAddressRepositoryQuery.existsByIdAndUserId(addressId, userId)) {
             deliveryAddressRepository.deleteById(addressId);
