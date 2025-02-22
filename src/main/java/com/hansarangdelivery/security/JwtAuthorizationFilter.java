@@ -1,5 +1,6 @@
 package com.hansarangdelivery.security;
 
+import com.hansarangdelivery.dto.UserCacheDto;
 import com.hansarangdelivery.entity.User;
 import com.hansarangdelivery.entity.UserRole;
 import com.hansarangdelivery.jwt.JwtUtil;
@@ -73,7 +74,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         if (userRole.equals(UserRole.MANAGER) || userRole.equals(UserRole.MASTER)) {
             userDetails = userDetailsService.loadUserByUsername(username);
         } else {
-            User user = customUserDetailsService.loadUserByUsernameForRegular(username);
+            UserCacheDto dto = customUserDetailsService.loadUserByUsernameForRegular(username);
+            User user = new User(
+                dto.getUserId(), dto.getUsername(), dto.getPassword(), dto.getEmail(), dto.getRole(), dto.getAddressList());
             userDetails = new UserDetailsImpl(user);
         }
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
