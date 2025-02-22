@@ -9,6 +9,7 @@ import com.hansarangdelivery.exception.ResourceNotFoundException;
 import com.hansarangdelivery.repository.CategoryRepository;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
+import javax.net.ssl.SSLSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -70,6 +71,13 @@ public class CategoryService {
     public Category getCategoryById(UUID categoryId) {
         Category category = categoryRepository.findById(categoryId).orElseThrow(
             () -> new ResourceNotFoundException("카테고리가 유효하지 않습니다.")
+        );
+        return category;
+    }
+
+    public Category getByName(String categoryName) {
+        Category category = categoryRepository.findByName(categoryName).orElseThrow(
+            ()-> new ResourceNotFoundException("해당하는 카테고리가 없습니다.")
         );
         return category;
     }

@@ -1,7 +1,6 @@
 package com.hansarangdelivery.repository;
 
 import static com.hansarangdelivery.entity.QRestaurant.restaurant;
-import static com.hansarangdelivery.entity.QUser.user;
 
 import com.hansarangdelivery.entity.Restaurant;
 import com.querydsl.core.BooleanBuilder;
@@ -11,6 +10,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -27,9 +27,13 @@ public class RestaurantRepositoryImpl {
         this.qf = new JPAQueryFactory(em);
     }
 
-    public Page<Restaurant> searchRestaurant(Pageable pageable,String search) {
+    public Page<Restaurant> searchRestaurant(Pageable pageable,String search, UUID categoryId) {
         BooleanBuilder whereClause = new BooleanBuilder();
 
+        // 검색 조건 추가 (category 컬럼에 포함되는 경우 검색)
+        if (categoryId != null) {
+            whereClause.and(restaurant.category.eq(categoryId));
+        }
         // 검색 조건 추가 (name 컬럼에 포함되는 경우 검색)
         if (search != null && !search.isEmpty()) {
             whereClause.and(restaurant.name.containsIgnoreCase(search));
