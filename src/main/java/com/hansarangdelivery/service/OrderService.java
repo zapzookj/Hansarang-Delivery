@@ -2,8 +2,6 @@ package com.hansarangdelivery.service;
 
 import com.hansarangdelivery.dto.OrderRequestDto;
 import com.hansarangdelivery.dto.OrderResponseDto;
-import com.hansarangdelivery.dto.ReviewResponseDto;
-import com.hansarangdelivery.dto.RoadNameResponseDto;
 import com.hansarangdelivery.entity.*;
 import com.hansarangdelivery.exception.ForbiddenActionException;
 import com.hansarangdelivery.exception.ResourceNotFoundException;
@@ -11,9 +9,7 @@ import com.hansarangdelivery.repository.OrderRepository;
 import com.hansarangdelivery.repository.OrderRepositoryQueryImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,7 +38,7 @@ public class OrderService {
         Restaurant restaurant = restaurantService.getRestaurantById(requestDto.getRestaurantId());
         String storeName = restaurant.getName();
 
-        UUID deliveryAddressId = deliveryAddress.readDeliveryAddress(user.getId()).getDeliveryAddressId();
+        UUID deliveryAddressId = deliveryAddress.readDeliveryAddress(user.getId()).getLocationId();
         String roadNameCode = locationService.readRoadName(deliveryAddressId).getRoadNameCode();
 
 
