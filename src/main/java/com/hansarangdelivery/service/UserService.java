@@ -13,6 +13,7 @@ import com.hansarangdelivery.repository.UserRepository;
 import com.hansarangdelivery.repository.UserRepositoryQueryImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -75,6 +76,7 @@ public class UserService {
     }
 
     @Transactional
+    @CacheEvict(value = "user", key = "#userId")
     public UserResponseDto updateProfile(Long userId, UserUpdateDto requestDto) {
         User user = findUser(userId);
 
@@ -88,6 +90,7 @@ public class UserService {
     }
 
     @Transactional
+    @CacheEvict(value = "user", key = "#userId")
     public UserResponseDto updateRole(Long userId) {
         User user = findUser(userId);
 
@@ -96,6 +99,7 @@ public class UserService {
     }
 
     @Transactional
+    @CacheEvict(value = "user", key = "#userId")
     public void deleteUser(User currentUser, Long userId) {
         if (userId == null) {
             userRepository.deleteById(currentUser.getId());
