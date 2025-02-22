@@ -61,7 +61,7 @@ public class RedisConfig {
 
         // Build
         return RedisCacheManager.builder(connectionFactory)
-            .withCacheConfiguration("userDetailsCache", userCacheConfig)
+            .withCacheConfiguration("user", userCacheConfig)
             .cacheDefaults(defaultConfig)
             .build();
     }

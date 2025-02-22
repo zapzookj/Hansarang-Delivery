@@ -59,7 +59,7 @@ public class LocationAPiIntegrationTest {
 
         testUser = new User("testuser", passwordEncoder.encode("Password1!"), "testuser@example.com", UserRole.CUSTOMER);
         userRepository.save(testUser);
-        testUserToken = jwtUtil.createToken(testUser.getUsername(), testUser.getRole());
+        testUserToken = jwtUtil.createToken(testUser.getUsername(), testUser.getRole(), testUser.getId());
 
         Location location1 = new Location("111111", "서울특별시", "종로구", "세종로", "111111");
         Location location2 = new Location("222222", "서울특별시", "종로구", "서린동", "222222");

@@ -47,9 +47,10 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
             Claims info = jwtUtil.getUserInfoFromToken(tokenValue);
             UserRole role = UserRole.valueOf((String) info.get(JwtUtil.AUTHORIZATION_KEY));
+            Long userId = info.get("userId", Long.class);
 
             try {
-                setAuthentication(info.getSubject(), role);
+                setAuthentication(info.getSubject(), role, userId);
             } catch (Exception e) {
                 log.error(e.getMessage());
                 return;
@@ -60,21 +61,21 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     }
 
     // 인증 처리
-    public void setAuthentication(String username, UserRole userRole) {
+    public void setAuthentication(String username, UserRole userRole, Long userId) {
         SecurityContext context = SecurityContextHolder.createEmptyContext();
-        Authentication authentication = createAuthentication(username, userRole);
+        Authentication authentication = createAuthentication(username, userRole, userId);
         context.setAuthentication(authentication);
 
         SecurityContextHolder.setContext(context);
     }
 
     // 인증 객체 생성
-    private Authentication createAuthentication(String username, UserRole userRole) {
+    private Authentication createAuthentication(String username, UserRole userRole, Long userId) {
         UserDetails userDetails;
         if (userRole.equals(UserRole.MANAGER) || userRole.equals(UserRole.MASTER)) {
             userDetails = userDetailsService.loadUserByUsername(username);
         } else {
-            UserCacheDto dto = customUserDetailsService.loadUserByUsernameForRegular(username);
+            UserCacheDto dto = customUserDetailsService.loadUserByIdForRegular(userId);
             User user = new User(
                 dto.getUserId(), dto.getUsername(), dto.getPassword(), dto.getEmail(), dto.getRole(), dto.getAddressList());
             userDetails = new UserDetailsImpl(user);

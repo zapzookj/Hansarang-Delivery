@@ -120,7 +120,7 @@ public class CategoryIntegrationTest {
         entityManager.flush();
         entityManager.clear();
 
-        jwtToken = jwtUtil.createToken("manager1", UserRole.MANAGER);
+        jwtToken = jwtUtil.createToken("manager1", UserRole.MANAGER, user.getId());
         return jwtToken;
     }
 

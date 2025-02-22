@@ -14,10 +14,10 @@ public class CustomUserDetailsService {
 
     private final UserRepository userRepository;
 
-    @Cacheable(value = "user", key = "#username")
-    public UserCacheDto loadUserByUsernameForRegular(String username) {
-        User user = userRepository.findByUsername(username)
-            .orElseThrow(() -> new UsernameNotFoundException("Not Found " + username));
+    @Cacheable(value = "user", key = "#userId")
+    public UserCacheDto loadUserByIdForRegular(Long userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new UsernameNotFoundException("Not Found " + userId));
         return new UserCacheDto(user);
     }
 }
