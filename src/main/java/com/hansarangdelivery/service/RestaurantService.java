@@ -54,7 +54,7 @@ public class RestaurantService {
         } else {
             restaurant.close();
         }
-        restaurantRepository.save(restaurant); // 수정된 음식점 정보 저장
+        restaurantRepository.save(restaurant);
         return getRestaurantResponseDto(restaurant);
     }
 
