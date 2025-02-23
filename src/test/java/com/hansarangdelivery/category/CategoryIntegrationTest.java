@@ -106,7 +106,7 @@ public class CategoryIntegrationTest {
     @DisplayName("category search API test")
     public void searchCategory() throws Exception {
         String jwtToken = getJwtTokenByManager();
-        mockMvc.perform(get(url+"/search")
+        mockMvc.perform(get(url+"/")
                 .header("Authorization", jwtToken)
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())

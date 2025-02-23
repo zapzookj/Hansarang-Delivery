@@ -1,6 +1,7 @@
-package com.hansarangdelivery;
+package com.hansarangdelivery.restaurant;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hansarangdelivery.HansarangDeliveryApplication;
 import com.hansarangdelivery.dto.RestaurantRequestDto;
 import com.hansarangdelivery.entity.Category;
 import com.hansarangdelivery.entity.Location;
@@ -162,7 +163,7 @@ class RestaurantIntegrationTest {
         String jwtToken = getJwtTokenByCustomer();
 
         // When & Then
-        mockMvc.perform(get(url+"/search")
+        mockMvc.perform(get(url+"/")
                 .header("Authorization",jwtToken)
             )
             .andExpect(status().isOk())
