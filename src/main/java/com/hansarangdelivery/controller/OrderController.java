@@ -29,14 +29,15 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    @PostMapping("/") //주문 생성
+    @PostMapping() //주문 생성
     public ResultResponseDto<OrderResponseDto> createOrder(@Valid @RequestBody OrderRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         OrderResponseDto responseDto = orderService.createOrder(requestDto, userDetails.getUser());// 주문 생성 로직 실행
         return new ResultResponseDto<>("주문 생성 성공", 200,responseDto);
     }
 
 
-    @GetMapping("/{orderId}") // 특정 주문 상세 정보 조회  권한 누구 ?
+    @GetMapping("/{orderId}")
+    @PreAuthorize("hasRole('ROLE_MANAGER')")// 특정 주문 상세 정보 조회  권한 누구 ?
     public ResultResponseDto<OrderResponseDto> readOrder(@PathVariable("orderId") UUID orderId) {
         OrderResponseDto responseDto = orderService.readOrder(orderId);
         return new ResultResponseDto<>("특정 주문 상세 정보 조회 성공", 200, responseDto);
@@ -49,7 +50,8 @@ public class OrderController {
     }
 
 
-    @PutMapping("/{orderId}")  //특정 주문 수정 (오너만)
+    @PutMapping("/{orderId}")
+    @PreAuthorize("hasRole('ROLE_OWNER')")//특정 주문 수정 (오너만)
     public ResultResponseDto<OrderResponseDto> updateOrder(@PathVariable("orderId") UUID orderId, @RequestBody OrderRequestDto requestDto) {
         OrderResponseDto responseDto = orderService.updateOrder(orderId, requestDto);
         return new ResultResponseDto<>("주문 수정 성공", 200, responseDto);
@@ -58,7 +60,7 @@ public class OrderController {
 
 
     @DeleteMapping("{orderId}")
-    public ResultResponseDto<OrderResponseDto> updateOrder(@PathVariable("orderId") UUID orderId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResultResponseDto<OrderResponseDto> deleteOrder(@PathVariable("orderId") UUID orderId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         try {
             OrderResponseDto responseDto = orderService.deleteOrder(orderId, userDetails.getUser());
             return new ResultResponseDto("주문이 취소되었습니다.", 200, responseDto);
@@ -68,7 +70,7 @@ public class OrderController {
     }
 
 
-    @GetMapping("/")
+    @GetMapping()
     public ResultResponseDto<Page<OrderResponseDto>> searchOrder(@RequestParam UUID orderId, Pageable pageable) {
 
         PageableConfig.validatePageSize(pageable);
