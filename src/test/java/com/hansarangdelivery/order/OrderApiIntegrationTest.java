@@ -4,11 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hansarangdelivery.HansarangDeliveryApplication;
 import com.hansarangdelivery.dto.OrderItemRequestDto;
 import com.hansarangdelivery.dto.OrderRequestDto;
-import com.hansarangdelivery.dto.OrderResponseDto;
 import com.hansarangdelivery.entity.*;
 import com.hansarangdelivery.jwt.JwtUtil;
 import com.hansarangdelivery.repository.*;
-import com.hansarangdelivery.service.DeliveryAddressService;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -28,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -87,6 +86,8 @@ public class OrderApiIntegrationTest {
 
     private Order savedOrder;
 
+    private Order order;
+
     @BeforeEach
     void setup() {
         // 기존 데이터 삭제
@@ -99,7 +100,7 @@ public class OrderApiIntegrationTest {
         deliveryAddressRepository.deleteAll();
 
         // 1. 테스트용 사용자 생성
-        owner = new User("owner1", passwordEncoder.encode("Password1!"), "User@example.com", UserRole.OWNER);
+        owner = new User("user", passwordEncoder.encode("Password1!"), "User@example.com", UserRole.OWNER);
         userRepository.save(owner);
         ownerToken = jwtUtil.createToken(owner.getUsername(), owner.getRole());
 
@@ -184,7 +185,7 @@ public class OrderApiIntegrationTest {
 
         // 주문 생성 API 호출 후 결과 검증
 
-        mockMvc.perform(post("/api/orders")
+        mockMvc.perform(post("/api/orders/")
                 .header(JwtUtil.AUTHORIZATION_HEADER, ownerToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestDto)))
@@ -270,6 +271,60 @@ public class OrderApiIntegrationTest {
             .andExpect(jsonPath("$.data.orderItems[0].quantity").value(5))
             .andExpect(jsonPath("$.data.orderItems[0].menuTotalPrice").value(100000));
     }
+
+    @Test
+    @DisplayName("주문 삭제 성공 API 테스트")
+    void deleteOrder() throws Exception{
+
+        mockMvc.perform(delete("/api/orders/"+savedOrder.getId())
+            .header(JwtUtil.AUTHORIZATION_HEADER, ownerToken)
+            .content(objectMapper.writeValueAsString(savedOrder)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("주문이 취소되었습니다."))
+            .andExpect(jsonPath("$.data.status").value("CANCELED"));
+    }
+
+
+    @Test
+    @DisplayName("주문 취소 불가능한 경우 (생성 후 5분 초과) API 테스트")
+    void deleteOrderFail() throws Exception {
+
+        entityManager.createNativeQuery("UPDATE p_order SET created_at = ? WHERE order_id = ?")
+            .setParameter(1, java.sql.Timestamp.valueOf(java.time.LocalDateTime.now().minusMinutes(6)))
+            .setParameter(2, savedOrder.getId())
+            .executeUpdate();
+
+        entityManager.flush();
+        entityManager.clear();
+
+
+        // DELETE API 호출 (HTTP 상태 코드는 200, body의 statusCode가 400이어야 함)
+        mockMvc.perform(delete("/api/orders/" + savedOrder.getId())
+                .header(JwtUtil.AUTHORIZATION_HEADER, ownerToken)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("주문 취소 불가능합니다."))
+            .andExpect(jsonPath("$.statusCode").value(400));
+    }
+
+    @Test
+    @DisplayName("주문 내역 조회 성공 API 테스트")
+    void searchOrder() throws Exception{
+
+        mockMvc.perform(get("/api/orders/")
+                .header(JwtUtil.AUTHORIZATION_HEADER, ownerToken)
+                .param("orderId", savedOrder.getId().toString())
+                .param("page", "0")
+                .param("size", "10")
+                .param("isAsc", "true"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.content").isArray())
+            .andExpect(jsonPath("$.data.content.length()").value(greaterThanOrEqualTo(1)));
+
+    }
+
+
+
 
 
 }

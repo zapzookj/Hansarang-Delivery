@@ -28,7 +28,7 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    @PostMapping //주문 생성
+    @PostMapping("/") //주문 생성
     public ResultResponseDto<OrderResponseDto> createOrder(@Valid @RequestBody OrderRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         OrderResponseDto responseDto = orderService.createOrder(requestDto, userDetails.getUser());// 주문 생성 로직 실행
         return new ResultResponseDto<>("주문 생성 성공", 200,responseDto);
@@ -67,7 +67,7 @@ public class OrderController {
 
         Page<OrderResponseDto> responseList = orderService.searchOrders(orderId, pageable);
 
-        return new ResultResponseDto<>("식당 리뷰 조회 성공", 200, responseList);
+        return new ResultResponseDto<>("주문 내역 조회 성공", 200, responseList);
     }
 
 
