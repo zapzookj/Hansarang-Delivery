@@ -7,7 +7,6 @@ import com.hansarangdelivery.dto.OrderRequestDto;
 import com.hansarangdelivery.entity.*;
 import com.hansarangdelivery.jwt.JwtUtil;
 import com.hansarangdelivery.repository.*;
-import com.hansarangdelivery.service.DeliveryAddressService;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,7 +26,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -86,6 +86,8 @@ public class OrderApiIntegrationTest {
 
     private Order savedOrder;
 
+    private Order order;
+
     @BeforeEach
     void setup() {
         // 기존 데이터 삭제
@@ -98,7 +100,7 @@ public class OrderApiIntegrationTest {
         deliveryAddressRepository.deleteAll();
 
         // 1. 테스트용 사용자 생성
-        owner = new User("owner1", passwordEncoder.encode("Password1!"), "User@example.com", UserRole.OWNER);
+        owner = new User("user", passwordEncoder.encode("Password1!"), "User@example.com", UserRole.OWNER);
         userRepository.save(owner);
         ownerToken = jwtUtil.createToken(owner.getUsername(), owner.getRole());
 
@@ -143,7 +145,7 @@ public class OrderApiIntegrationTest {
             40000,
             OrderType.ONLINE,
             OrderStatus.PENDING,
-            "12345",
+            "111102005001",
             "서울특별시 강남구 삼성동",
             "문 앞에 놓아주세요",
             orderItems
@@ -182,12 +184,37 @@ public class OrderApiIntegrationTest {
         requestDto.setMenu(orderItemDtos);
 
         // 주문 생성 API 호출 후 결과 검증
-        mockMvc.perform(post("/api/orders")
+
+        mockMvc.perform(post("/api/orders/")
                 .header(JwtUtil.AUTHORIZATION_HEADER, ownerToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestDto)))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.message").value("주문 생성 성공"))
+            // 응답 DTO에 있는 필드 검증
+            .andExpect(jsonPath("$.data.restaurantId").value(validRestaurantId.toString()))
+            .andExpect(jsonPath("$.data.status").value(requestDto.getOrderStatus()))
+            .andExpect(jsonPath("$.data.roadNameCode").value("111102005001"))
+            .andExpect(jsonPath("$.data.detailAddress").value("서울특별시 강남구 삼성동"))
+            .andExpect(jsonPath("$.data.deliveryRequest").value("문 앞에 놓아주세요"))
+            // orderItems 배열 검증
+            .andExpect(jsonPath("$.data.orderItems.length()").value(1))
+            .andExpect(jsonPath("$.data.orderItems[0].menuId").value(testMenuId.toString()))
+            .andExpect(jsonPath("$.data.orderItems[0].menuName").value("후라이드 치킨"))
+            .andExpect(jsonPath("$.data.orderItems[0].menuPrice").value(20000))
+            .andExpect(jsonPath("$.data.orderItems[0].quantity").value(2))
+            .andExpect(jsonPath("$.data.orderItems[0].menuTotalPrice").value(40000));
+    }
+
+    @Test
+    @DisplayName("특정 주문 정보 조회 API 테스트")
+    void readOrder() throws Exception {
+        UUID validRestaurantId = testRestaurantId;
+
+        mockMvc.perform(get("/api/orders/" + savedOrder.getId())
+                .header(JwtUtil.AUTHORIZATION_HEADER, ownerToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("특정 주문 상세 정보 조회 성공"))
             // 응답 DTO에 있는 필드 검증
             .andExpect(jsonPath("$.data.restaurantId").value(validRestaurantId.toString()))
             .andExpect(jsonPath("$.data.status").value("PENDING"))
@@ -202,4 +229,131 @@ public class OrderApiIntegrationTest {
             .andExpect(jsonPath("$.data.orderItems[0].quantity").value(2))
             .andExpect(jsonPath("$.data.orderItems[0].menuTotalPrice").value(40000));
     }
+
+
+    @Test
+    @DisplayName("내 주문 정보 조회 API 테스트")
+    void readMyOrder() throws Exception {
+        UUID validRestaurantId = testRestaurantId;
+
+        mockMvc.perform(get("/api/orders/my-order/" + savedOrder.getId())
+                .header(JwtUtil.AUTHORIZATION_HEADER, ownerToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("내 주문 상세 정보 조회 성공"))
+            // 응답 DTO에 있는 필드 검증
+            .andExpect(jsonPath("$.data.restaurantId").value(validRestaurantId.toString()))
+            .andExpect(jsonPath("$.data.status").value("PENDING"))
+            .andExpect(jsonPath("$.data.roadNameCode").value("111102005001"))
+            .andExpect(jsonPath("$.data.detailAddress").value("서울특별시 강남구 삼성동"))
+            .andExpect(jsonPath("$.data.deliveryRequest").value("문 앞에 놓아주세요"))
+            // orderItems 배열 검증
+            .andExpect(jsonPath("$.data.orderItems.length()").value(1))
+            .andExpect(jsonPath("$.data.orderItems[0].menuId").value(testMenuId.toString()))
+            .andExpect(jsonPath("$.data.orderItems[0].menuName").value("후라이드 치킨"))
+            .andExpect(jsonPath("$.data.orderItems[0].menuPrice").value(20000))
+            .andExpect(jsonPath("$.data.orderItems[0].quantity").value(2))
+            .andExpect(jsonPath("$.data.orderItems[0].menuTotalPrice").value(40000));
+    }
+
+    @Test
+    @DisplayName("특정 주문 수정 API 테스트")
+    void updateOrder() throws Exception {
+        UUID validRestaurantId = testRestaurantId;
+
+        List<OrderItemRequestDto> orderItemDtos = List.of(
+            new OrderItemRequestDto(testMenuId, 5)
+        );
+
+        OrderRequestDto requestDto = new OrderRequestDto();
+        requestDto.setRoadName("222222222222");
+        // 상세주소 변경 (예: 서울에서 부산)
+        requestDto.setDetailAddress("부산광역시 해운대구 우동");
+        // 배달 요청 메시지 변경
+        requestDto.setDeliveryRequest("문 앞에 두고 가세요");
+        // 주문 타입 변경: ONLINE → OFFLINE
+        requestDto.setOrderType("OFFLINE");
+        // 주문 상태 변경: PENDING → COMPLETED
+        requestDto.setOrderStatus("COMPLETED");
+        requestDto.setMenu(orderItemDtos);
+
+        mockMvc.perform(put("/api/orders/" + savedOrder.getId())
+                .header(JwtUtil.AUTHORIZATION_HEADER, ownerToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("주문 수정 성공"))
+            // 응답 DTO 검증
+            .andExpect(jsonPath("$.data.restaurantId").value(validRestaurantId.toString()))
+            .andExpect(jsonPath("$.data.status").value("COMPLETED"))
+            .andExpect(jsonPath("$.data.roadNameCode").value("222222222222"))
+            .andExpect(jsonPath("$.data.detailAddress").value("부산광역시 해운대구 우동"))
+            .andExpect(jsonPath("$.data.deliveryRequest").value("문 앞에 두고 가세요"))
+            // 주문 항목 검증
+            .andExpect(jsonPath("$.data.orderItems.length()").value(1))
+            .andExpect(jsonPath("$.data.orderItems[0].menuId").value(testMenuId.toString()))
+            .andExpect(jsonPath("$.data.orderItems[0].menuName").value("후라이드 치킨"))
+            .andExpect(jsonPath("$.data.orderItems[0].menuPrice").value(20000))
+            .andExpect(jsonPath("$.data.orderItems[0].quantity").value(5))
+            .andExpect(jsonPath("$.data.orderItems[0].menuTotalPrice").value(100000));
+    }
+
+    @Test
+    @DisplayName("주문 삭제 성공 API 테스트")
+    void deleteOrder() throws Exception{
+
+        mockMvc.perform(delete("/api/orders/"+savedOrder.getId())
+            .header(JwtUtil.AUTHORIZATION_HEADER, ownerToken)
+            .content(objectMapper.writeValueAsString(savedOrder)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("주문이 취소되었습니다."))
+            .andExpect(jsonPath("$.data.status").value("CANCELED"));
+    }
+
+
+    @Test
+    @DisplayName("주문 취소 불가능한 경우 (생성 후 5분 초과) API 테스트")
+    void deleteOrderFail() throws Exception {
+
+        entityManager.createNativeQuery("UPDATE p_order SET created_at = ? WHERE order_id = ?")
+            .setParameter(1, java.sql.Timestamp.valueOf(java.time.LocalDateTime.now().minusMinutes(6)))
+            .setParameter(2, savedOrder.getId())
+            .executeUpdate();
+
+        entityManager.flush();
+        entityManager.clear();
+
+
+        // DELETE API 호출 (HTTP 상태 코드는 200, body의 statusCode가 400이어야 함)
+        mockMvc.perform(delete("/api/orders/" + savedOrder.getId())
+                .header(JwtUtil.AUTHORIZATION_HEADER, ownerToken)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("주문 취소 불가능합니다."))
+            .andExpect(jsonPath("$.statusCode").value(400));
+    }
+
+    @Test
+    @DisplayName("주문 내역 조회 성공 API 테스트")
+    void searchOrder() throws Exception{
+
+        mockMvc.perform(get("/api/orders/")
+                .header(JwtUtil.AUTHORIZATION_HEADER, ownerToken)
+                .param("orderId", savedOrder.getId().toString())
+                .param("page", "0")
+                .param("size", "10")
+                .param("isAsc", "true"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.content").isArray())
+            .andExpect(jsonPath("$.data.content.length()").value(greaterThanOrEqualTo(1)));
+
+    }
+
+
+
+
+
 }
+
+
+
+

@@ -8,7 +8,6 @@ import java.util.UUID;
 @Getter
 @Setter
 public class OrderItemDto {
-    private UUID orderItemId;
     private UUID menuId;
     private String menuName;
     private int menuPrice;

@@ -84,8 +84,18 @@ public class OrderService {
 
 
     public OrderResponseDto readOrder(UUID orderId) {
-        Order order = orderRepository.findById(orderId).orElseThrow(
-            () -> new ResourceNotFoundException("존재하지 않는 주문입니다."));
+        Order order = findOrder(orderId);
+        return new OrderResponseDto(order);
+    }
+
+
+    public OrderResponseDto readOrderByUser(UUID orderId, User user) {
+        Order order = findOrder(orderId);
+
+        // 주문이 현재 사용자에 속하는지 확인합니다.
+        if (!order.getUserId().equals(user.getId())) {
+            throw new ResourceNotFoundException("해당 주문은 사용자의 주문이 아닙니다.");
+        }
         return new OrderResponseDto(order);
     }
 
@@ -186,6 +196,7 @@ public class OrderService {
             .collect(Collectors.toList());
 
     }
+
 
 
 }
