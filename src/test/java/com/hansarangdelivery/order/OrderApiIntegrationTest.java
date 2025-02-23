@@ -59,8 +59,6 @@ public class OrderApiIntegrationTest {
     @Autowired
     private JwtUtil jwtUtil;
 
-    protected User owner;
-    protected String ownerToken;
 
     @Autowired
     private RestaurantRepository restaurantRepository;
@@ -78,7 +76,6 @@ public class OrderApiIntegrationTest {
     @Autowired
     private DeliveryAddressRepository deliveryAddressRepository;
 
-
     private UUID testRestaurantId;
     private UUID testCategoryId;
     private UUID testLocationId;
@@ -86,7 +83,16 @@ public class OrderApiIntegrationTest {
 
     private Order savedOrder;
 
-    private Order order;
+    protected User owner;
+    protected String ownerToken;
+
+    protected User manager;
+
+    protected String managerToken;
+
+
+
+
 
     @BeforeEach
     void setup() {
@@ -99,10 +105,14 @@ public class OrderApiIntegrationTest {
         menuItemRepository.deleteAll();
         deliveryAddressRepository.deleteAll();
 
-        // 1. 테스트용 사용자 생성
+        // 1. 테스트용 사용자 생성(Owner)
         owner = new User("user", passwordEncoder.encode("Password1!"), "User@example.com", UserRole.OWNER);
         userRepository.save(owner);
         ownerToken = jwtUtil.createToken(owner.getUsername(), owner.getRole());
+
+        manager = new User("manager", passwordEncoder.encode("Password1!"), "manager@example.com", UserRole.MANAGER);
+        userRepository.save(manager);
+        managerToken = jwtUtil.createToken(manager.getUsername(), manager.getRole());
 
         // 2. 테스트용 카테고리 생성
         Category testCategory = new Category("양식");
@@ -185,7 +195,7 @@ public class OrderApiIntegrationTest {
 
         // 주문 생성 API 호출 후 결과 검증
 
-        mockMvc.perform(post("/api/orders/")
+        mockMvc.perform(post("/api/orders")
                 .header(JwtUtil.AUTHORIZATION_HEADER, ownerToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestDto)))
@@ -212,7 +222,7 @@ public class OrderApiIntegrationTest {
         UUID validRestaurantId = testRestaurantId;
 
         mockMvc.perform(get("/api/orders/" + savedOrder.getId())
-                .header(JwtUtil.AUTHORIZATION_HEADER, ownerToken))
+                .header(JwtUtil.AUTHORIZATION_HEADER, managerToken))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.message").value("특정 주문 상세 정보 조회 성공"))
             // 응답 DTO에 있는 필드 검증
@@ -336,7 +346,7 @@ public class OrderApiIntegrationTest {
     @DisplayName("주문 내역 조회 성공 API 테스트")
     void searchOrder() throws Exception{
 
-        mockMvc.perform(get("/api/orders/")
+        mockMvc.perform(get("/api/orders")
                 .header(JwtUtil.AUTHORIZATION_HEADER, ownerToken)
                 .param("orderId", savedOrder.getId().toString())
                 .param("page", "0")
