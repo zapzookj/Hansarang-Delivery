@@ -1,17 +1,14 @@
-package com.hansarangdelivery.service;
+package com.hansarangdelivery.menu.service;
 
+import com.hansarangdelivery.global.dto.PageResponseDto;
+import com.hansarangdelivery.global.exception.ResourceNotFoundException;
 import com.hansarangdelivery.menu.dto.MenuItemRequestDto;
 import com.hansarangdelivery.menu.dto.MenuItemResponseDto;
 import com.hansarangdelivery.menu.dto.MenuItemUpdateDto;
-import com.hansarangdelivery.global.dto.PageResponseDto;
-import com.hansarangdelivery.category.model.Category;
-import com.hansarangdelivery.menu.service.MenuItemService;
 import com.hansarangdelivery.restaurant.model.Restaurant;
-import com.hansarangdelivery.user.model.User;
-import com.hansarangdelivery.security.jwt.JwtUtil;
-import com.hansarangdelivery.category.repository.CategoryRepository;
-import com.hansarangdelivery.location.repository.LocationRepository;
 import com.hansarangdelivery.restaurant.repository.RestaurantRepository;
+import com.hansarangdelivery.security.jwt.JwtUtil;
+import com.hansarangdelivery.user.model.User;
 import com.hansarangdelivery.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.*;
@@ -42,45 +39,35 @@ class MenuItemServiceTest {
 
     @Autowired
     JwtUtil jwtUtil;
-
     @Autowired
     MenuItemService menuItemService;
     @Autowired
     UserRepository userRepository;
     @Autowired
     RestaurantRepository restaurantRepository;
-    @Autowired
-    CategoryRepository categoryRepository;
-    @Autowired
-    LocationRepository locationRepository;
 
     User owner;
 
     Restaurant restaurant;
     UUID restaurantId = UUID.fromString("66177930-5132-400c-9cd0-6e027beaf620");
 
-    Category category;
-    UUID categoryId = UUID.fromString("c833ab68-128e-4269-963e-3317b4e15894");
-
     MenuItemResponseDto createMenuItem = null;
 
     String jwtToken;
-
 
     @BeforeAll
     @Transactional
     public void setUp() {
 
-        category = categoryRepository.findById(categoryId).orElse(null);
         owner = userRepository.findById(1L).orElse(null);
 
-        if(owner != null) {
+        if (owner != null) {
             jwtToken = jwtUtil.createToken(owner.getUsername(), owner.getRole(), owner.getId());
         }
 
         UsernamePasswordAuthenticationToken authentication =
             new UsernamePasswordAuthenticationToken(
-                owner.getUsername(),
+                owner.getId(),
                 owner.getPassword(),
                 Collections.singletonList(new SimpleGrantedAuthority(owner.getRole().name()))
             );
@@ -169,7 +156,7 @@ class MenuItemServiceTest {
 
         menuItemService.deleteMenuItem(createMenuItem.getId(), owner);
 
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(ResourceNotFoundException.class, () -> {
             menuItemService.readMenuItem(createMenuItem.getId());
         });
     }
