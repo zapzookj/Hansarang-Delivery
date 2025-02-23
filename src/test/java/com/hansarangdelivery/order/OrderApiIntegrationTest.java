@@ -207,14 +207,39 @@ public class OrderApiIntegrationTest {
     }
 
     @Test
-    @DisplayName("특정 주문 정보 단일 조회 API 테스트")
-    void readMyOrder() throws Exception {
+    @DisplayName("특정 주문 정보 조회 API 테스트")
+    void readOrder() throws Exception {
         UUID validRestaurantId = testRestaurantId;
 
         mockMvc.perform(get("/api/orders/" + savedOrder.getId())
                 .header(JwtUtil.AUTHORIZATION_HEADER, ownerToken))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.message").value("특정 주문 상세 정보 조회 성공"))
+            // 응답 DTO에 있는 필드 검증
+            .andExpect(jsonPath("$.data.restaurantId").value(validRestaurantId.toString()))
+            .andExpect(jsonPath("$.data.status").value("PENDING"))
+            .andExpect(jsonPath("$.data.roadNameCode").value("111102005001"))
+            .andExpect(jsonPath("$.data.detailAddress").value("서울특별시 강남구 삼성동"))
+            .andExpect(jsonPath("$.data.deliveryRequest").value("문 앞에 놓아주세요"))
+            // orderItems 배열 검증
+            .andExpect(jsonPath("$.data.orderItems.length()").value(1))
+            .andExpect(jsonPath("$.data.orderItems[0].menuId").value(testMenuId.toString()))
+            .andExpect(jsonPath("$.data.orderItems[0].menuName").value("후라이드 치킨"))
+            .andExpect(jsonPath("$.data.orderItems[0].menuPrice").value(20000))
+            .andExpect(jsonPath("$.data.orderItems[0].quantity").value(2))
+            .andExpect(jsonPath("$.data.orderItems[0].menuTotalPrice").value(40000));
+    }
+
+
+    @Test
+    @DisplayName("내 주문 정보 조회 API 테스트")
+    void readMyOrder() throws Exception {
+        UUID validRestaurantId = testRestaurantId;
+
+        mockMvc.perform(get("/api/orders/my-order/" + savedOrder.getId())
+                .header(JwtUtil.AUTHORIZATION_HEADER, ownerToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("내 주문 상세 정보 조회 성공"))
             // 응답 DTO에 있는 필드 검증
             .andExpect(jsonPath("$.data.restaurantId").value(validRestaurantId.toString()))
             .andExpect(jsonPath("$.data.status").value("PENDING"))

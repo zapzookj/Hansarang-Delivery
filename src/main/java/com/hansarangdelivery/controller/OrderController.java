@@ -6,6 +6,7 @@ import com.hansarangdelivery.dto.OrderResponseDto;
 import com.hansarangdelivery.dto.ResultResponseDto;
 import com.hansarangdelivery.dto.ReviewResponseDto;
 import com.hansarangdelivery.entity.Order;
+import com.hansarangdelivery.entity.User;
 import com.hansarangdelivery.exception.ForbiddenActionException;
 import com.hansarangdelivery.security.UserDetailsImpl;
 import com.hansarangdelivery.service.OrderService;
@@ -35,11 +36,18 @@ public class OrderController {
     }
 
 
-    @GetMapping("/{orderId}") // 특정 주문 상세 정보 조회
+    @GetMapping("/{orderId}") // 특정 주문 상세 정보 조회  권한 누구 ?
     public ResultResponseDto<OrderResponseDto> readOrder(@PathVariable("orderId") UUID orderId) {
         OrderResponseDto responseDto = orderService.readOrder(orderId);
         return new ResultResponseDto<>("특정 주문 상세 정보 조회 성공", 200, responseDto);
     }
+
+    @GetMapping("/my-order/{orderId}") // 내 주문 상세 정보 조회
+    public ResultResponseDto<OrderResponseDto> readMyOrder(@PathVariable("orderId") UUID orderId,@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        OrderResponseDto responseDto = orderService.readOrderByUser(orderId, userDetails.getUser());
+        return new ResultResponseDto<>("내 주문 상세 정보 조회 성공", 200, responseDto);
+    }
+
 
     @PutMapping("/{orderId}")  //특정 주문 수정 (오너만)
     public ResultResponseDto<OrderResponseDto> updateOrder(@PathVariable("orderId") UUID orderId, @RequestBody OrderRequestDto requestDto) {
