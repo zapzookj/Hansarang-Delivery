@@ -5,11 +5,10 @@ import com.hansarangdelivery.global.dto.PageResponseDto;
 import com.hansarangdelivery.global.dto.ResultResponseDto;
 import com.hansarangdelivery.review.dto.ReviewRequestDto;
 import com.hansarangdelivery.review.dto.ReviewResponseDto;
-import com.hansarangdelivery.security.UserDetailsImpl;
 import com.hansarangdelivery.review.service.ReviewService;
+import com.hansarangdelivery.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,7 +19,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/reviews")
-@Slf4j
 public class ReviewController {
 
     private final ReviewService reviewService;
@@ -53,11 +51,11 @@ public class ReviewController {
     }
 
     @GetMapping("/me")
-    public ResultResponseDto<Page<ReviewResponseDto>> searchMyReview(@AuthenticationPrincipal UserDetailsImpl userDetails, Pageable pageable) {
+    public ResultResponseDto<PageResponseDto<ReviewResponseDto>> searchMyReview(@AuthenticationPrincipal UserDetailsImpl userDetails, Pageable pageable) {
 
         PageableConfig.validatePageSize(pageable);
 
-        Page<ReviewResponseDto> responseList = reviewService.searchMyReview(userDetails.getUser().getId(), pageable);
+        PageResponseDto<ReviewResponseDto> responseList = reviewService.searchMyReview(userDetails.getUser().getId(), pageable);
 
         return new ResultResponseDto<>("나의 리뷰 조회 성공", 200, responseList);
     }
