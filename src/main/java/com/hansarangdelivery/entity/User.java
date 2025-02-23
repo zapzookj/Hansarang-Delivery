@@ -1,5 +1,7 @@
 package com.hansarangdelivery.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -38,6 +40,7 @@ public class User extends TimeStamped{
     private UserRole role;  // CUSTOMER, OWNER, MANAGER, MASTER
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<DeliveryAddress> addressList = new ArrayList<>();
 
     public User(String username, String password, String email, UserRole role) {

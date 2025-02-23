@@ -224,7 +224,7 @@ class RestaurantIntegrationTest {
         Authentication authentication = createAuthentication(user.getUsername());
         context.setAuthentication(authentication);
 
-        jwtToken = jwtUtil.createToken("customer1",UserRole.CUSTOMER);
+        jwtToken = jwtUtil.createToken("customer1",UserRole.CUSTOMER, user.getId());
         return jwtToken;
     }
     private Authentication createAuthentication(String username) {
@@ -253,7 +253,7 @@ class RestaurantIntegrationTest {
         Authentication authentication = createAuthentication(user.getUsername());
         context.setAuthentication(authentication);
 
-        jwtToken = jwtUtil.createToken("manager1",UserRole.MANAGER);
+        jwtToken = jwtUtil.createToken("manager1",UserRole.MANAGER, user.getId());
         return jwtToken;
     }
 }

@@ -37,13 +37,14 @@ public class JwtUtil {
     }
 
     // 토큰 생성
-    public String createToken(String username, UserRole role) {
+    public String createToken(String username, UserRole role, Long userId) {
         Date date = new Date();
 
         return BEARER_PREFIX +
             Jwts.builder()
-                .setSubject(username) // 사용자 식별자값(ID)
+                .setSubject(username) // 토큰 기본 subject (사용자 명)
                 .claim(AUTHORIZATION_KEY, role) // 사용자 권한
+                .claim("userId", userId) // 사용자 식별자 값 (Id)
                 .setExpiration(new Date(date.getTime() + TOKEN_TIME)) // 만료 시간
                 .setIssuedAt(date) // 발급일
                 .signWith(key, signatureAlgorithm) // 암호화 알고리즘

@@ -1,6 +1,7 @@
 package com.hansarangdelivery.service;
 
 import com.hansarangdelivery.dto.LocationResponseDto;
+import com.hansarangdelivery.dto.PageResponseDto;
 import com.hansarangdelivery.dto.RestaurantRequestDto;
 import com.hansarangdelivery.dto.RestaurantResponseDto;
 import com.hansarangdelivery.entity.Restaurant;
@@ -79,14 +80,14 @@ public class RestaurantService {
         return new RestaurantResponseDto(restaurantRepository.save(restaurant),point);
     }
 
-    public Page<RestaurantResponseDto> searchRestaurants(Pageable pageable, String search, String category) {
+    public PageResponseDto<RestaurantResponseDto> searchRestaurants(Pageable pageable, String search, String category) {
         //  검색 조건에 맞는 음식점 리스트를 정렬해서 전달
         UUID categoryId=null;
         if(category!=null){
             categoryId=categoryService.getByName(category).getId();
         }
 
-        return restaurantRepositoryQuery.
+        Page<RestaurantResponseDto> mappedPage = restaurantRepositoryQuery.
             searchRestaurant(pageable, search,categoryId)
             .map((restaurant)->{
                 double point = reviewService.countAverageRating(restaurant.getId());
@@ -94,6 +95,8 @@ public class RestaurantService {
                 }
 
             );
+
+        return new PageResponseDto<>(mappedPage);
     }
 
     private Restaurant checkedRestaurant(UUID restaurantId) {

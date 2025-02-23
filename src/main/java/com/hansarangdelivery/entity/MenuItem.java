@@ -1,6 +1,6 @@
 package com.hansarangdelivery.entity;
 
-import com.hansarangdelivery.dto.MenuItemRequestDto;
+import com.hansarangdelivery.dto.MenuItemUpdateDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -44,9 +44,12 @@ public class MenuItem extends TimeStamped {
         this.isAvailable = true;
     }
 
-    public void update(MenuItemRequestDto requestDto) {
+    public void update(MenuItemUpdateDto requestDto) {
         this.name = requestDto.getName() == null ? this.name : requestDto.getName();
         this.price = requestDto.getPrice() == null ? this.price : requestDto.getPrice();
-        this.isAvailable = requestDto.getIsAvailable() == null ? this.isAvailable : requestDto.getIsAvailable();
+    }
+
+    public void setAvailable(Boolean isAvailable) {
+        this.isAvailable = isAvailable;
     }
 }

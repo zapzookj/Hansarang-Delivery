@@ -1,8 +1,9 @@
 package com.hansarangdelivery.service;
 
-import com.hansarangdelivery.dto.AiRequestDto;
 import com.hansarangdelivery.dto.AiApiResponseDto;
+import com.hansarangdelivery.dto.AiRequestDto;
 import com.hansarangdelivery.dto.AiResponseDto;
+import com.hansarangdelivery.dto.PageResponseDto;
 import com.hansarangdelivery.entity.AiResponse;
 import com.hansarangdelivery.entity.User;
 import com.hansarangdelivery.entity.UserRole;
@@ -11,6 +12,7 @@ import com.hansarangdelivery.exception.ResourceNotFoundException;
 import com.hansarangdelivery.repository.AiResponseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -79,12 +81,17 @@ public class AiResponseService {
     }
 
     @Transactional(readOnly = true)
-    public Page<AiResponseDto> searchAiResponses(User user, Pageable pageable) {
+    @Cacheable(
+        value = "aiResponses",
+        key = "#user.getId() + ':' + #pageable.pageNumber + ':' + #pageable.pageSize + ':' + #pageable.sort.toString()"
+    )
+    public PageResponseDto<AiResponseDto> searchAiResponses(User user, Pageable pageable) {
 
         Sort sort = pageable.getSort().isSorted() ? pageable.getSort() : Sort.by(Sort.Direction.DESC, "createdAt");
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
 
-        return aiResponseRepository.findByUserId(user.getId(), sortedPageable).map(AiResponseDto::new);
+        Page<AiResponseDto> mappedPage = aiResponseRepository.findByUserId(user.getId(), sortedPageable).map(AiResponseDto::new);
+        return new PageResponseDto<>(mappedPage);
     }
 
     @Transactional

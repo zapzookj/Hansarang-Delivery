@@ -50,18 +50,19 @@ public class RedisConfig {
 
     // 캐시 매니저
     @Bean
-    public CacheManager cacheManager() {
-        RedisCacheManager.RedisCacheManagerBuilder builder =
-            RedisCacheManager.RedisCacheManagerBuilder.fromConnectionFactory(redisConnectionFactory());
-
-        RedisCacheConfiguration configuration = RedisCacheConfiguration.defaultCacheConfig()
-            .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())) // Value Serializer 변경
+    public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+        RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
+            .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()))
             .disableCachingNullValues()
-            .entryTtl(Duration.ofMinutes(1L)); // TTL은 기본 1분으로 설정
+            .entryTtl(Duration.ofMinutes(1)); // 기본 1분
 
-        builder.cacheDefaults(configuration);
+        // userDetailsCache의 TTL은 1시간으로 설정
+        RedisCacheConfiguration userCacheConfig = defaultConfig.entryTtl(Duration.ofHours(1));
 
-        return builder.build();
+        // Build
+        return RedisCacheManager.builder(connectionFactory)
+            .withCacheConfiguration("user", userCacheConfig)
+            .cacheDefaults(defaultConfig)
+            .build();
     }
-
 }
