@@ -108,11 +108,11 @@ public class OrderApiIntegrationTest {
         // 1. 테스트용 사용자 생성(Owner)
         owner = new User("user", passwordEncoder.encode("Password1!"), "User@example.com", UserRole.OWNER);
         userRepository.save(owner);
-        ownerToken = jwtUtil.createToken(owner.getUsername(), owner.getRole());
+        ownerToken = jwtUtil.createToken(owner.getUsername(), owner.getRole(), owner.getId());
 
         manager = new User("manager", passwordEncoder.encode("Password1!"), "manager@example.com", UserRole.MANAGER);
         userRepository.save(manager);
-        managerToken = jwtUtil.createToken(manager.getUsername(), manager.getRole());
+        managerToken = jwtUtil.createToken(manager.getUsername(), manager.getRole(), owner.getId());
 
         // 2. 테스트용 카테고리 생성
         Category testCategory = new Category("양식");
