@@ -2,6 +2,8 @@ package com.hansarangdelivery.service;
 
 import com.hansarangdelivery.dto.MenuItemRequestDto;
 import com.hansarangdelivery.dto.MenuItemResponseDto;
+import com.hansarangdelivery.dto.MenuItemUpdateDto;
+import com.hansarangdelivery.dto.PageResponseDto;
 import com.hansarangdelivery.entity.Category;
 import com.hansarangdelivery.entity.MenuItem;
 import com.hansarangdelivery.entity.Restaurant;
@@ -27,6 +29,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -73,7 +76,7 @@ class MenuItemServiceTest {
         owner = userRepository.findById(1L).orElse(null);
 
         if(owner != null) {
-            jwtToken = jwtUtil.createToken(owner.getUsername(), owner.getRole());
+            jwtToken = jwtUtil.createToken(owner.getUsername(), owner.getRole(), owner.getId());
         }
 
         UsernamePasswordAuthenticationToken authentication =
@@ -116,9 +119,11 @@ class MenuItemServiceTest {
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("createdAt").descending());
 
-        Page<MenuItemResponseDto> menuItems = menuItemService.searchAllMenuItem(restaurantId, pageable);
+        PageResponseDto<MenuItemResponseDto> menuItemsResponse = menuItemService.searchAllMenuItem(restaurantId, pageable);
 
         UUID createdMenuItemId = this.createMenuItem.getId();
+
+        List<MenuItemResponseDto> menuItems = menuItemsResponse.getContent();
 
         MenuItemResponseDto foundMenuItem = menuItems.stream()
             .filter(menuItem -> menuItem.getId().equals(createdMenuItemId))
@@ -150,7 +155,7 @@ class MenuItemServiceTest {
     void updateMenuItem() {
 
         // 메뉴의 가격 변경
-        MenuItemRequestDto requestDto = new MenuItemRequestDto("황금올리브 양념 콤보", 23500, null, null);
+        MenuItemUpdateDto requestDto = new MenuItemUpdateDto("황금올리브 양념 콤보", 23500);
 
         MenuItemResponseDto menuItem = menuItemService.updateMenuItem(createMenuItem.getId(), requestDto);
 
