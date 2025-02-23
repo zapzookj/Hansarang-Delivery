@@ -58,6 +58,7 @@ public class RestaurantController {
         return new ResultResponseDto<>("가게 삭제 성공", 200,result);
     }
 
+    @GetMapping
     @GetMapping("/search")
     public ResultResponseDto<PageResponseDto<RestaurantResponseDto>> searchRestaurants(
     // 레스토랑 리스트 검색, search가 포함된 음식점을 찾는데 사용될 예정
