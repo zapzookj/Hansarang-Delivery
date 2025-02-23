@@ -45,7 +45,7 @@ public class CategoryController {
         return new ResultResponseDto<>("카테고리 삭제 성공",200, result);
     }
 
-    @GetMapping("/search")
+    @GetMapping("/")
     public ResultResponseDto<PageResponseDto<CategoryResponseDto>> searchCategories(
         Pageable pageable
         ) {
