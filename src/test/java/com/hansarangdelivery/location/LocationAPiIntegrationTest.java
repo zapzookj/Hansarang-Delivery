@@ -2,12 +2,12 @@ package com.hansarangdelivery.location;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hansarangdelivery.HansarangDeliveryApplication;
-import com.hansarangdelivery.entity.Location;
-import com.hansarangdelivery.entity.User;
-import com.hansarangdelivery.entity.UserRole;
-import com.hansarangdelivery.jwt.JwtUtil;
-import com.hansarangdelivery.repository.LocationRepository;
-import com.hansarangdelivery.repository.UserRepository;
+import com.hansarangdelivery.location.model.Location;
+import com.hansarangdelivery.user.model.User;
+import com.hansarangdelivery.user.model.UserRole;
+import com.hansarangdelivery.security.jwt.JwtUtil;
+import com.hansarangdelivery.location.repository.LocationRepository;
+import com.hansarangdelivery.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

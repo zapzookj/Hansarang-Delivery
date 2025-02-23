@@ -1,9 +1,9 @@
 package com.hansarangdelivery.security;
 
-import com.hansarangdelivery.dto.UserCacheDto;
-import com.hansarangdelivery.entity.User;
-import com.hansarangdelivery.entity.UserRole;
-import com.hansarangdelivery.jwt.JwtUtil;
+import com.hansarangdelivery.user.dto.UserCacheDto;
+import com.hansarangdelivery.user.model.User;
+import com.hansarangdelivery.user.model.UserRole;
+import com.hansarangdelivery.security.jwt.JwtUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

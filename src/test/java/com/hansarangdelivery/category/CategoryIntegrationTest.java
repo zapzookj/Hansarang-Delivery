@@ -5,13 +5,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hansarangdelivery.HansarangDeliveryApplication;
-import com.hansarangdelivery.dto.CategoryRequestDto;
-import com.hansarangdelivery.entity.Category;
-import com.hansarangdelivery.entity.User;
-import com.hansarangdelivery.entity.UserRole;
-import com.hansarangdelivery.jwt.JwtUtil;
-import com.hansarangdelivery.repository.CategoryRepository;
-import com.hansarangdelivery.repository.UserRepository;
+import com.hansarangdelivery.category.dto.CategoryRequestDto;
+import com.hansarangdelivery.category.model.Category;
+import com.hansarangdelivery.user.model.User;
+import com.hansarangdelivery.user.model.UserRole;
+import com.hansarangdelivery.security.jwt.JwtUtil;
+import com.hansarangdelivery.category.repository.CategoryRepository;
+import com.hansarangdelivery.user.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
