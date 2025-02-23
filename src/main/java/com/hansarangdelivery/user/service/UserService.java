@@ -99,7 +99,7 @@ public class UserService {
     }
 
     @Transactional
-    @CacheEvict(value = "user", key = "#userId")
+    @CacheEvict(value = "user", key = "#userId != null ? #userId : #currentUser.id")
     public void deleteUser(User currentUser, Long userId) {
         if (userId == null) {
             userRepository.deleteById(currentUser.getId());
