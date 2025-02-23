@@ -163,7 +163,7 @@ class RestaurantIntegrationTest {
         String jwtToken = getJwtTokenByCustomer();
 
         // When & Then
-        mockMvc.perform(get(url+"/")
+        mockMvc.perform(get(url)
                 .header("Authorization",jwtToken)
             )
             .andExpect(status().isOk())

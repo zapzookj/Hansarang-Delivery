@@ -65,7 +65,7 @@ public class RestaurantController {
         return new ResultResponseDto<>("가게 삭제 성공", 200,result);
     }
 
-    @GetMapping("/")
+    @GetMapping
     public ResultResponseDto<Page<RestaurantResponseDto>> searchRestaurants(
     // 레스토랑 리스트 검색
         Pageable pageable,
