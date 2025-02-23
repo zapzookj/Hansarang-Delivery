@@ -8,7 +8,6 @@ import com.hansarangdelivery.review.dto.ReviewResponseDto;
 import com.hansarangdelivery.review.service.ReviewService;
 import com.hansarangdelivery.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
