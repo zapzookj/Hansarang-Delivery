@@ -19,7 +19,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "p_delivery_address")
-@SQLDelete(sql = "UPDATE DeliveryAddress SET deleted_at=CURRENT_TIMESTAMP where id=?")
+@SQLDelete(sql = "UPDATE p_deliveryAddress SET deleted_at=CURRENT_TIMESTAMP where id=?")
 @Where(clause = "deleted_at IS NULL")
 public class DeliveryAddress extends TimeStamped {
 
