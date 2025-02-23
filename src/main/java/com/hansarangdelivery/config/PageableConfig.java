@@ -1,6 +1,6 @@
 package com.hansarangdelivery.config;
 
-import com.hansarangdelivery.entity.PageType;
+import com.hansarangdelivery.global.model.PageType;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

@@ -1,6 +1,6 @@
 package com.hansarangdelivery.config;
 
-import com.hansarangdelivery.jwt.JwtUtil;
+import com.hansarangdelivery.security.jwt.JwtUtil;
 import com.hansarangdelivery.security.CustomUserDetailsService;
 import com.hansarangdelivery.security.JwtAuthenticationFilter;
 import com.hansarangdelivery.security.JwtAuthorizationFilter;
