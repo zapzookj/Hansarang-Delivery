@@ -85,19 +85,19 @@ public class UserApiIntegrationTest {
 
         testUser = new User("testuser", passwordEncoder.encode("Password1!"), "testuser@example.com", UserRole.CUSTOMER);
         userRepository.save(testUser);
-        testUserToken = jwtUtil.createToken(testUser.getUsername(), testUser.getRole());
+        testUserToken = jwtUtil.createToken(testUser.getUsername(), testUser.getRole(), testUser.getId());
 
         testUser2 = new User("testuser2", passwordEncoder.encode("Password1!"), "testuser2@example.com", UserRole.CUSTOMER);
         userRepository.save(testUser2);
-        testUser2Token = jwtUtil.createToken(testUser.getUsername(), testUser.getRole());
+        testUser2Token = jwtUtil.createToken(testUser2.getUsername(), testUser2.getRole(), testUser2.getId());
 
         manager = new User("manager", passwordEncoder.encode("Password1!"), "manager@example.com", UserRole.MANAGER);
         userRepository.save(manager);
-        managerToken = jwtUtil.createToken(manager.getUsername(), manager.getRole());
+        managerToken = jwtUtil.createToken(manager.getUsername(), manager.getRole(), manager.getId());
 
         master = new User("master", passwordEncoder.encode("Password1!"), "master@example.com", UserRole.MASTER);
         userRepository.save(master);
-        masterToken = jwtUtil.createToken(master.getUsername(), master.getRole());
+        masterToken = jwtUtil.createToken(master.getUsername(), master.getRole(), master.getId());
     }
 
     // 배송지를 생성하는 메서드 (기본 배송지 설정 로직 테스트용)

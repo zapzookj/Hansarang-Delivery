@@ -77,15 +77,15 @@ public class AiResponseIntegrationTest {
 
         owner = new User("owner1", passwordEncoder.encode("Password1!"), "owner1@example.com", UserRole.OWNER);
         userRepository.save(owner);
-        ownerToken = jwtUtil.createToken(owner.getUsername(), owner.getRole());
+        ownerToken = jwtUtil.createToken(owner.getUsername(), owner.getRole(), owner.getId());
 
         owner2 = new User("owner2", passwordEncoder.encode("Password1!"), "owner2@example.com", UserRole.OWNER);
         userRepository.save(owner2);
-        owner2Token = jwtUtil.createToken(owner2.getUsername(), owner2.getRole());
+        owner2Token = jwtUtil.createToken(owner2.getUsername(), owner2.getRole(), owner2.getId());
 
         manager = new User("manager", passwordEncoder.encode("Password1!"), "manager@example.com", UserRole.MANAGER);
         userRepository.save(manager);
-        managerToken = jwtUtil.createToken(manager.getUsername(), manager.getRole());
+        managerToken = jwtUtil.createToken(manager.getUsername(), manager.getRole(), manager.getId());
     }
 
     private AiApiResponseDto createMockApiResponse(String mockText) {

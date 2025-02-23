@@ -1,27 +1,20 @@
 package com.hansarangdelivery.controller;
 
 import com.hansarangdelivery.config.PageableConfig;
+import com.hansarangdelivery.dto.PageResponseDto;
 import com.hansarangdelivery.dto.RestaurantRequestDto;
 import com.hansarangdelivery.dto.RestaurantResponseDto;
 import com.hansarangdelivery.dto.ResultResponseDto;
 import com.hansarangdelivery.security.UserDetailsImpl;
 import com.hansarangdelivery.service.RestaurantService;
 import jakarta.validation.Valid;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -65,14 +58,14 @@ public class RestaurantController {
         return new ResultResponseDto<>("가게 삭제 성공", 200,result);
     }
 
-    @GetMapping("/")
-    public ResultResponseDto<Page<RestaurantResponseDto>> searchRestaurants(
-    // 레스토랑 리스트 검색
+    @GetMapping("/search")
+    public ResultResponseDto<PageResponseDto<RestaurantResponseDto>> searchRestaurants(
+    // 레스토랑 리스트 검색, search가 포함된 음식점을 찾는데 사용될 예정
         Pageable pageable,
         @RequestParam(required = false) String search,
         @RequestParam(required = false) String category) {
         PageableConfig.validatePageSize(pageable);
-        Page<RestaurantResponseDto> restaurants = restaurantService.searchRestaurants(pageable,search,category);
+        PageResponseDto<RestaurantResponseDto> restaurants = restaurantService.searchRestaurants(pageable,search,category);
         return new ResultResponseDto<>("가게 검색 성공", 200, restaurants);
     }
 }

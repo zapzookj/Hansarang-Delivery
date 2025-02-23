@@ -2,23 +2,22 @@ package com.hansarangdelivery.service;
 
 import com.hansarangdelivery.dto.CategoryRequestDto;
 import com.hansarangdelivery.dto.CategoryResponseDto;
+import com.hansarangdelivery.dto.PageResponseDto;
 import com.hansarangdelivery.entity.Category;
 import com.hansarangdelivery.entity.User;
 import com.hansarangdelivery.exception.DuplicateResourceException;
 import com.hansarangdelivery.exception.ResourceNotFoundException;
 import com.hansarangdelivery.repository.CategoryRepository;
 import jakarta.validation.Valid;
-import java.time.LocalDateTime;
-import javax.net.ssl.SSLSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +33,7 @@ public class CategoryService {
         }
         Category category = new Category(name);
         categoryRepository.save(category);
-        return new CategoryResponseDto(category.getId(),category.getName());
+        return new CategoryResponseDto(category.getId(), category.getName());
     }
 
     @Transactional
@@ -44,7 +43,7 @@ public class CategoryService {
             () -> new ResourceNotFoundException("수정하려는 카테고리는 존재하지 않습니다."));
         category.update(categoryRequestDto);
         categoryRepository.save(category);
-        return new CategoryResponseDto(category.getId(),category.getName());
+        return new CategoryResponseDto(category.getId(), category.getName());
     }
 
     public boolean existsById(UUID categoryId) {
@@ -57,14 +56,20 @@ public class CategoryService {
             () -> new ResourceNotFoundException("삭제하려는 카테고리가 존재하지 않습니다."));
         String deletedBy = user.getUsername();// 인증된 사용자의 username을 deletedBy로 사용
         category.delete(LocalDateTime.now(), deletedBy);
-        return new CategoryResponseDto(category.getId(),category.getName());
+        return new CategoryResponseDto(category.getId(), category.getName());
     }
 
-    public Page<CategoryResponseDto> getAllCategory(Pageable pageable) {
+    @Cacheable(
+        value = "category",
+        key = "#pageable.pageNumber + ':' + #pageable.pageSize + ':' + #pageable.sort.toString()"
+    )
+    public PageResponseDto<CategoryResponseDto> getAllCategory(Pageable pageable) {
         Page<Category> categoryPage = categoryRepository.findAll(pageable);
-        return categoryPage.map(category -> new CategoryResponseDto(category.getId(),
+        Page<CategoryResponseDto> mappedPage = categoryPage.map(category -> new CategoryResponseDto(
+            category.getId(),
             category.getName()
         ));
+        return new PageResponseDto<>(mappedPage);
     }
 
 

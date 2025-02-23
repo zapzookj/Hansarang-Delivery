@@ -1,5 +1,8 @@
 package com.hansarangdelivery.security;
 
+import com.hansarangdelivery.dto.UserCacheDto;
+import com.hansarangdelivery.entity.User;
+import com.hansarangdelivery.entity.UserRole;
 import com.hansarangdelivery.jwt.JwtUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
@@ -22,10 +25,12 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
 
-    public JwtAuthorizationFilter(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService) {
+    public JwtAuthorizationFilter(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, CustomUserDetailsService customUserDetailsService) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
+        this.customUserDetailsService = customUserDetailsService;
     }
 
     @Override
@@ -41,9 +46,11 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             }
 
             Claims info = jwtUtil.getUserInfoFromToken(tokenValue);
+            UserRole role = UserRole.valueOf((String) info.get(JwtUtil.AUTHORIZATION_KEY));
+            Long userId = info.get("userId", Long.class);
 
             try {
-                setAuthentication(info.getSubject());
+                setAuthentication(info.getSubject(), role, userId);
             } catch (Exception e) {
                 log.error(e.getMessage());
                 return;
@@ -54,17 +61,25 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     }
 
     // 인증 처리
-    public void setAuthentication(String username) {
+    public void setAuthentication(String username, UserRole userRole, Long userId) {
         SecurityContext context = SecurityContextHolder.createEmptyContext();
-        Authentication authentication = createAuthentication(username);
+        Authentication authentication = createAuthentication(username, userRole, userId);
         context.setAuthentication(authentication);
 
         SecurityContextHolder.setContext(context);
     }
 
     // 인증 객체 생성
-    private Authentication createAuthentication(String username) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+    private Authentication createAuthentication(String username, UserRole userRole, Long userId) {
+        UserDetails userDetails;
+        if (userRole.equals(UserRole.MANAGER) || userRole.equals(UserRole.MASTER)) {
+            userDetails = userDetailsService.loadUserByUsername(username);
+        } else {
+            UserCacheDto dto = customUserDetailsService.loadUserByIdForRegular(userId);
+            User user = new User(
+                dto.getUserId(), dto.getUsername(), dto.getPassword(), dto.getEmail(), dto.getRole(), dto.getAddressList());
+            userDetails = new UserDetailsImpl(user);
+        }
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 }

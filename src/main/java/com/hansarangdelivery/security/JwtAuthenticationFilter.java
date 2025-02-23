@@ -44,10 +44,11 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) {
+        Long userId = ((UserDetailsImpl) authResult.getPrincipal()).getUser().getId();
         String username = ((UserDetailsImpl) authResult.getPrincipal()).getUsername();
         UserRole role = ((UserDetailsImpl) authResult.getPrincipal()).getUser().getRole();
 
-        String token = jwtUtil.createToken(username, role);
+        String token = jwtUtil.createToken(username, role, userId);
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
     }
 

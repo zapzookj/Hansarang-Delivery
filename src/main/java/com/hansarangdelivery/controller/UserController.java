@@ -43,9 +43,9 @@ public class UserController {
 
     @GetMapping()
     @PreAuthorize("hasRole('ROLE_MANAGER')")
-    public ResultResponseDto<Page<UserResponseDto>> searchProfiles(Pageable pageable) {
+    public ResultResponseDto<PageResponseDto<UserResponseDto>> searchProfiles(Pageable pageable) {
         PageableConfig.validatePageSize(pageable);
-        Page<UserResponseDto> responseDtoPage = userService.searchProfiles(pageable);
+        PageResponseDto<UserResponseDto> responseDtoPage = userService.searchProfiles(pageable);
         return new ResultResponseDto<>("조회 성공",200, responseDtoPage);
     }
 

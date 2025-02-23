@@ -1,5 +1,6 @@
 package com.hansarangdelivery.service;
 
+import com.hansarangdelivery.dto.PageResponseDto;
 import com.hansarangdelivery.dto.SignupRequestDto;
 import com.hansarangdelivery.dto.UserResponseDto;
 import com.hansarangdelivery.dto.UserUpdateDto;
@@ -12,6 +13,7 @@ import com.hansarangdelivery.repository.UserRepository;
 import com.hansarangdelivery.repository.UserRepositoryQueryImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -64,15 +66,17 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Page<UserResponseDto> searchProfiles(Pageable pageable) {
+    public PageResponseDto<UserResponseDto> searchProfiles(Pageable pageable) {
 
         Sort sort = pageable.getSort().isSorted() ? pageable.getSort() : Sort.by(Sort.Direction.DESC, "createdAt", "updatedAt");
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
 
-        return userRepositoryQuery.searchUsers(sortedPageable).map(UserResponseDto::new);
+        Page<UserResponseDto> mappedPage = userRepositoryQuery.searchUsers(sortedPageable).map(UserResponseDto::new);
+        return new PageResponseDto<>(mappedPage);
     }
 
     @Transactional
+    @CacheEvict(value = "user", key = "#userId")
     public UserResponseDto updateProfile(Long userId, UserUpdateDto requestDto) {
         User user = findUser(userId);
 
@@ -86,6 +90,7 @@ public class UserService {
     }
 
     @Transactional
+    @CacheEvict(value = "user", key = "#userId")
     public UserResponseDto updateRole(Long userId) {
         User user = findUser(userId);
 
@@ -94,6 +99,7 @@ public class UserService {
     }
 
     @Transactional
+    @CacheEvict(value = "user", key = "#userId")
     public void deleteUser(User currentUser, Long userId) {
         if (userId == null) {
             userRepository.deleteById(currentUser.getId());

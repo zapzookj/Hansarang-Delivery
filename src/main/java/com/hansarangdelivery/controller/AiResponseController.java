@@ -3,11 +3,11 @@ package com.hansarangdelivery.controller;
 import com.hansarangdelivery.config.PageableConfig;
 import com.hansarangdelivery.dto.AiRequestDto;
 import com.hansarangdelivery.dto.AiResponseDto;
+import com.hansarangdelivery.dto.PageResponseDto;
 import com.hansarangdelivery.dto.ResultResponseDto;
 import com.hansarangdelivery.security.UserDetailsImpl;
 import com.hansarangdelivery.service.AiResponseService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -41,10 +41,10 @@ public class AiResponseController {
 
     // 본인이 생성한 AI 응답 전체 조회 API
     @GetMapping()
-    public ResultResponseDto<Page<AiResponseDto>> searchAiResponses(@AuthenticationPrincipal UserDetailsImpl userDetails,
+    public ResultResponseDto<PageResponseDto<AiResponseDto>> searchAiResponses(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                                     Pageable pageable) {
         PageableConfig.validatePageSize(pageable);
-        Page<AiResponseDto> aiResponseDtos = aiResponseService.searchAiResponses(userDetails.getUser(), pageable);
+        PageResponseDto<AiResponseDto> aiResponseDtos = aiResponseService.searchAiResponses(userDetails.getUser(), pageable);
         return new ResultResponseDto<>("조회 성공", 200, aiResponseDtos);
     }
 

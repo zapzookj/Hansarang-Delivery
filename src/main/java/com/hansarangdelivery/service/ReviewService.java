@@ -1,5 +1,6 @@
 package com.hansarangdelivery.service;
 
+import com.hansarangdelivery.dto.PageResponseDto;
 import com.hansarangdelivery.dto.ReviewRequestDto;
 import com.hansarangdelivery.dto.ReviewResponseDto;
 import com.hansarangdelivery.entity.Review;
@@ -12,6 +13,8 @@ import com.hansarangdelivery.repository.ReviewRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -31,6 +34,7 @@ public class ReviewService {
         return reviewRepository.getAverageRating(restaurantId);
     }
 
+    @CacheEvict(value = "reviews", allEntries = true)
     public ReviewResponseDto createReview(ReviewRequestDto requestDto) {
 
         // orderId는 Unique 제약 조건으로 한 주문은 한 개의 리뷰만 작성 가능
@@ -58,7 +62,11 @@ public class ReviewService {
         return new ReviewResponseDto(review);
     }
 
-    public Page<ReviewResponseDto> searchRestaurantReview(UUID restaurantId, Pageable pageable) {
+    @Cacheable(
+        value = "reviews",
+        key = "#restaurantId + ':' + #pageable.pageNumber + ':' + #pageable.pageSize + ':' + #pageable.sort.toString()"
+    )
+    public PageResponseDto<ReviewResponseDto> searchRestaurantReview(UUID restaurantId, Pageable pageable) {
 
         Page<Review> reviews = reviewRepository.searchByRestaurantId(restaurantId, pageable);
 
@@ -66,9 +74,13 @@ public class ReviewService {
             throw new ResourceNotFoundException("작성된 리뷰가 없습니다");
         }
 
-        return reviews.map(ReviewResponseDto::new);
+        return new PageResponseDto<>(reviews.map(ReviewResponseDto::new));
     }
 
+    @Cacheable(
+        value = "reviews",
+        key = "#userId + ':' + #pageable.pageNumber + ':' + #pageable.pageSize + ':' + #pageable.sort.toString()"
+    )
     public Page<ReviewResponseDto> searchMyReview(Long userId, Pageable pageable) {
 
         String userIdStr = String.valueOf(userId);
@@ -78,6 +90,7 @@ public class ReviewService {
         return reviews.map(ReviewResponseDto::new);
     }
 
+    @CacheEvict(value = "reviews", allEntries = true)
     public ReviewResponseDto updateReview(UUID reviewId, ReviewRequestDto requestDto, User user) {
 
         String userId = String.valueOf(user.getId());
@@ -96,6 +109,7 @@ public class ReviewService {
         return new ReviewResponseDto(review);
     }
 
+    @CacheEvict(value = "reviews", allEntries = true)
     @Transactional
     public ReviewResponseDto deleteReview(UUID reviewId, User user) {
 
