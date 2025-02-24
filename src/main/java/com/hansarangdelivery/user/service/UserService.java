@@ -22,6 +22,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -102,12 +105,23 @@ public class UserService {
     @CacheEvict(value = "user", key = "#userId != null ? #userId : #currentUser.id")
     public void deleteUser(User currentUser, Long userId) {
         if (userId == null) {
-            userRepository.deleteById(currentUser.getId());
+            String deletedBy = currentUser.getId().toString();
+            currentUser.delete(LocalDateTime.now(), deletedBy);
+            userRepository.save(currentUser);
+
         } else {
             if (currentUser.getRole() != UserRole.MANAGER) {
                 throw new ForbiddenActionException("권한이 없습니다.");
             }
-            userRepository.deleteById(userId);
+            Optional<User> optionalUser = userRepository.findById(userId);
+            if (optionalUser.isPresent()) {
+                User userToDelete = optionalUser.get();
+
+                userToDelete.delete(LocalDateTime.now(), currentUser.getId().toString());
+                userRepository.save(userToDelete);
+            } else {
+                throw new ResourceNotFoundException("삭제할 사용자를 찾을 수 없습니다.");
+            }
         }
     }
 

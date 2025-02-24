@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -69,7 +70,7 @@ public class Order extends TimeStamped {
         this.totalPrice = totalPrice;
         this.orderType = orderType;
         this.orderStatus = status;
-        this.roadNameCode =roadNameCode;
+        this.roadNameCode = roadNameCode;
         this.detailAddress = detailAddress;
         this.deliveryRequest = deliveryRequest;
         this.orderItems = (orderItems != null) ? orderItems : new ArrayList<>();
@@ -84,4 +85,18 @@ public class Order extends TimeStamped {
         this.orderItems.clear();
         this.orderItems.addAll(orderItems);
     }
+
+    public void delete(LocalDateTime deletedAt, String deletedBy) {
+        // Order 자체의 소프트 딜리트 처리
+        this.setDeletedAt(deletedAt);
+        this.setDeletedBy(deletedBy);
+
+        // 연관된 OrderItem들도 소프트 딜리트 처리
+        if (this.orderItems != null) {
+            for (OrderItem item : this.orderItems) {
+                item.delete(deletedAt, deletedBy);
+            }
+        }
+    }
 }
+
