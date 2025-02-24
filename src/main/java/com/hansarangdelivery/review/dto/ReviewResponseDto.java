@@ -18,7 +18,8 @@ public class ReviewResponseDto {
     private UUID id;
 
     // 리뷰 작성 시간 + 리뷰 작성자 정보로 활용
-    private LocalDateTime createdAt;
+    private String createdAt;
+
     private String createdBy;
 
     private UUID orderId;
@@ -29,7 +30,7 @@ public class ReviewResponseDto {
 
     public ReviewResponseDto(Review review) {
         this.id = review.getId();
-        this.createdAt = review.getCreatedAt();
+        this.createdAt = review.getCreatedAt().toString();
         this.createdBy = review.getCreatedBy();
         this.orderId = review.getOrderId();
         this.content = review.getContent();
