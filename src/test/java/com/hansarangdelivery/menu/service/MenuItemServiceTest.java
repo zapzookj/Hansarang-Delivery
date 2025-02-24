@@ -51,6 +51,8 @@ class MenuItemServiceTest {
     Restaurant restaurant;
     UUID restaurantId = UUID.fromString("66177930-5132-400c-9cd0-6e027beaf620");
 
+    UUID noneExistRestaurantId = UUID.randomUUID();
+
     MenuItemResponseDto createMenuItem = null;
 
     String jwtToken;
@@ -100,6 +102,31 @@ class MenuItemServiceTest {
 
     @Test
     @Order(2)
+    @DisplayName("메뉴 등록 실패[없는 식당 ID로 등록 요청]")
+    void createMenuItemFailed(){
+
+        // given
+        String name = "Test Menu";
+        int price = 10_000;
+
+        // when
+        MenuItemRequestDto requestDto = new MenuItemRequestDto(name, price, noneExistRestaurantId, null);
+
+        MenuItemResponseDto menuItem = menuItemService.createMenuItem(requestDto);
+
+
+        // then
+        assertNotNull(menuItem.getId());
+
+        assertNotNull(menuItem.getId());
+        assertEquals(name, menuItem.getName());
+        assertEquals(price, menuItem.getPrice());
+
+        createMenuItem = menuItem;
+    }
+
+    @Test
+    @Order(3)
     @DisplayName("식당 전체메뉴 조회")
     void searchAllMenuItem() {
 
@@ -122,7 +149,7 @@ class MenuItemServiceTest {
     }
 
     @Test
-    @Order(3)
+    @Order(4)
     @DisplayName("식당 메뉴 단일 조회")
     void readMenuItem() {
 
@@ -136,7 +163,7 @@ class MenuItemServiceTest {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     @DisplayName("식당 메뉴 수정")
     void updateMenuItem() {
 
@@ -150,7 +177,7 @@ class MenuItemServiceTest {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     @DisplayName("식당 메뉴 삭제")
     void deleteMenuItem() {
 
