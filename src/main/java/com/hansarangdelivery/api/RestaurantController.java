@@ -7,6 +7,7 @@ import com.hansarangdelivery.restaurant.dto.RestaurantResponseDto;
 import com.hansarangdelivery.global.dto.ResultResponseDto;
 import com.hansarangdelivery.security.UserDetailsImpl;
 import com.hansarangdelivery.restaurant.service.RestaurantService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +23,7 @@ import java.util.UUID;
 public class RestaurantController {
 
     private final RestaurantService restaurantService;
-
+    @Operation(summary = "Sample API", description = "이 API는 예제 API입니다.")
     @PostMapping()
     @PreAuthorize("hasRole('ROLE_MANAGER')")
     // 레스토랑 등록
