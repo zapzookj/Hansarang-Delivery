@@ -21,6 +21,7 @@ public class RestaurantResponseDto {
         this.name = restaurant.getName();
         this.location = restaurant.getLocation().toString();
         this.status = restaurant.getStatus();
+        this.category = restaurant.getCategory().toString();
         this.point = point;
     }
 
