@@ -1,6 +1,5 @@
 package com.hansarangdelivery.config;
 
-import com.hansarangdelivery.exception.ForbiddenActionException;
 import com.hansarangdelivery.security.UserDetailsImpl;
 import lombok.NonNull;
 import org.springframework.data.domain.AuditorAware;

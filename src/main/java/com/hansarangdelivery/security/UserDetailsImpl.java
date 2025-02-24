@@ -1,7 +1,7 @@
 package com.hansarangdelivery.security;
 
-import com.hansarangdelivery.entity.User;
-import com.hansarangdelivery.entity.UserRole;
+import com.hansarangdelivery.user.model.User;
+import com.hansarangdelivery.user.model.UserRole;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

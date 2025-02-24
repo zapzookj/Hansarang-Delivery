@@ -1,7 +1,7 @@
 package com.hansarangdelivery.security;
 
-import com.hansarangdelivery.entity.User;
-import com.hansarangdelivery.repository.UserRepository;
+import com.hansarangdelivery.user.model.User;
+import com.hansarangdelivery.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

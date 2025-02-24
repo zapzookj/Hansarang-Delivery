@@ -2,11 +2,27 @@ package com.hansarangdelivery.order;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hansarangdelivery.HansarangDeliveryApplication;
-import com.hansarangdelivery.dto.OrderItemRequestDto;
-import com.hansarangdelivery.dto.OrderRequestDto;
-import com.hansarangdelivery.entity.*;
-import com.hansarangdelivery.jwt.JwtUtil;
-import com.hansarangdelivery.repository.*;
+import com.hansarangdelivery.address.model.DeliveryAddress;
+import com.hansarangdelivery.address.repository.DeliveryAddressRepository;
+import com.hansarangdelivery.category.model.Category;
+import com.hansarangdelivery.category.repository.CategoryRepository;
+import com.hansarangdelivery.location.model.Location;
+import com.hansarangdelivery.location.repository.LocationRepository;
+import com.hansarangdelivery.menu.model.MenuItem;
+import com.hansarangdelivery.menu.repository.MenuItemRepository;
+import com.hansarangdelivery.order.dto.OrderItemRequestDto;
+import com.hansarangdelivery.order.dto.OrderRequestDto;
+import com.hansarangdelivery.security.jwt.JwtUtil;
+import com.hansarangdelivery.order.model.Order;
+import com.hansarangdelivery.order.model.OrderItem;
+import com.hansarangdelivery.order.model.OrderStatus;
+import com.hansarangdelivery.order.model.OrderType;
+import com.hansarangdelivery.order.repository.OrderRepository;
+import com.hansarangdelivery.restaurant.model.Restaurant;
+import com.hansarangdelivery.restaurant.repository.RestaurantRepository;
+import com.hansarangdelivery.user.model.User;
+import com.hansarangdelivery.user.model.UserRole;
+import com.hansarangdelivery.user.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -246,7 +262,7 @@ public class OrderApiIntegrationTest {
     void readMyOrder() throws Exception {
         UUID validRestaurantId = testRestaurantId;
 
-        mockMvc.perform(get("/api/orders/my-order/" + savedOrder.getId())
+        mockMvc.perform(get("/api/orders/me/" + savedOrder.getId())
                 .header(JwtUtil.AUTHORIZATION_HEADER, ownerToken))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.message").value("내 주문 상세 정보 조회 성공"))

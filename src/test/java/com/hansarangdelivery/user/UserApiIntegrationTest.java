@@ -2,16 +2,16 @@ package com.hansarangdelivery.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hansarangdelivery.HansarangDeliveryApplication;
-import com.hansarangdelivery.dto.DeliveryAddressRequestDto;
-import com.hansarangdelivery.dto.SignupRequestDto;
-import com.hansarangdelivery.dto.UserUpdateDto;
-import com.hansarangdelivery.entity.DeliveryAddress;
-import com.hansarangdelivery.entity.User;
-import com.hansarangdelivery.entity.UserRole;
-import com.hansarangdelivery.jwt.JwtUtil;
-import com.hansarangdelivery.repository.DeliveryAddressRepository;
-import com.hansarangdelivery.repository.UserRepository;
-import com.hansarangdelivery.service.LocationService;
+import com.hansarangdelivery.address.dto.DeliveryAddressRequestDto;
+import com.hansarangdelivery.user.dto.SignupRequestDto;
+import com.hansarangdelivery.user.dto.UserUpdateDto;
+import com.hansarangdelivery.address.model.DeliveryAddress;
+import com.hansarangdelivery.user.model.User;
+import com.hansarangdelivery.user.model.UserRole;
+import com.hansarangdelivery.security.jwt.JwtUtil;
+import com.hansarangdelivery.address.repository.DeliveryAddressRepository;
+import com.hansarangdelivery.user.repository.UserRepository;
+import com.hansarangdelivery.location.service.LocationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -147,7 +147,7 @@ public class UserApiIntegrationTest {
     @DisplayName("내 유저 정보 단건 조회 API 테스트")
     void testReadMyProfile() throws Exception {
         // When & Then
-        mockMvc.perform(get("/api/users/my-profile")
+        mockMvc.perform(get("/api/users/me")
                 .header(JwtUtil.AUTHORIZATION_HEADER, testUserToken))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.data.username").value("testuser"))
@@ -188,7 +188,7 @@ public class UserApiIntegrationTest {
         updateDto.setEmail("updatedemail@example.com");
 
         // When & Then
-        mockMvc.perform(put("/api/users/my-profile")
+        mockMvc.perform(put("/api/users/me")
                 .header(JwtUtil.AUTHORIZATION_HEADER, testUserToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateDto)))
@@ -273,7 +273,7 @@ public class UserApiIntegrationTest {
 
 
         // When & Then
-        mockMvc.perform(get("/api/users/delivery-addresses/default")
+        mockMvc.perform(get("/api/users/delivery-addresses/me/default")
                 .header(JwtUtil.AUTHORIZATION_HEADER, testUserToken))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.data.locationId").value(locationId.toString()))
@@ -291,7 +291,7 @@ public class UserApiIntegrationTest {
         createDeliveryAddress(testUserToken, locationId2, "test2", false);
 
         // When & Then
-        mockMvc.perform(get("/api/users/delivery-addresses")
+        mockMvc.perform(get("/api/users/delivery-addresses/me")
                 .header(JwtUtil.AUTHORIZATION_HEADER, testUserToken))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.data").isArray())
