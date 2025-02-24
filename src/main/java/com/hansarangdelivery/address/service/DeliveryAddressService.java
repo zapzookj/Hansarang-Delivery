@@ -15,6 +15,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -90,9 +91,18 @@ public class DeliveryAddressService {
     @CacheEvict(value = "deliveryAddress", key = "#userId")
     public void deleteDeliveryAddress(Long userId, UUID addressId) {
         if (deliveryAddressRepositoryQuery.existsByIdAndUserId(addressId, userId)) {
-            deliveryAddressRepository.deleteById(addressId);
+            DeliveryAddress deliveryAddress = deliveryAddressRepository
+                .findByIdAndUserId(addressId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("해당 Id를 가진 배송지 정보를 찾을 수 없습니다. 또는 권한이 없습니다."));
+
+            // 소프트 딜리트 처리: 삭제 시간과 삭제자 기록
+            deliveryAddress.delete(LocalDateTime.now(), userId.toString());
+
+            // 변경 사항 저장 (업데이트)
+            deliveryAddressRepository.save(deliveryAddress);
         } else {
             throw new ResourceNotFoundException("해당 Id를 가진 배송지 정보를 찾을 수 없습니다. 또는 권한이 없습니다.");
         }
     }
+
 }
