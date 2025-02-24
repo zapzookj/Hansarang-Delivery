@@ -75,18 +75,10 @@ public class Restaurant extends TimeStamped {
         if(requestDto.getOwner_id() != null){
             this.owner = requestDto.getOwner_id();
         }
-    }
-
-    public void open(){
-        if(!this.status){
+        if(requestDto.isOpen()){
             this.status = true;
+        }else{
+            this.status = false;
         }
     }
-
-    public void close(){
-        if(this.status){
-            this.status = true;
-        }
-    }
-
 }

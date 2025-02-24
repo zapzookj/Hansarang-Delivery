@@ -55,11 +55,6 @@ public class RestaurantService {
     public RestaurantResponseDto updateRestaurant(UUID restaurantId, RestaurantRequestDto requestDto) {
         Restaurant restaurant = checkedRestaurant(restaurantId);
         restaurant.update(requestDto); // 찾은 음식점의 정보를 요청을 토대로 수정
-        if (requestDto.isOpen()) { // 요청시 오픈 상태 변경 확인 후 변경
-            restaurant.open();
-        } else {
-            restaurant.close();
-        }
         restaurantRepository.save(restaurant);
         return getRestaurantResponseDto(restaurant);
     }
@@ -91,7 +86,6 @@ public class RestaurantService {
         if(category!=null){
             categoryId=categoryService.getByName(category).getId();
         }
-
         Page<RestaurantResponseDto> mappedPage = restaurantRepositoryQuery.
             searchRestaurant(pageable, search,categoryId)
             .map((restaurant)->{
@@ -107,9 +101,9 @@ public class RestaurantService {
     private Restaurant checkedRestaurant(UUID restaurantId) {
 //        음식점 존재 여부 확인
         Restaurant restaurant = restaurantRepository.findById(restaurantId)
-            .orElseThrow(() -> new ResourceNotFoundException("음식점을 찾을 수 없습니다."));
+            .orElseThrow(() -> new ResourceNotFoundException("유효하지 않은 음식점입니다."));
         if (restaurant.getDeletedAt() != null) {
-            throw new ResourceNotFoundException("해당 가게는 삭제되었습니다.");
+            throw new ResourceNotFoundException("유효하지 않은 음식점입니다.");
         }
         return restaurant;
     }
@@ -134,7 +128,7 @@ public class RestaurantService {
             throw new ResourceNotFoundException("유효하지 않은 위치입니다.");
         }
         if (ownerId == null || !userService.isOwner(ownerId)) {
-            throw new ResourceNotFoundException("존재 하지 않는 가게 주인입니다.");
+            throw new ResourceNotFoundException("유효하지 않은 가게주인입니다.");
         }
         if (restaurantRepository.existsByNameAndOwnerAndLocation(name, ownerId, locationId)) {
             throw new DuplicateResourceException("이미 같은 음식점이 존재합니다.");
