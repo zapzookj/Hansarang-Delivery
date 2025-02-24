@@ -14,6 +14,7 @@ public class LocationMigrationController {
 
     private final LocationMigrationService locationMigrationService;
 
+    // RDB -> Elastic Search 데이터 동기화 API
     @PostMapping
     public ResponseEntity<String> migrate() {
         locationMigrationService.migrate();

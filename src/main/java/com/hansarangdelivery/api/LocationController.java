@@ -26,6 +26,7 @@ public class LocationController {
         return new ResultResponseDto<>("조회 성공", 200, responseDtoPage);
     }
 
+    // 키워드로 위치 데이터 검색 API (Elastic Search 기반)
     @GetMapping("/search")
     public ResultResponseDto<PageResponseDto<LocationDocument>> searchLocationsAsEs(@ModelAttribute LocationRequestDto requestDto) {
         PageResponseDto<LocationDocument> responseDtoPage = locationSearchService.searchLocationAsEs(requestDto);
