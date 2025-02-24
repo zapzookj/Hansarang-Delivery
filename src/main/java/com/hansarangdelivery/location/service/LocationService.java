@@ -1,5 +1,6 @@
 package com.hansarangdelivery.location.service;
 
+import com.hansarangdelivery.global.dto.PageResponseDto;
 import com.hansarangdelivery.location.dto.LocationRequestDto;
 import com.hansarangdelivery.location.dto.LocationResponseDto;
 import com.hansarangdelivery.location.dto.RoadNameResponseDto;
@@ -20,12 +21,15 @@ import java.util.UUID;
 public class LocationService {
     private final LocationRepository locationRepository;
     private final LocationRepositoryQuery locationRepositoryQuery;
-    public Page<LocationResponseDto> searchLocations(LocationRequestDto requestDto) {
+    public PageResponseDto<LocationResponseDto> searchLocations(LocationRequestDto requestDto) {
         int page = requestDto.getPage();
         int size = requestDto.getSize();
         Pageable pageable = PageRequest.of(page-1, size);
 
-        return locationRepositoryQuery.searchLocations(pageable, requestDto).map(LocationResponseDto::new);
+        Page<LocationResponseDto> mappedPage =
+            locationRepositoryQuery.searchLocations(pageable, requestDto).map(LocationResponseDto::new);
+
+        return new PageResponseDto<>(mappedPage);
     }
 
     public boolean existsById(UUID locationId){
