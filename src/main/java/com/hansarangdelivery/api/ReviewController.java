@@ -131,5 +131,4 @@ public class ReviewController {
         ReviewResponseDto responseDto = reviewService.deleteReview(reviewId, userDetails.getUser());
         return new ResultResponseDto<>("리뷰 삭제 완료", 200, responseDto);
     }
-
 }
