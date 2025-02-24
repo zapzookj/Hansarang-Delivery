@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import java.util.ArrayList;
@@ -19,7 +20,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "p_user")
-//@SQLDelete(sql = "UPDATE p_user SET deleted_at=CURRENT_TIMESTAMP where id=?")
 @Where(clause = "deleted_at IS NULL")
 public class User extends TimeStamped {
     @Id
@@ -58,4 +58,5 @@ public class User extends TimeStamped {
     public void updateRole() {
         this.role = UserRole.MANAGER;
     }
+
 }

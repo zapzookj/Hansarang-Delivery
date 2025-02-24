@@ -46,7 +46,7 @@ public class OrderItem extends TimeStamped {
         this.menuName = menuName;
         this.menuPrice = menuPrice;
         this.quantity = quantity;
-        this.menuTotalPrice = menuPrice * quantity;  // ✅ 총 가격 자동 계산
+        this.menuTotalPrice = menuPrice * quantity;
         this.order = order;
     }
 }
