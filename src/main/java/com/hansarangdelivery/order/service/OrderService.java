@@ -123,8 +123,6 @@ public class OrderService {
         }
 
         // 2. 기본 정보 업데이트
-      
-        order.setRoadNameCode(requestDto.getRoadName());
         order.setDetailAddress(requestDto.getDetailAddress());
         order.setDeliveryRequest(requestDto.getDeliveryRequest());
         order.setOrderType(OrderType.valueOf(requestDto.getOrderType()));

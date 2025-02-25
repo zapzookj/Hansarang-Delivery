@@ -1,16 +1,16 @@
 package com.hansarangdelivery.review.service;
 
 import com.hansarangdelivery.global.dto.PageResponseDto;
-import com.hansarangdelivery.review.dto.ReviewRequestDto;
-import com.hansarangdelivery.review.dto.ReviewResponseDto;
-import com.hansarangdelivery.review.model.Review;
-import com.hansarangdelivery.order.service.OrderStatusService;
-import com.hansarangdelivery.user.model.User;
-import com.hansarangdelivery.user.model.UserRole;
 import com.hansarangdelivery.global.exception.DuplicateResourceException;
 import com.hansarangdelivery.global.exception.ForbiddenActionException;
 import com.hansarangdelivery.global.exception.ResourceNotFoundException;
+import com.hansarangdelivery.order.service.OrderStatusService;
+import com.hansarangdelivery.review.dto.ReviewRequestDto;
+import com.hansarangdelivery.review.dto.ReviewResponseDto;
+import com.hansarangdelivery.review.model.Review;
 import com.hansarangdelivery.review.repository.ReviewRepository;
+import com.hansarangdelivery.user.model.User;
+import com.hansarangdelivery.user.model.UserRole;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -58,7 +58,7 @@ public class ReviewService {
     public ReviewResponseDto readReview(UUID reviewId) {
 
         Review review = reviewRepository.findById(reviewId)
-            .orElseThrow(() -> new IllegalArgumentException("찾는 리뷰가 없습니다."));
+            .orElseThrow(() -> new ResourceNotFoundException("찾는 리뷰가 없습니다."));
 
         return new ReviewResponseDto(review);
     }
@@ -82,27 +82,28 @@ public class ReviewService {
         value = "reviews",
         key = "#userId + ':' + #pageable.pageNumber + ':' + #pageable.pageSize + ':' + #pageable.sort.toString()"
     )
-    public Page<ReviewResponseDto> searchMyReview(Long userId, Pageable pageable) {
+    public PageResponseDto<ReviewResponseDto> searchMyReview(Long userId, Pageable pageable) {
 
         String userIdStr = String.valueOf(userId);
 
         Page<Review> reviews = reviewRepository.searchByUserId(userIdStr, pageable);
 
-        return reviews.map(ReviewResponseDto::new);
+        return new PageResponseDto<>(reviews.map(ReviewResponseDto::new));
     }
 
+    @Transactional
     @CacheEvict(value = "reviews", allEntries = true)
     public ReviewResponseDto updateReview(UUID reviewId, ReviewRequestDto requestDto, User user) {
 
         String userId = String.valueOf(user.getId());
 
         Review review = reviewRepository.findById(reviewId).orElseThrow(
-            () -> new IllegalArgumentException("찾는 리뷰가 없습니다.")
+            () -> new ResourceNotFoundException("찾는 리뷰가 없습니다.")
         );
 
         if (!review.getCreatedBy().equals(userId)
             && !user.getRole().equals(UserRole.MANAGER)) {
-            throw new RuntimeException("수정 권한이 없습니다.");
+            throw new ForbiddenActionException("수정 권한이 없습니다.");
         }
 
         review.update(requestDto.getContent(), requestDto.getRating());
@@ -117,11 +118,11 @@ public class ReviewService {
         String userId = String.valueOf(user.getId());
 
         Review review = reviewRepository.findById(reviewId)
-            .orElseThrow(() -> new IllegalArgumentException("이미 삭제되거나 리뷰 정보를 찾을 수 없습니다."));
+            .orElseThrow(() -> new ResourceNotFoundException("이미 삭제되거나 리뷰 정보를 찾을 수 없습니다."));
 
         if (!review.getCreatedBy().equals(userId)
             && !user.getRole().equals(UserRole.MANAGER)) {
-            throw new RuntimeException("삭제 권한이 없습니다.");
+            throw new ForbiddenActionException("삭제 권한이 없습니다.");
         }
 
         review.delete(LocalDateTime.now(), user.getId().toString());

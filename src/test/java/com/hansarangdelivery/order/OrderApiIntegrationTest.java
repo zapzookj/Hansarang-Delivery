@@ -291,8 +291,7 @@ public class OrderApiIntegrationTest {
         );
 
         OrderRequestDto requestDto = new OrderRequestDto();
-        requestDto.setRoadName("222222222222");
-        // 상세주소 변경 (예: 서울에서 부산)
+
         requestDto.setDetailAddress("부산광역시 해운대구 우동");
         // 배달 요청 메시지 변경
         requestDto.setDeliveryRequest("문 앞에 두고 가세요");
@@ -311,7 +310,6 @@ public class OrderApiIntegrationTest {
             // 응답 DTO 검증
             .andExpect(jsonPath("$.data.restaurantId").value(validRestaurantId.toString()))
             .andExpect(jsonPath("$.data.status").value("COMPLETED"))
-            .andExpect(jsonPath("$.data.roadNameCode").value("222222222222"))
             .andExpect(jsonPath("$.data.detailAddress").value("부산광역시 해운대구 우동"))
             .andExpect(jsonPath("$.data.deliveryRequest").value("문 앞에 두고 가세요"))
             // 주문 항목 검증

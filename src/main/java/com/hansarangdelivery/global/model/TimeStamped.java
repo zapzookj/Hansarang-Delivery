@@ -30,6 +30,7 @@ public abstract class TimeStamped {
     private LocalDateTime updatedAt;
 
     @CreatedBy
+    @Column(updatable = false)
     private String createdBy;
 
     @LastModifiedBy

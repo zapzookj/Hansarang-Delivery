@@ -1,10 +1,13 @@
 package com.hansarangdelivery.menu.service;
 
+import com.hansarangdelivery.global.exception.ForbiddenActionException;
 import com.hansarangdelivery.menu.dto.MenuItemRequestDto;
 import com.hansarangdelivery.menu.dto.MenuItemResponseDto;
 import com.hansarangdelivery.menu.dto.MenuItemUpdateDto;
 import com.hansarangdelivery.global.dto.PageResponseDto;
 import com.hansarangdelivery.menu.model.MenuItem;
+import com.hansarangdelivery.restaurant.repository.RestaurantRepository;
+import com.hansarangdelivery.restaurant.service.RestaurantExistService;
 import com.hansarangdelivery.user.model.User;
 import com.hansarangdelivery.global.exception.DuplicateResourceException;
 import com.hansarangdelivery.global.exception.ResourceNotFoundException;
@@ -25,7 +28,10 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class MenuItemService {
+
     private final MenuItemRepository menuItemRepository;
+
+    private final RestaurantExistService restaurantExistService;
 
     public MenuItemResponseDto createMenuItem(MenuItemRequestDto requestDto) {
         MenuItem menuItem = new MenuItem(
@@ -35,6 +41,10 @@ public class MenuItemService {
         // RestaurantId 와 Name 을 기준으로 동일한 정보가 있으면 중복으로 판단
         if (isDuplicate(menuItem)) {
             throw new DuplicateResourceException("이미 존재하는 메뉴입니다.");
+        }
+
+        if(!restaurantExistService.isExist(requestDto.getRestaurantId())) {
+            throw new ForbiddenActionException("없는 식당 정보입니다.");
         }
 
         menuItemRepository.save(menuItem);
