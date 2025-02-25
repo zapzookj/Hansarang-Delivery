@@ -43,7 +43,7 @@
       <th><img src="https://github.com/user-attachments/assets/d135b543-0694-4efe-8aac-cfdafa6b7595"/></th>
       <th><img src="https://github.com/user-attachments/assets/c20ad074-3ee2-48eb-b0c5-697a87c31660"/></th>
       <th><img src="https://github.com/user-attachments/assets/e8ea8e01-d5be-40bb-9bdb-4ac92b7954f8"/></th>
-      <th><img src="https://github.com/user-attachments/assets/148e8046-b822-46b0-97d8-018ad0678236"/></th>
+      <th><img src="https://github.com/user-attachments/assets/5b12d369-45c3-40d5-be8c-1999fd2f99db"/></th>
     </tr>
   </table>
 </div>
@@ -70,7 +70,7 @@
 <br>
 
 >## 아키텍처
-<img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fbddc04%2FbtsMw1DJDs2%2F3n5pyVLDyBFRQIipmL1adk%2Fimg.png">
+<img src="https://github.com/user-attachments/assets/2c9618ee-f9f0-4ad3-859f-c78cad226780"/>
 
 
 <br>
@@ -121,9 +121,9 @@
 <br>
 <br>
 
+>## 서비스 구성 및 실행 방법
 
->## 프로젝트 구조
-
+### 프로젝트 구조
 ```plaintext
 ├── src
 │   ├── main
@@ -177,6 +177,13 @@
 <br>
 <br>
 
+### 실행 방법
+- Local  PostgreSQL, Elasticsearch, Redis 설치
+- Docker PostgreSQL, Elasticsearch, Redis 설치 
+- DB_PASSWORD, JWT_SECRET_KEY, GOOGLE_AI_STUDIO_API_KEY 환경변수 추가
+- HansarangDeliveryApplication 실행
+- Postman으로 백엔드 서비스 이용
+
 >## API Docs
 <a href="https://www.notion.so/teamsparta/1a12dc3ef5148059b47dcedfe1b96b7f?v=1a12dc3ef514803bb45d000c6e5b1147&pvs=4">
 API 명세 페이지 이동</a>
@@ -188,11 +195,6 @@ API 명세 페이지 이동</a>
 <img src="https://spiky-golf-745.notion.site/image/attachment%3A5ba55126-94a4-481d-95b1-9e62924b1332%3Aimage.png?table=block&id=1a3a1939-e26e-803a-a631-f7f32a7ca996&spaceId=a4e85d84-0dd7-4efd-99f6-8a85e4777ecb&width=2000&userId=&cache=v2"/>
 <br>
 
-
-<br>
-<br>
-
->## 서비스 구성 및 실행 방법
 
 <br>
 <br>
@@ -217,13 +219,37 @@ API 명세 페이지 이동</a>
 <br>
 
 >## 개선목표
+### 1.테스트 커버리지 높이기<br>
+현재는 통합 테스트만 구성하여 단위 테스트가 없고, 성공 케이스에 대한 테스트 코드만 존재하는데,
+추후 실패 케이스 테스트 코드와 단위 테스트 코드를 추가하여 전체적인 테스트 커버리지를 높여보면 좋을 것 같습니다.
+
+<br><br>
+
+### 2.Mock으로 처리한 결제 서비스 실제로 구현해보기 <br>
+현재는 결제 서비스를 실제로 구현하지 않고, Mock 결제 데이터를 생성하여 저장하는 방식으로 처리하였는데,
+추후 간단 결제(카카오페이, 토스 페이먼츠 등) API를 도입하여 결제 시스템을 구현해보면 좋을 것 같습니다.
+
+<br><br>
+
+### 3.위치 데이터 갱신 및 데이터 동기화 스케쥴링 처리<br>
+현재는 공공 위치 데이터셋(csv) import와 RDB와 Elastic Search의 데이터 동기화를 수동으로 처리하고 있습니다.
+추후 이러한 수동 작업을 API 구현 및 스케쥴링 처리로 자동화해보면 좋을 것 같습니다.
+인프라 레벨로 확장한다면 AWS EventBridge와 Lambda를 활용해 완전히 Serverless하게 처리하는 것도 좋은 고려사항 일 듯 합니다.
+
+<br><br>
+
+### 4.아키텍처 구조를 모놀리틱 -> MSA로 확장하기<br>
+저희 프로젝트는 MSA로의 점진적 확장을 고려한 모놀리틱 아키텍처로 구현되어 있습니다.
+추후 도메인별로 서비스를 분리하여 MSA로의 확장을 진행해보면 좋을 것 같습니다.
+
+<br><br>
 
 <br>
 <br>
 
 >## 프로젝트 소감
 > 
-### 권길남
+### ⭐권길남
 능력치와 열정이 높은 팀원들을 만나 팀장으로서 열심히 참여해주시는 모든 팀원들에게 감사했습니다. 
 저 또한 협업 과정에서 팀장이 해야하는 일들을 알게되고,프로젝트 진행 과정에서 커뮤니티 능력을 향상 시키는 기회가 되었습니다. 
 그리고 본인의 문제가 아니더라도 자신의 일처럼 생각하고 해결하려했던 팀 분위기 덕분에 수월하게 프로젝트를 진행할 수 있었습니다. 
@@ -231,7 +257,7 @@ API 명세 페이지 이동</a>
 
 <hr>
 
-### 박태훈
+### 🍿박태훈
 오랜만에 팀프로젝트를 하면서 소통의 중요성을 느낄 수 있었던것 같습니다. 
 현재 어떤 고민을 가지고 있고 어떤 방식의 해결을 하는게 좋을지 의견을 나누었던게 좋았는데, 
 내가 문제라 생각하지 않았던 것이 사실은 문제 였던 경험이나, 
@@ -239,14 +265,14 @@ API 명세 페이지 이동</a>
 
 <hr>
 
-### 우정욱
+### ⚾우정욱
 서로의 의견을 공유하고 하나의 팀 프로젝트로 진행할 수 있는 재밌는 시간이었습니다. 
 다른 분들이 알고 있는 지식이나 코딩 스타일을 배울 수 있었고 부족한 부분을 조금씩 채워 나갈 수 있었던 시간이었습니다. 
 이번 경험을 기반으로 다양한 개발 지식을 더 공부하고 저의 기술로 만들어 나가고 싶습니다. 
 
 <hr>
 
-### 이종원
+### 🖥️이종원
 열정적인 팀원들과 함께 협업을 하며, 동기 부여도 되고 서로 시너지를 낼 수 있어서 좋았습니다. 
 또 이전 팀 프로젝트 경험은 팀원들 간의 대화가 많지 않고 각자 기능 개발에 몰두하는 분위기가 강했는데, 
 이번 팀에선 트러블슈팅이나 새로운 아이디어가 떠오를 때 즉각적으로 의견을 나누고 논의할 수 있는 자유로운 분위기가 특히 좋았습니다.
